@@ -1,0 +1,6 @@
+station_id,station_name,time_seconds,operators,observations,action
+1,Cables,86,3,"Movimiento adicional durante instalación de ASY-20038-02; retiro de fixture y torque no óptimo.","Implementar o validar Fixture SG-2973 para reducir movimiento y tiempo de operación."
+2,Tapa / Etiquetas / Gaskets tapa,494,1,"Dificultad al instalar tornillo por bracket que soporta piezas.","Dividir la estación: un operador acomoda piezas y otro ejecuta torque final."
+3,Base / Etiquetas / Gaskets base,2700,1,"Retraso por rechazo de material derivado de marcas superficiales.","Revisar con Calidad y Proveedor para disminuir rechazos y asegurar condición del material."
+4,Ruteo de Cables y Final,2820,2,"Retraso por identificación de cables y falta de material.","Corregir instrucción de trabajo y asegurar kit completo antes de iniciar."
+5,Empaque,360,2,"Sin observación crítica registrada.","Mantener como estación de soporte con capacidad disponible."

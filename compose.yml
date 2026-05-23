@@ -1,0 +1,58 @@
+services:
+  bris-dashboard:
+    build: .
+    container_name: bris-dashboard
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${PORT:-5000}:5000"
+    volumes:
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health').read()"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  mysql:
+    image: mysql:8.4
+    container_name: bris-mysql
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-bris_adriana}
+      MYSQL_USER: ${MYSQL_USER:-bris_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-bris_password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-bris_root_password}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./adriana_projects/mysql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-bris_root_password}"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  adriana-importer:
+    build: .
+    container_name: adriana-importer
+    profiles:
+      - import
+    env_file:
+      - .env
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command: ["python", "adriana_projects/scripts/load_mysql.py"]
+
+volumes:
+  mysql-data:

@@ -1,0 +1,15 @@
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,🔷 ANÁLISIS POR ESTACIONES + HERRAMIENTAS,,,,,,
+,Estación,Pasos,Operación principal,Operadores,Herramienta,Material requerido,CT estimado
+,E1 Preparación base,13,"Colocar base, remachar subensambles iniciales, gaskets",1,"SG-1888, SG-1890, SG-1867, SG-1889, remachadora, clecos",,12-15 min
+,E2 Subensamble ventilas/resortes,14-24,"Ensamble superior, resortes, plásticos, etiqueta",1,"SG-1868, remachadora, clecos",,13-16 min
+,E3 Frame lateral,25-38,Construcción de marco con remaches y gasket,1,"Remachadora, fixture según aplicación","MTL-02321, ASY-05258, ASY-05257, GSKT-00352/00353, SK41H, SKK3030PT",14-18 min
+,E4 Busbar / torque,39-47,"Tornillos, torque, busbar, foam, unión al ensamble",1,"SG-2169, SG-1893, pistola torque, dado 10 mm","ASY-05299, FAS-00525, MECH-02707, MECH-02688/02687, LBL-00829",15-20 min
+,E5 Agarradera y paneles,48-57,"Agarraderas, paneles, remachado con clecos",2,"SG-1884, SG-1805, remachadora, clecos, plantilla","MTL-02239, MTL-02237, MTL-02236, MTL-02434, ASY-05269, GSKT-00349",22-28 min
+,E6 Panel final izquierdo,58-63,"Ensamble panel, tornillos y componentes MECH",2,"SG-3092, remachadora, clecos, torque","ASY-04776, FAS-00532, FAS-00576, CBL-00408, FAS-00380/00381, MECH-01196",25-32 min
+,E7 Panel final derecho / cierre,64-69,"Foam, panel final, remaches y tornillos finales",2,"SG-3093, remachadora, clecos, torque","ASY-03278, MTL-02254, ASY-03143, ASY-05271, ASY-04756, SK41H/SK42H",25-32 min
+,E8 Inspección final,Final,"Validar remaches, torque, gaskets, rayas, piezas invertidas",1 parcial,"Check sheet, torque audit, visual aid","ASY-03156, ASY-03136, ASY-03137, MTL-02213, MTL-02218, MECH-01754",5-8 min
+,,,,,,"MECH-01253, ASY-03153, ASY-04757, MTL-02247, MTL-02322, MECH-01754",
+,,,,,,Producto terminado,

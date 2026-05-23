@@ -1,0 +1,64 @@
+,,,,,,,,,,,,,
+,Primera Corrida.,,,,,,,,,,,,
+,Estación,Cantidad Req.,Material,Herramental ,Actividad,Tiempo seg,Tiempo min,Operador ,Total de piezas por hora,Obersavcion ,Accion,Resultado,
+,1- Cables ,"ASY-20061-02;A0 -800pz
+ASY-20062-02;A0 - 400 pz","ASY-20062-02;A0
+ASY-20061-02;A0 
+ASY-20038-02;A0
+H FAS- 01436","Llaves allen 
+llaves hexagonales 
+Fixture 
+Torque 68 In/lbs. (+/- 7 In/lbs).
+Punta: Hex 5/32","Operador 1- Al ensamble a ASY-20038-02;A0 se le agrega el cable (A CBL-00902-01)  2 tornillos ( H FAS
+01358.)  para los numeros de parte  ASY-20062-02;A0/ ASY-20061-02;A0 
+Operador 2- Instala y aprieta los tornillos en el fixture para numero de parte 20061 y empaca en caja para la sig estacion
+Operador 3- Instala y aprieta los tornillos en el fixture para numero de parte 20062 y empaca en caja para la sig estacion",86,1.4333333333333333,3,125.58139534883722,"Se identifico movimiento  adicional durante la instalación de la pieza  ASY-20038-02;A0, y al agregar los tornillos H FAS01436. El retiro del fixture genera tiempo adicional y el torque actual no es optimo para la operación.","Implementación de  Fixture SG-2973, para optimizar el ensmble y reducir tiempos de operación.",,04:25:00
+,2- Tapa/ Etiquetas  ,ASY-09039-05; A0- 100 pz,"H FAS-00458
+H MECH-05450-01 
+ASY-09039-05;A","Desarmador Estrella 
+Torque 6LB","Se aplican tornillos (H FAS-00458) y 29 brackets ( H MECH-05450-01 ) al ensamble ASY-09037-05;A0, se agregan etiquetas en brackets ",494,8.233333333333333,1,7.287449392712551,"Se presentan dificultades durante la instalación del otrnillo debido al bracket que soporta las piezas, generando retrasos durante el ensamble. ","se edividio la estación en 2 estaciones
+Operador 1- Realiza el amodo de las piezas 
+Operador 2: Ejecuta el torque dinal de los brackets.",,
+,3- Base/ etiquetas,"
+ASY-20063-05;B0  - 100 pz",ASY-09037-05;A0,"Pistola de Calor
+Pinzas de Punta
+Tijeras o cutter ",Se aplican tornillos y brackets en la tapa ASY-09039-05;A0,50,0.8333333333333334,1,72,"Se detecto retraps por rechazo de material derivado de marcas superficiales, ocasionando pérdida de tiempo de producción. ",Se requiere revisión con calidad y proveedor para dismiuir rechazos y asegurar condición adecuada del material. ,,
+,4- Gaskets base,,"ASY-09037-05;A0
+LBL-02042-01","Pistola de Calor
+Pinzas de Punta
+Tijeras o cutter 
+","Se coloca gasket LBL-02042-01, 
+en la pieza ASY-09037-05;A0 , se aplica calor con la pistola y para que pegue se utilizara fixture de apoyo (referencia)",900,15,3,12,El proceso actuazl presenta un tiempo de ciclo elevado ,Se identifico la oportunidad de mejora para reducir el tiempo de operación mediante el diseño de un fixture. ,,
+,5- Gaskets tapa,,"ASY-09039-05; A0
+LBL-02045-01","Pistola de Calor
+Pinzas de Punta
+Tijeras o cutter 
+Fixture ","Se coloca gasket LBL-02045-01, 
+en la pieza ASY-09039-05; A0 , se aplica calor con la pistola y para que pegue se utilizara fixture (referencia)",84,1.4,1,42.857142857142854,Requiere mucho tiempo pegar el material,"Se diseño Fixture para mejorar tiempos.
+Seguridad del operador ",,
+,5- Ruteo de Cables y  final ,"
+ASY-20063-05;B0 - 100 pz","(4) ASY-20062-02;A0 (A CBL-00902-01) 
+(8)  ASY-20061-02;A0
+ASY-09037-05;A0
+ASY-09039-05;A0","Torque 
+plantilla para estiquetas 
+","Se coloca la base en la mesa
+se instalan (4) ASY-20062-02;A0 (A CBL-00902-01) - (8 ASY-20061-02;A0, se aplica la tapa con el ruteo correcto de los cables, se revisa por calidad, cierra la tapa , con dos tornillos , se aplica la etiqueta y se coloca en el rack final para el siguiente paso.",2820,47,2,2.5531914893617023,"Se corregira instrucción de trabajo para identificar los cables.
+Retraso por falta de material 
+","Se corrigio la instrucción de trabajo, ",,
+,6- Empaque,,,Carro elevador," para colocar la caja en donde van los cables, 
+se coloca en la bolsa y despues se coloca en la caja interna 
+una vez que se encuentra cerrada, se coloca en la caja mas grande, ",300,5,2,24,,,,
+,total,,,,Tiempo de Ciclo,4648,77.46666666666667,seg p/p,,,,,
+,,,,,,1.291111111111111,,h p/p,,,,,
+,Tiempo Total del turno,,,,,47,,,,,,,
+,10 horas,720,min,,,1.2765957446808511,,,,,,,
+,Descansos:,30,min,,,9.6,,,,,,,
+,Break ,10,min,,,12,,,,,,,
+,Break ,15,min,,,,,,,,,,
+,Tiempo no productivo,55,min,,,,,,,,,,
+,Tiempo disponible real ,665,min,,,,,,,,,,
+,,39900,seg,,,,,,,,,,
+,Takt Time ,2216.6666666666665,seg/pieza,,,,,,,,,,
+,,36.94444444444444,,,,,,,,,,,
+,Tiempo de ciclo usar el mayor recurso requerido ,,,,,,,,,,,,

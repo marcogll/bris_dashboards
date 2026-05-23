@@ -1,0 +1,10 @@
+{
+  "source_sheets": 35,
+  "raw_rows": 3938,
+  "parts": 416,
+  "bom_items": 546,
+  "pfep_items": 336,
+  "work_center_operations": 430,
+  "station_materials": 52,
+  "kanban_notifications": 2
+}
