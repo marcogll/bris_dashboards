@@ -1,56 +1,236 @@
 services:
-  bris-dashboard:
-    build: .
-    restart: unless-stopped
-    env_file:
-      - .env
-    expose:
-      - "5000"
+  # === Servicios Principales ===
+  # NOTA: Sin reverse-proxy. Coolify/Traefik maneja el proxy inverso y SSL.
+
+  # HQ Wrapper (Authentication Central)
+  hq-wrapper:
+    build: ./vanity_hq_wrapper
+    container_name: vanity-hq-wrapper
     volumes:
-      - ./data:/app/data
+      - hq_wrapper_data:/app/instance
+    environment:
+      - PORT=5050
+      - VANITY_HQ_SECRET_KEY=${VANITY_HQ_SECRET_KEY:?required}
+      - VANITY_HQ_TOKEN_MAX_AGE=${VANITY_HQ_TOKEN_MAX_AGE:-43200}
+      - VANITY_DASHBOARD_URL=http://dashboard:5002
+      - VANITY_HRMGR_URL=http://hrmgr-web:8000
+      - VANITY_PAYROLL_URL=http://payroll:5051
+      - VANITY_ACTAS_URL=http://actas:5052
+      - VANITY_EMPREQ_URL=http://empreq:5053
+      - VANITY_HQ_PUBLIC_URL=${VANITY_HQ_PUBLIC_URL:-https://vanityhq.soul23.cloud}
+      - VANITY_DASHBOARD_PUBLIC_URL=${VANITY_DASHBOARD_PUBLIC_URL:-https://vanityhq.soul23.cloud/dashboard}
+      - VANITY_HRMGR_PUBLIC_URL=${VANITY_HRMGR_PUBLIC_URL:-https://vanityhq.soul23.cloud/empleadas}
+      - VANITY_PAYROLL_PUBLIC_URL=${VANITY_PAYROLL_PUBLIC_URL:-https://vanityhq.soul23.cloud/payroll}
+      - VANITY_ACTAS_PUBLIC_URL=${VANITY_ACTAS_PUBLIC_URL:-https://vanityhq.soul23.cloud/actas}
+      - VANITY_EMPREQ_PUBLIC_URL=${VANITY_EMPREQ_PUBLIC_URL:-https://vanityerq.soul23.cloud}
+    restart: unless-stopped
+    networks:
+      - vanity-network
     healthcheck:
-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/healthz').read()"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5050/healthz"]
       interval: 30s
-      timeout: 5s
+      timeout: 10s
       retries: 3
-      start_period: 30s
-    depends_on:
-      - mysql
 
-  mysql:
-    image: mysql:8.4
+  # Dashboard
+  dashboard:
+    build: ./vanity_dashboard
+    container_name: vanity-dashboard
+    environment:
+      - PORT=5002
+      - FLASK_DEBUG=0
+      - VANITY_HQ_URL=http://hq-wrapper:5050
+      - VANITY_DASHBOARD_SECRET_KEY=${VANITY_DASHBOARD_SECRET_KEY:?required}
     restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-bris_adriana}
-      MYSQL_USER: ${MYSQL_USER:-bris_user}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-bris_password}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-bris_root_password}
-    expose:
-      - "3306"
-    volumes:
-      - mysql-data:/var/lib/mysql
-      - ./adriana_projects/mysql/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - vanity-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-bris_root_password}"]
-      interval: 20s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5002/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  adriana-importer:
-    build: .
-    profiles:
-      - import
-    env_file:
-      - .env
+  # Payroll (Nomina)
+  payroll:
+    build: ./vanity_payroll
+    container_name: vanity-payroll
+    volumes:
+      - payroll_data:/app/instance
     environment:
-      MYSQL_HOST: mysql
-      MYSQL_PORT: 3306
+      - PORT=5051
+      - VANITY_PAYROLL_SECRET_KEY=${VANITY_PAYROLL_SECRET_KEY:?required}
+      - VANITY_HQ_URL=http://hq-wrapper:5050
+      - VANITY_HQ_SECRET_KEY=${VANITY_HQ_SECRET_KEY:?required}
+      - VANITY_HQ_TOKEN_MAX_AGE=${VANITY_HQ_TOKEN_MAX_AGE:-43200}
+      - VANITY_HQ_PUBLIC_URL=${VANITY_HQ_PUBLIC_URL:-https://vanityhq.soul23.cloud}
+      - PAYROLL_BASE_URL=http://payroll:5051
+      - PAYROLL_PUBLIC_URL=${PAYROLL_PUBLIC_URL:-https://vanityhq.soul23.cloud/payroll}
+    restart: unless-stopped
+    networks:
+      - vanity-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5051/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # HR Manager (Administracion de Empleados)
+  hrmgr-db:
+    image: postgres:15
+    container_name: vanity-hrmgr-db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: hrmgr_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${HRMGR_DB_PASSWORD:?required}
+    restart: unless-stopped
+    networks:
+      - vanity-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  hrmgr-redis:
+    image: redis:7-alpine
+    container_name: vanity-hrmgr-redis
+    restart: unless-stopped
+    networks:
+      - vanity-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  hrmgr-web:
+    build: ./vanity_hrmgr
+    container_name: vanity-hrmgr-web
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    environment:
+      - DEBUG=${HRMGR_DEBUG:-False}
+      - SECRET_KEY=${HRMGR_SECRET_KEY:?required}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-vanityhq.soul23.cloud,www.vanityhq.soul23.cloud,vanityerq.soul23.cloud,localhost}
+      - CSRF_TRUSTED_ORIGINS=${CSRF_TRUSTED_ORIGINS:-https://vanityhq.soul23.cloud,https://www.vanityhq.soul23.cloud,https://vanityerq.soul23.cloud}
+      - FORCE_SCRIPT_NAME=/empleadas
+      - POSTGRES_HOST=hrmgr-db
+      - POSTGRES_DB=hrmgr_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${HRMGR_DB_PASSWORD:?required}
+      - CELERY_BROKER_URL=redis://hrmgr-redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://hrmgr-redis:6379/0
+      - PAYROLL_BASE_URL=http://payroll:5051
+      - PAYROLL_PUBLIC_URL=${PAYROLL_PUBLIC_URL:-https://vanityhq.soul23.cloud/payroll}
+      - VANITY_DASHBOARD_URL=http://dashboard:5002
+      - VANITY_HRMGR_URL=http://hrmgr-web:8000
+      - VANITY_HQ_URL=http://hq-wrapper:5050
+      - VANITY_PAYROLL_URL=http://payroll:5051
+      - VANITY_ACTAS_URL=http://actas:5052
+      - VANITY_EMPREQ_URL=http://empreq:5053
+      - VANITY_HQ_PUBLIC_URL=${VANITY_HQ_PUBLIC_URL:-https://vanityhq.soul23.cloud}
+      - VANITY_DASHBOARD_PUBLIC_URL=${VANITY_DASHBOARD_PUBLIC_URL:-https://vanityhq.soul23.cloud/dashboard}
+      - VANITY_HRMGR_PUBLIC_URL=${VANITY_HRMGR_PUBLIC_URL:-https://vanityhq.soul23.cloud/empleadas}
+      - VANITY_ACTAS_PUBLIC_URL=${VANITY_ACTAS_PUBLIC_URL:-https://vanityhq.soul23.cloud/actas}
+      - VANITY_EMPREQ_PUBLIC_URL=${VANITY_EMPREQ_PUBLIC_URL:-https://vanityerq.soul23.cloud}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_ADMIN_ID=${TELEGRAM_ADMIN_ID:-}
+      - SESSION_COOKIE_SECURE=${SESSION_COOKIE_SECURE:-true}
+      - CSRF_COOKIE_SECURE=${CSRF_COOKIE_SECURE:-true}
     depends_on:
-      - mysql
-    command: ["python", "adriana_projects/scripts/load_mysql.py"]
+      hrmgr-db:
+        condition: service_healthy
+      hrmgr-redis:
+        condition: service_healthy
+      payroll:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - vanity-network
+
+  hrmgr-celery:
+    build: ./vanity_hrmgr
+    container_name: vanity-hrmgr-celery
+    command: celery -A config worker -l info
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    environment:
+      - SECRET_KEY=${HRMGR_SECRET_KEY:?required}
+      - POSTGRES_HOST=hrmgr-db
+      - POSTGRES_DB=hrmgr_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${HRMGR_DB_PASSWORD:?required}
+      - CELERY_BROKER_URL=redis://hrmgr-redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://hrmgr-redis:6379/0
+      - SESSION_COOKIE_SECURE=${SESSION_COOKIE_SECURE:-true}
+      - CSRF_COOKIE_SECURE=${CSRF_COOKIE_SECURE:-true}
+      - FORCE_SCRIPT_NAME=/empleadas
+    depends_on:
+      hrmgr-db:
+        condition: service_healthy
+      hrmgr-redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - vanity-network
+
+  # Actas Administrativas
+  actas:
+    build: ./vanity_actas
+    container_name: vanity-actas
+    environment:
+      - PORT=5052
+      - VANITY_ACTAS_SECRET_KEY=${VANITY_ACTAS_SECRET_KEY:?required}
+      - VANITY_HQ_URL=http://hq-wrapper:5050
+      - VANITY_HQ_PUBLIC_URL=${VANITY_HQ_PUBLIC_URL:-https://vanityhq.soul23.cloud}
+      - VANITY_HQ_SECRET_KEY=${VANITY_HQ_SECRET_KEY:?required}
+      - VANITY_HQ_TOKEN_MAX_AGE=${VANITY_HQ_TOKEN_MAX_AGE:-43200}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-vanityhq.soul23.cloud,www.vanityhq.soul23.cloud,vanityerq.soul23.cloud,localhost}
+      - SESSION_COOKIE_SECURE=${SESSION_COOKIE_SECURE:-true}
+      - CSRF_COOKIE_SECURE=${CSRF_COOKIE_SECURE:-true}
+    restart: unless-stopped
+    networks:
+      - vanity-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5052/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # EmpReq (Portal de Empleadas)
+  empreq:
+    build: ./vanity_empreq
+    container_name: vanity-empreq
+    environment:
+      - PORT=5053
+      - VANITY_EMPREQ_SECRET_KEY=${VANITY_EMPREQ_SECRET_KEY:?required}
+      - VANITY_HQ_URL=http://hq-wrapper:5050
+      - VANITY_HQ_PUBLIC_URL=${VANITY_HQ_PUBLIC_URL:-https://vanityhq.soul23.cloud}
+      - VANITY_HQ_SECRET_KEY=${VANITY_HQ_SECRET_KEY:?required}
+      - VANITY_HQ_TOKEN_MAX_AGE=${VANITY_HQ_TOKEN_MAX_AGE:-43200}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-vanityhq.soul23.cloud,www.vanityhq.soul23.cloud,vanityerq.soul23.cloud,localhost}
+      - SESSION_COOKIE_SECURE=${SESSION_COOKIE_SECURE:-true}
+      - CSRF_COOKIE_SECURE=${CSRF_COOKIE_SECURE:-true}
+    restart: unless-stopped
+    networks:
+      - vanity-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5053/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  vanity-network:
+    driver: bridge
 
 volumes:
-  mysql-data:
+  hq_wrapper_data:
+  postgres_data:
+  static_volume:
+  media_volume:
+  payroll_data:
