@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+.roi-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #fff; border-radius: 12px; padding: 24px; }
+.roi-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; margin-bottom: 6px; }
+.roi-card .value { font-size: 32px; font-weight: 800; }
+.roi-card .sub { font-size: 13px; color: #cbd5e1; margin-top: 4px; }
+.roi-green .value { color: #4ade80; }
+.roi-amber .value { color: #fbbf24; }
+.roi-blue .value { color: #60a5fa; }
+.roi-red .value { color: #f87171; }
+.progress-track { height: 16px; background: #f1f5f9; border-radius: 8px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, #2563eb, #4ade80); }
+.ct-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.ct-label { width: 140px; font-size: 12px; font-weight: 500; }
+.ct-track { flex: 1; height: 22px; background: #f1f5f9; border-radius: 4px; overflow: hidden; position: relative; }
+.ct-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: 10px; font-weight: 700; color: #fff; }
+.ct-fill.crit { background: #dc2626; }
+.ct-fill.warn { background: #d97706; }
+.ct-fill.ok { background: #16a34a; }
+.ct-takt { position: absolute; top: 0; bottom: 0; width: 2px; background: #6366f1; z-index: 2; }
+.ct-val { width: 70px; font-size: 12px; font-weight: 600; text-align: right; }
+{% endblock %}
+
+{% block content %}
+<h1>Analitica & Justificacion ROI</h1>
+<p class="subtitle">Justificacion de inversion $15K USD en mejoras de lineas — Datos reales Northface / Sanmina</p>
+
+<!-- Budget / ROI KPIs -->
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px;">
+  <div class="roi-card roi-blue">
+    <div class="label">Presupuesto Total</div>
+    <div class="value">${{ budget.total_budget|num(0) }}</div>
+    <div class="sub">Inversion aprobada</div>
+  </div>
+  <div class="roi-card roi-amber">
+    <div class="label">Comprometido</div>
+    <div class="value">${{ budget.total_spent|num(0) }}</div>
+    <div class="sub">{{ (budget.total_spent / budget.total_budget * 100)|num(0) }}% del budget</div>
+  </div>
+  <div class="roi-card roi-green">
+    <div class="label">Ahorro Anual Proyectado</div>
+    <div class="value">${{ budget.total_savings_annual|num(0) }}</div>
+    <div class="sub">{{ budget.roi_pct|num(0) }}% ROI</div>
+  </div>
+  <div class="roi-card roi-blue">
+    <div class="label">Payback</div>
+    <div class="value">{{ budget.payback_months|num(1) }} meses</div>
+    <div class="sub">Recuperacion de inversion</div>
+  </div>
+  <div class="roi-card roi-red">
+    <div class="label">Presupuesto Restante</div>
+    <div class="value">${{ budget.remaining_budget|num(0) }}</div>
+    <div class="sub">{{ budget.total_projects }} proyectos propuestos</div>
+  </div>
+</div>
+
+<!-- Progress bar del budget -->
+<div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:20px;margin-bottom:28px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+    <h3 style="font-size:15px;font-weight:600;">Uso del Presupuesto $15K</h3>
+    <span style="font-size:13px;color:#64748b">${{ budget.total_spent|num(0) }} / ${{ budget.total_budget|num(0) }}</span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" style="width:{{ [(budget.total_spent / budget.total_budget * 100), 100]|min }}%"></div>
+  </div>
+  <div style="display:flex;gap:16px;margin-top:10px;font-size:12px;color:#64748b;">
+    <span><span style="display:inline-block;width:8px;height:8px;background:#2563eb;border-radius:50%;margin-right:4px;"></span>Comprometido</span>
+    <span><span style="display:inline-block;width:8px;height:8px;background:#e2e8f0;border-radius:50%;margin-right:4px;"></span>Disponible</span>
+  </div>
+</div>
+
+<!-- Resumen por linea -->
+{% for ls in line_summaries %}
+<div class="card" style="margin-bottom:18px;">
+  <div class="card-head">
+    <h3>{{ ls.line.code }} — {{ ls.line.name }}</h3>
+    <span style="font-size:12px;color:#64748b;">Takt: {{ ls.line.takt_seconds|num(0) }}s | Target: {{ ls.line.target_pieces_per_shift }} pzs/turno</span>
+  </div>
+  <div class="card-body">
+    <div class="kpi-row" style="margin-bottom:16px;">
+      <div class="kpi blue">
+        <div class="label">CT Total</div>
+        <div class="value">{{ ls.summary.total_ct|num(0) }}s</div>
+      </div>
+      <div class="kpi {{ 'red' if ls.summary.gap_sec > 0 else 'green' }}">
+        <div class="label">Gap vs Takt</div>
+        <div class="value">{{ ls.summary.gap_sec|num(0) }}s</div>
+      </div>
+      <div class="kpi amber">
+        <div class="label">Cuello de Botella</div>
+        <div class="value" style="font-size:18px;">{{ ls.summary.bottleneck_station or 'N/A' }}</div>
+        <div class="note">{{ ls.summary.bottleneck_ct|num(0) }}s</div>
+      </div>
+      <div class="kpi green">
+        <div class="label">Ahorro Potencial</div>
+        <div class="value">{{ ls.summary.potential_time_savings_sec|num(0) }}s</div>
+      </div>
+      <div class="kpi blue">
+        <div class="label">CT Proyectado</div>
+        <div class="value">{{ ls.summary.new_ct_projected|num(0) }}s</div>
+      </div>
+    </div>
+
+    <!-- Baseline chart -->
+    <h4 style="font-size:13px;font-weight:600;margin-bottom:12px;color:#1a1a2e;">Cycle Time Actual vs Takt por Estacion</h4>
+    {% set max_ct = ls.summary.bottleneck_ct %}
+    {% for b in baseline if b.line_code == ls.line.code %}
+    {% set pct = (b.value / max_ct * 100)|round %}
+    {% set over_takt = b.value > ls.line.takt_seconds %}
+    <div class="ct-bar">
+      <div class="ct-label">{{ b.station_name or 'Total' }}</div>
+      <div class="ct-track">
+        <div class="ct-takt" style="left:{{ (ls.line.takt_seconds / max_ct * 100)|round }}%"></div>
+        <div class="ct-fill {{ 'crit' if b.station_name == ls.summary.bottleneck_station else ('warn' if over_takt else 'ok') }}" style="width:{{ pct }}%">{{ b.value|int }}s</div>
+      </div>
+      <div class="ct-val" style="color:{{ '#dc2626' if over_takt else '#16a34a' }}">{{ '+' if over_takt }}{{ (b.value - ls.line.takt_seconds)|int }}s</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endfor %}
+
+<!-- Tabla de mejoras con ROI -->
+<div class="card" style="margin-bottom:18px;">
+  <div class="card-head">
+    <h3>Proyectos de Mejora — Detalle de Inversion y Retorno</h3>
+  </div>
+  <div class="card-body" style="padding:0;">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Proyecto</th>
+            <th>Linea</th>
+            <th>Categoria</th>
+            <th>Inversion USD</th>
+            <th>Ahorro Anual</th>
+            <th>ROI</th>
+            <th>Ahorro Tiempo</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for imp in improvements %}
+          {% set total_cost = (imp.investment_usd or 0) + (imp.implementation_cost_usd or 0) %}
+          {% set roi = ((imp.expected_savings_usd_annual or 0) / total_cost * 100) if total_cost > 0 else 0 %}
+          <tr>
+            <td><strong>{{ imp.title }}</strong><br><span style="font-size:11px;color:#64748b">{{ imp.description|truncate(60) }}</span></td>
+            <td>{{ imp.line_code or 'TODAS' }}</td>
+            <td>{{ imp.category }}</td>
+            <td class="num">${{ total_cost|num(0) }}</td>
+            <td class="num" style="color:#16a34a;font-weight:600">${{ (imp.expected_savings_usd_annual or 0)|num(0) }}</td>
+            <td class="num" style="color:{{ '#16a34a' if roi > 200 else ('#d97706' if roi > 100 else '#dc2626') }}">{{ roi|num(0) }}%</td>
+            <td class="num">{{ (imp.expected_time_saved_sec or 0)|int }}s</td>
+            <td><span class="badge {{ 'badge-ok' if imp.status == 'implemented' else ('badge-warn' if imp.status == 'in_progress' else 'badge-pendiente') }}">{{ imp.status }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Top 5 mejoras por impacto -->
+<div class="card">
+  <div class="card-head"><h3>Top 5 Mejoras por Impacto Economico</h3></div>
+  <div class="card-body">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Mejora</th><th>Ahorro Anual</th><th>Costo</th><th>Justificacion</th></tr>
+        </thead>
+        <tbody>
+          {% for imp in top_improvements %}
+          <tr>
+            <td class="num">{{ loop.index }}</td>
+            <td><strong>{{ imp.title }}</strong><br><span style="font-size:11px;color:#64748b">{{ imp.line_code }} {% if imp.station_name %}/ {{ imp.station_name }}{% endif %}</span></td>
+            <td class="num" style="color:#16a34a;font-weight:600">${{ (imp.expected_savings_usd_annual or 0)|num(0) }}</td>
+            <td class="num">${{ ((imp.investment_usd or 0) + (imp.implementation_cost_usd or 0))|num(0) }}</td>
+            <td style="font-size:12px;max-width:400px">{{ imp.justification or 'Sin justificacion' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
