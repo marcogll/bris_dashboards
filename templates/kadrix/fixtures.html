@@ -13,23 +13,23 @@
 <div class="kpi-row" style="margin-bottom:22px">
   <div class="kpi">
     <div class="label">Operativos</div>
-    <div class="value" style="color:var(--accent-green)">{{ stats.by_status.get('active', 0) }}</div>
+    <div class="value" style="color:var(--accent-green)">{{ stats.by_status.get('active', 0)|num(0) }}</div>
   </div>
   <div class="kpi">
-    <div class="label">En Mantenimiento</div>
-    <div class="value" style="color:var(--accent-yellow)">{{ stats.in_maintenance }}</div>
+    <div class="label">En mantenimiento</div>
+    <div class="value" style="color:var(--accent-yellow)">{{ stats.in_maintenance|num(0) }}</div>
   </div>
   <div class="kpi">
-    <div class="label">Danados</div>
-    <div class="value" style="color:var(--accent-red)">{{ stats.damaged }}</div>
+    <div class="label">Dañados</div>
+    <div class="value" style="color:var(--accent-red)">{{ stats.damaged|num(0) }}</div>
   </div>
   <div class="kpi">
     <div class="label">Retirados</div>
-    <div class="value" style="color:var(--text-muted)">{{ stats.by_status.get('retired', 0) }}</div>
+    <div class="value" style="color:var(--text-muted)">{{ stats.by_status.get('retired', 0)|num(0) }}</div>
   </div>
   <div class="kpi">
     <div class="label">Total</div>
-    <div class="value" style="color:var(--accent-blue)">{{ stats.total }}</div>
+    <div class="value" style="color:var(--accent-blue)">{{ stats.total|num(0) }}</div>
   </div>
 </div>
 
@@ -109,8 +109,8 @@
       {% for line, count in stats.by_line.items() %}
       <div class="bar">
         <div class="bar-label">Línea {{ line }}</div>
-        <div class="bar-track"><div class="bar-fill ok" style="width:{{ (count / stats.total * 100) | round }}%;">{{ count }}</div></div>
-        <div class="bar-val">{{ count }} / {{ stats.total }}</div>
+        <div class="bar-track"><div class="bar-fill ok" style="width:{{ (count / stats.total * 100) | round }}%;">{{ count|num(0) }}</div></div>
+        <div class="bar-val">{{ count|num(0) }} / {{ stats.total|num(0) }}</div>
       </div>
       {% endfor %}
     </div>

@@ -1,28 +1,28 @@
 {% extends "base.html" %}
-{% block title %}Plan de Accion — {{ title }}{% endblock %}
+{% block title %}Plan de acción — {{ title }}{% endblock %}
 {% block page_title %}Plan de Accion{% endblock %}
 {% block content %}
   <div class="page-header">
     <h1>Plan de Accion</h1>
-    <p class="subtitle">{{ acciones|length }} acciones de mejora para lineas de produccion</p>
+    <p class="subtitle">{{ acciones|length|num(0) }} acciones de mejora para líneas de producción</p>
   </div>
 
   <div class="kpi-row" style="margin-bottom:20px">
     <div class="kpi">
-      <div class="label">Prioridad Alta</div>
-      <div class="value" style="color:var(--accent-red)">{{ alta|length }}</div>
+      <div class="label">Prioridad alta</div>
+      <div class="value" style="color:var(--accent-red)">{{ alta|length|num(0) }}</div>
     </div>
     <div class="kpi">
-      <div class="label">Prioridad Media</div>
-      <div class="value" style="color:var(--accent-yellow)">{{ media|length }}</div>
+      <div class="label">Prioridad media</div>
+      <div class="value" style="color:var(--accent-yellow)">{{ media|length|num(0) }}</div>
     </div>
     <div class="kpi">
-      <div class="label">Prioridad Baja</div>
-      <div class="value" style="color:var(--accent-green)">{{ baja|length }}</div>
+      <div class="label">Prioridad baja</div>
+      <div class="value" style="color:var(--accent-green)">{{ baja|length|num(0) }}</div>
     </div>
     <div class="kpi">
-      <div class="label">Lineas</div>
-      <div class="value">{{ lineas|length }}</div>
+      <div class="label">Líneas</div>
+      <div class="value">{{ lineas|length|num(0) }}</div>
       <div class="note">{{ lineas|join(', ') }}</div>
     </div>
   </div>

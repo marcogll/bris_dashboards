@@ -12,28 +12,28 @@
 <!-- KPIs -->
 <div class="kpi-row">
   <div class="kpi">
-    <div class="label">Tareas Activas</div>
-    <div class="value" style="color:var(--accent-blue)">{{ active_tasks }}</div>
-    <div class="note">de {{ total_tasks }} totales</div>
+    <div class="label">Tareas activas</div>
+    <div class="value" style="color:var(--accent-blue)">{{ active_tasks|num(0) }}</div>
+    <div class="note">de {{ total_tasks|num(0) }} totales</div>
   </div>
   <div class="kpi">
-    <div class="label">Fixtures Operativos</div>
-    <div class="value" style="color:var(--accent-green)">{{ fixtures_ok }}</div>
-    <div class="note">de {{ total_fixtures }} totales</div>
+    <div class="label">Fixtures operativos</div>
+    <div class="value" style="color:var(--accent-green)">{{ fixtures_ok|num(0) }}</div>
+    <div class="note">de {{ total_fixtures|num(0) }} totales</div>
   </div>
   <div class="kpi">
-    <div class="label">Fixtures en Mantenimiento</div>
-    <div class="value" style="color:var(--accent-yellow)">{{ fixtures_maintenance }}</div>
+    <div class="label">Fixtures en mantenimiento</div>
+    <div class="value" style="color:var(--accent-yellow)">{{ fixtures_maintenance|num(0) }}</div>
     <div class="note">{% if fixtures_maintenance %}Requieren atención{% else %}Todo en orden{% endif %}</div>
   </div>
   <div class="kpi">
-    <div class="label">Proyectos Activos</div>
-    <div class="value" style="color:var(--accent-purple)">{{ project_active }}</div>
-    <div class="note">de {{ project_total }} totales</div>
+    <div class="label">Proyectos activos</div>
+    <div class="value" style="color:var(--accent-purple)">{{ project_active|num(0) }}</div>
+    <div class="note">de {{ project_total|num(0) }} totales</div>
   </div>
   <div class="kpi hero">
-    <div class="label">Tareas Atrasadas</div>
-    <div class="value">{{ overdue|length }}</div>
+    <div class="label">Tareas atrasadas</div>
+    <div class="value">{{ overdue|length|num(0) }}</div>
     <div class="note">{% if overdue %}Requieren atención inmediata{% else %}Sin tareas atrasadas{% endif %}</div>
   </div>
 </div>

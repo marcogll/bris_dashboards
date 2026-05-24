@@ -37,29 +37,29 @@
 <!-- Budget / ROI KPIs -->
 <div class="kpi-row" style="margin-bottom:28px">
   <div class="roi-card roi-blue">
-    <div class="label">Presupuesto Total</div>
+    <div class="label">Presupuesto total</div>
     <div class="value">${{ budget.total_budget|num(0) }}</div>
-    <div class="sub">Inversion aprobada</div>
+    <div class="sub">Inversión aprobada</div>
   </div>
   <div class="roi-card roi-amber">
     <div class="label">Comprometido</div>
     <div class="value">${{ budget.total_spent|num(0) }}</div>
-    <div class="sub">{{ (budget.total_spent / budget.total_budget * 100)|num(0) }}% del budget</div>
+    <div class="sub">{{ (budget.total_spent / budget.total_budget * 100)|num(0) }}% del presupuesto</div>
   </div>
   <div class="roi-card roi-green">
-    <div class="label">Ahorro Anual Proyectado</div>
+    <div class="label">Ahorro anual proyectado</div>
     <div class="value">${{ budget.total_savings_annual|num(0) }}</div>
     <div class="sub">{{ budget.roi_pct|num(0) }}% ROI</div>
   </div>
   <div class="roi-card roi-blue">
     <div class="label">Payback</div>
     <div class="value">{{ budget.payback_months|num(1) }} meses</div>
-    <div class="sub">Recuperacion de inversion</div>
+    <div class="sub">Recuperación de inversión</div>
   </div>
   <div class="roi-card roi-red">
-    <div class="label">Presupuesto Restante</div>
+    <div class="label">Presupuesto restante</div>
     <div class="value">${{ budget.remaining_budget|num(0) }}</div>
-    <div class="sub">{{ budget.total_projects }} proyectos propuestos</div>
+    <div class="sub">{{ budget.total_projects|num(0) }} proyectos propuestos</div>
   </div>
 </div>
 
@@ -67,7 +67,7 @@
 <div class="card" style="margin-bottom:28px">
   <div class="card-body">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <h3 style="font-size:15px;font-weight:700;">Uso del Presupuesto $15K</h3>
+      <h3 style="font-size:15px;font-weight:700;">Uso del presupuesto $15K</h3>
       <span style="font-size:13px;color:var(--text-secondary);font-weight:600">${{ budget.total_spent|num(0) }} / ${{ budget.total_budget|num(0) }}</span>
     </div>
     <div class="progress-bar">
@@ -90,24 +90,24 @@
   <div class="card-body">
     <div class="kpi-row" style="margin-bottom:20px">
       <div class="kpi">
-        <div class="label">CT Total</div>
+        <div class="label">CT total</div>
         <div class="value" style="color:var(--accent-blue)">{{ ls.summary.total_ct|num(0) }}s</div>
       </div>
       <div class="kpi">
-        <div class="label">Gap vs Takt</div>
+        <div class="label">Gap vs takt</div>
         <div class="value" style="color:{{ '#ef4444' if ls.summary.gap_sec > 0 else '#10b981' }}">{{ ls.summary.gap_sec|num(0) }}s</div>
       </div>
       <div class="kpi">
-        <div class="label">Cuello de Botella</div>
+        <div class="label">Cuello de botella</div>
         <div class="value" style="font-size:18px">{{ ls.summary.bottleneck_station or 'N/A' }}</div>
         <div class="note">{{ ls.summary.bottleneck_ct|num(0) }}s</div>
       </div>
       <div class="kpi">
-        <div class="label">Ahorro Potencial</div>
+        <div class="label">Ahorro potencial</div>
         <div class="value" style="color:var(--accent-green)">{{ ls.summary.potential_time_savings_sec|num(0) }}s</div>
       </div>
       <div class="kpi">
-        <div class="label">CT Proyectado</div>
+        <div class="label">CT proyectado</div>
         <div class="value" style="color:var(--accent-purple)">{{ ls.summary.new_ct_projected|num(0) }}s</div>
       </div>
     </div>

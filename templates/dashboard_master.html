@@ -19,27 +19,27 @@
 <!-- ===== HERO KPIs ===== -->
 <div class="kpi-row" style="margin-bottom:28px">
   <div class="kpi hero">
-    <div class="label">Capacidad Actual</div>
+    <div class="label">Capacidad actual</div>
     <div class="value">{{ metrics.actual_units|num(1) }}<span style="font-size:14px;font-weight:500;opacity:.8"> pzs</span></div>
     <div class="note">{{ metrics.takt_utilization|num(1) }}% del objetivo takt</div>
   </div>
   <div class="kpi">
-    <div class="label">Gap vs Meta</div>
+    <div class="label">Gap vs meta</div>
     <div class="value" style="color:{{ '#ef4444' if metrics.gap_units > 0 else '#10b981' }}">{{ metrics.gap_units|num(1) }}<span style="font-size:14px;font-weight:500;color:var(--text-muted)"> pzs</span></div>
     <div class="note">Meta: {{ metrics.target_units|num(1) }} pzs/turno</div>
   </div>
   <div class="kpi">
-    <div class="label">Estaciones / Cuellos</div>
-    <div class="value" style="color:var(--accent-blue)">{{ metrics.stations|length }}<span style="font-size:14px;font-weight:500;color:var(--text-muted)"> / </span>{{ nf_cuellos + sm_cuellos }}</div>
-    <div class="note">NF: {{ nf_cuellos }} | SM: {{ sm_cuellos }}</div>
+    <div class="label">Estaciones / Cuellos de botella</div>
+    <div class="value" style="color:var(--accent-blue)">{{ metrics.stations|length }}<span style="font-size:14px;font-weight:500;color:var(--text-muted)"> / </span>{{ (nf_cuellos + sm_cuellos)|num(0) }}</div>
+    <div class="note">NF: {{ nf_cuellos|num(0) }} | SM: {{ sm_cuellos|num(0) }}</div>
   </div>
   <div class="kpi">
-    <div class="label">Demanda Total AFL</div>
-    <div class="value" style="color:var(--accent-purple)">{{ demanda_total }}<span style="font-size:14px;font-weight:500;color:var(--text-muted)"> u</span></div>
-    <div class="note">Pico May-25: {{ demanda_pico }}u</div>
+    <div class="label">Demanda total AFL</div>
+    <div class="value" style="color:var(--accent-purple)">{{ demanda_total|num(0) }}<span style="font-size:14px;font-weight:500;color:var(--text-muted)"> u</span></div>
+    <div class="note">Pico May-25: {{ demanda_pico|num(0) }} u</div>
   </div>
   <div class="kpi">
-    <div class="label">Trabajo Productivo</div>
+    <div class="label">Trabajo productivo</div>
     <div class="value" style="color:var(--accent-green)">{{ prod_pct|num(1) }}%</div>
     <div class="note">de tiempo total estación</div>
   </div>
@@ -53,13 +53,13 @@
 <!-- ===== PRODUCCION + DESPERDICIOS ===== -->
 <div class="two-col" style="margin-bottom:20px">
   <div class="card">
-    <div class="card-head"><h3>Cycle Time por Estacion</h3></div>
+    <div class="card-head"><h3>Cycle Time por estación</h3></div>
     <div class="card-body">
       <div class="chart-container"><canvas id="chartCt"></canvas></div>
     </div>
   </div>
   <div class="card">
-    <div class="card-head"><h3>Composicion del Tiempo</h3></div>
+    <div class="card-head"><h3>Composición del tiempo</h3></div>
     <div class="card-body">
       <div class="chart-container"><canvas id="chartWaste"></canvas></div>
     </div>
@@ -69,13 +69,13 @@
 <!-- ===== DEMANDA + THROUGHPUT ===== -->
 <div class="two-col" style="margin-bottom:20px">
   <div class="card">
-    <div class="card-head"><h3>Demanda AFL Mensual</h3></div>
+    <div class="card-head"><h3>Demanda AFL mensual</h3></div>
     <div class="card-body">
       <div class="chart-container"><canvas id="chartDemand"></canvas></div>
     </div>
   </div>
   <div class="card">
-    <div class="card-head"><h3>Throughput — Impacto Mejoras</h3></div>
+    <div class="card-head"><h3>Throughput — Impacto de mejoras</h3></div>
     <div class="card-body">
       <div class="chart-container"><canvas id="chartThroughput"></canvas></div>
     </div>
@@ -85,13 +85,13 @@
 <!-- ===== PLAN DE ACCION + CADREX ===== -->
 <div class="two-col" style="margin-bottom:20px">
   <div class="card">
-    <div class="card-head"><h3>Plan de Accion — Resumen</h3></div>
+    <div class="card-head"><h3>Plan de acción — Resumen</h3></div>
     <div class="card-body">
       <div class="kpi-row" style="margin-bottom:16px; grid-template-columns: repeat(4, 1fr);">
-        <div class="mini-kpi"><div class="label">Total</div><div class="value">{{ plan_summary.total }}</div></div>
-        <div class="mini-kpi"><div class="label">Alta</div><div class="value" style="color:var(--accent-red)">{{ plan_summary.alta }}</div></div>
-        <div class="mini-kpi"><div class="label">Media</div><div class="value" style="color:var(--accent-yellow)">{{ plan_summary.media }}</div></div>
-        <div class="mini-kpi"><div class="label">Baja</div><div class="value" style="color:var(--accent-green)">{{ plan_summary.baja }}</div></div>
+        <div class="mini-kpi"><div class="label">Total</div><div class="value">{{ plan_summary.total|num(0) }}</div></div>
+        <div class="mini-kpi"><div class="label">Alta</div><div class="value" style="color:var(--accent-red)">{{ plan_summary.alta|num(0) }}</div></div>
+        <div class="mini-kpi"><div class="label">Media</div><div class="value" style="color:var(--accent-yellow)">{{ plan_summary.media|num(0) }}</div></div>
+        <div class="mini-kpi"><div class="label">Baja</div><div class="value" style="color:var(--accent-green)">{{ plan_summary.baja|num(0) }}</div></div>
       </div>
       <div class="chart-container"><canvas id="chartPlan"></canvas></div>
     </div>
@@ -100,9 +100,9 @@
     <div class="card-head"><h3>Cadrex — Operaciones</h3></div>
     <div class="card-body">
       <div class="kpi-row" style="margin-bottom:16px; grid-template-columns: repeat(3, 1fr);">
-        <div class="mini-kpi"><div class="label">Fixtures OK</div><div class="value" style="color:var(--accent-green)">{{ cadrex.fixtures_active }}</div></div>
-        <div class="mini-kpi"><div class="label">Proyectos</div><div class="value" style="color:var(--accent-blue)">{{ cadrex.projects_active }}</div></div>
-        <div class="mini-kpi"><div class="label">Tareas</div><div class="value" style="color:var(--accent-purple)">{{ cadrex.tasks_total }}</div></div>
+        <div class="mini-kpi"><div class="label">Fixtures OK</div><div class="value" style="color:var(--accent-green)">{{ cadrex.fixtures_active|num(0) }}</div></div>
+        <div class="mini-kpi"><div class="label">Proyectos activos</div><div class="value" style="color:var(--accent-blue)">{{ cadrex.projects_active|num(0) }}</div></div>
+        <div class="mini-kpi"><div class="label">Tareas activas</div><div class="value" style="color:var(--accent-purple)">{{ cadrex.tasks_total|num(0) }}</div></div>
       </div>
       {% if cadrex.activities_week %}
       <div class="chart-container"><canvas id="chartActivities"></canvas></div>
@@ -138,11 +138,11 @@
     </div>
   </div>
   <div class="card">
-    <div class="card-head"><h3>Alertas Kanban & Material</h3></div>
+    <div class="card-head"><h3>Alertas Kanban y material</h3></div>
     <div class="card-body">
       <div class="kpi-row" style="margin-bottom:16px; grid-template-columns: repeat(2, 1fr);">
-        <div class="mini-kpi"><div class="label">Criticas ≤3 dias</div><div class="value" style="color:var(--accent-red)">{{ kanban_crit }}</div></div>
-        <div class="mini-kpi"><div class="label">Advertencia ≤7 dias</div><div class="value" style="color:var(--accent-yellow)">{{ kanban_warn }}</div></div>
+        <div class="mini-kpi"><div class="label">Críticas ≤3 días</div><div class="value" style="color:var(--accent-red)">{{ kanban_crit|num(0) }}</div></div>
+        <div class="mini-kpi"><div class="label">Advertencia ≤7 días</div><div class="value" style="color:var(--accent-yellow)">{{ kanban_warn|num(0) }}</div></div>
       </div>
       <div class="chart-container"><canvas id="chartKanban"></canvas></div>
     </div>

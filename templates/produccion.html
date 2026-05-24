@@ -70,13 +70,13 @@
             <div class="bar-label">{{ r.estacion }}</div>
             <div class="bar-track">
               <div class="takt-line" style="left:{{ takt_pct }}%"></div>
-              <div class="bar-fill act {{ s_class }}" style="width:{{ pct_act }}%">{{ r.ct_actual }}s</div>
+              <div class="bar-fill act {{ s_class }}" style="width:{{ pct_act }}%">{{ r.ct_actual|float|num(0) }}s</div>
             </div>
             <div class="bar-track">
               <div class="takt-line" style="left:{{ takt_pct }}%"></div>
-              <div class="bar-fill meta" style="width:{{ pct_met }}%">{{ r.ct_meta }}s</div>
+              <div class="bar-fill meta" style="width:{{ pct_met }}%">{{ r.ct_meta|float|num(0) }}s</div>
             </div>
-            <div class="bar-ahorro">{% if r.ahorro_seg|float > 0 %}-{{ r.ahorro_seg }}s{% else %}—{% endif %}</div>
+            <div class="bar-ahorro">{% if r.ahorro_seg|float > 0 %}-{{ r.ahorro_seg|float|num(0) }}s{% else %}—{% endif %}</div>
             <div class="bar-status"><span class="badge {{ 'badge-crit' if s_class == 'over' else ('badge-warn' if s_class == 'warn' else 'badge-ok') }}">{{ 'CUELLO' if s_class == 'over' else ('~Takt' if s_class == 'warn' else 'OK') }}</span></div>
           </div>
         </div>
@@ -105,9 +105,9 @@
               {% set s_class = 'badge-crit' if ct_act > takt else 'badge-ok' %}
               <tr>
                 <td><strong>{{ r.estacion }}</strong></td>
-                <td class="num">{{ ct_act|int }}s</td>
-                <td class="num">{{ ct_met|int }}s</td>
-                <td class="num" style="color:var(--accent-green)">{% if r.ahorro_seg|float > 0 %}-{{ r.ahorro_seg }}s{% else %}—{% endif %}</td>
+                <td class="num">{{ ct_act|num(0) }}s</td>
+                <td class="num">{{ ct_met|num(0) }}s</td>
+                <td class="num" style="color:var(--accent-green)">{% if r.ahorro_seg|float > 0 %}-{{ r.ahorro_seg|float|num(0) }}s{% else %}—{% endif %}</td>
                 <td><span class="badge {{ s_class }}">{{ 'CUELLO' if ct_act > takt else 'OK' }}</span></td>
               </tr>
               {% endfor %}
@@ -133,8 +133,8 @@
                 {% for d in desperdicios %}
                 <tr>
                   <td>{{ d.categoria }}</td>
-                  <td class="num">{{ d.tiempo_seg }}</td>
-                  <td class="num"><strong>{{ d.pct }}%</strong></td>
+                  <td class="num">{{ d.tiempo_seg|float|num(0) }}</td>
+                  <td class="num"><strong>{{ d.pct|float|num(1) }}%</strong></td>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -152,7 +152,7 @@
                 {% for tp in throughput %}
                 <tr>
                   <td>{{ tp.etapa }}</td>
-                  <td class="num"><strong>{{ tp.pzas_hr }}</strong></td>
+                  <td class="num"><strong>{{ tp.pzas_hr|float|num(1) }}</strong></td>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -179,7 +179,7 @@
                 {% for m in ['dic','ene','feb','mar','abr','may'] %}
                 <td class="num">{{ d[m] if d[m]|int > 0 else '—' }}</td>
                 {% endfor %}
-                <td class="num"><strong style="color:var(--accent-blue)">{{ d.total }}</strong></td>
+                <td class="num"><strong style="color:var(--accent-blue)">{{ d.total|num(0) }}</strong></td>
                 <td><span style="font-size:11px;color:var(--accent-orange)">{{ d.pico }}</span></td>
               </tr>
               {% endfor %}
