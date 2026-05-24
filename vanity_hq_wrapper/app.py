@@ -28,9 +28,17 @@
 
 import os
 import sqlite3
+import sys
 from datetime import datetime, timedelta
 from functools import wraps
 from pathlib import Path
+
+_common_dir = Path(__file__).resolve().parent
+if not (_common_dir / "vanity_common").is_dir():
+    _common_dir = _common_dir.parent
+sys.path.insert(0, str(_common_dir))
+
+from vanity_common.session import SupabaseSessionInterface, create_session, revoke_session, revoke_sessions_for_user
 
 from flask import Flask, flash, g, jsonify, redirect, render_template, request, session, url_for
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
@@ -104,6 +112,9 @@ def create_app():
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
     app.secret_key = os.getenv("VANITY_HQ_SECRET_KEY", "dev-secret-change-me")
     app.permanent_session_lifetime = timedelta(days=7)
+    app.config["VANITY_HQ_PUBLIC_URL"] = os.getenv("VANITY_HQ_PUBLIC_URL", "/hq")
+    app.config["VANITY_HQ_SECRET_KEY"] = app.secret_key
+    app.session_interface = SupabaseSessionInterface()
 
     @app.before_request
     def before_request():
@@ -471,6 +482,9 @@ def register_routes(app):
                 session.clear()
                 session.permanent = remember
                 session["user_id"] = user["id"]
+                context = context_for_user(user)
+                sid = create_session(user["id"], "vanity_hq", context, str(user["id"]), max_age_seconds=TOKEN_MAX_AGE)
+                session["_session_id"] = sid
                 g.db.execute("UPDATE users SET last_login = ? WHERE id = ?", (datetime.utcnow().isoformat(), user["id"]))
                 g.db.commit()
                 return redirect(request.args.get("next") or url_for("hq"))
@@ -479,6 +493,9 @@ def register_routes(app):
 
     @app.route("/logout")
     def logout():
+        user_id = session.get("user_id")
+        if user_id:
+            revoke_sessions_for_user(user_id, "vanity_hq")
         session.clear()
         return redirect(url_for("login"))
 
@@ -502,6 +519,9 @@ def register_routes(app):
         # Set user session
         session["user_id"] = user["id"]
         session.permanent = True
+        context = context_for_user(user)
+        sid = create_session(user["id"], "vanity_hq", context, token, max_age_seconds=TOKEN_MAX_AGE)
+        session["_session_id"] = sid
 
         return redirect(url_for("hq"))
 
@@ -535,6 +555,10 @@ def register_routes(app):
             return redirect(url_for("hq"))
         token = issue_app_token(g.user, system_key)
         base_url = SYSTEMS[system_key]["url"]
+        system_context = context_for_user(g.user)
+        system_permissions = [p for p in system_context["permissions"] if p["system"] == system_key]
+        launch_context = {"user": system_context["user"], "theme": system_context["theme"], "permissions": system_permissions}
+        create_session(g.user["id"], system_key, launch_context, token, max_age_seconds=TOKEN_MAX_AGE)
         if base_url.startswith("/"):
             return redirect(base_url)
         separator = "&" if "?" in base_url else "?"

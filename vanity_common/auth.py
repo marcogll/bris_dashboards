@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 from datetime import datetime, timezone
 from functools import wraps
 from typing import Any
@@ -12,6 +13,8 @@ from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from .models import Permission, User
 from .session import _hash_token, revoke_session
 from .supabase_client import get_supabase
+
+logger = logging.getLogger("vanity_common.auth")
 
 TOKEN_MAX_AGE = 43200
 
@@ -32,21 +35,20 @@ def validate_hq_token(token: str, expected_system: str | None = None) -> tuple[U
     token_hash = _hash_token(token)
     sb = get_supabase()
 
-    active_sessions = sb.table("vanity_sessions").select("id").eq("session_token_hash", token_hash).is_("revoked_at", "null").execute().data
+    active_sessions = sb.table("vanity_sessions").select("id, expires_at").eq("session_token_hash", token_hash).is_("revoked_at", "null").execute().data
     session_exists = False
     for s in active_sessions:
-        row = sb.table("vanity_sessions").select("expires_at").eq("id", s["id"]).execute().data
-        if row:
-            exp = row[0].get("expires_at")
-            if exp:
-                exp_dt = datetime.fromisoformat(exp) if isinstance(exp, str) else exp
-                if exp_dt.tzinfo is None:
-                    exp_dt = exp_dt.replace(tzinfo=timezone.utc)
-                if exp_dt > datetime.now(timezone.utc):
-                    session_exists = True
-                    break
+        exp = s.get("expires_at")
+        if exp:
+            exp_dt = datetime.fromisoformat(exp) if isinstance(exp, str) else exp
+            if exp_dt.tzinfo is None:
+                exp_dt = exp_dt.replace(tzinfo=timezone.utc)
+            if exp_dt > datetime.now(timezone.utc):
+                session_exists = True
+                break
 
     if not session_exists:
+        logger.warning("Token rejected: no active session for user=%s system=%s", data.get("user_id"), data.get("system"))
         raise BadSignature("session revoked or expired")
 
     user_id = data.get("user_id")
@@ -58,6 +60,7 @@ def validate_hq_token(token: str, expected_system: str | None = None) -> tuple[U
     r["role_name"] = role.get("name", "")
     r["role_level"] = role.get("level", 0)
 
+    logger.info("Token validated: user=%s system=%s role=%s", r.get("username") or r.get("email"), data.get("system"), r["role_name"])
     return User.from_supabase_row(r), data
 
 
@@ -133,6 +136,7 @@ def load_user_from_session():
     sb = get_supabase()
     rows = sb.table("vanity_users").select("*, vanity_roles!vanity_users_role_id_fkey(name, level)").eq("id", str(user_id)).eq("is_active", True).execute().data
     if not rows:
+        logger.debug("User %s not found or inactive in Supabase", user_id)
         g.hq_user = None
         return
     r = rows[0]

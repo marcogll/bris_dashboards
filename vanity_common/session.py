@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 from datetime import datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
@@ -9,6 +10,8 @@ from flask import Flask, g, request, session
 from flask.sessions import SessionInterface, SecureCookieSession
 
 from .supabase_client import get_supabase
+
+logger = logging.getLogger("vanity_common.session")
 
 
 class SupabaseSessionInterface(SessionInterface):
@@ -28,8 +31,10 @@ class SupabaseSessionInterface(SessionInterface):
         try:
             sess = _load_session(sid)
         except Exception:
+            logger.warning("Failed to load session %s from Supabase, falling back to cookie-only", sid[:8])
             return None
         if sess is None:
+            logger.debug("Session %s not found or expired", sid[:8])
             return None
         s = SecureCookieSession()
         s.update(sess.get("context", {}))
@@ -75,6 +80,7 @@ def create_session(user_id: UUID, system: str, context: dict[str, Any], token: s
         "user_agent": "",
         "expires_at": expires_at.isoformat(),
     }).execute().data[0]
+    logger.info("Created session for user=%s system=%s expires=%s", str(user_id)[:8], system, expires_at.isoformat())
     return row["id"]
 
 
@@ -84,6 +90,7 @@ def revoke_session(session_id: str) -> None:
     sb.table("vanity_sessions").update({
         "revoked_at": datetime.now(timezone.utc).isoformat(),
     }).eq("id", session_id).execute()
+    logger.info("Revoked session %s", session_id[:8])
 
 
 def revoke_sessions_for_user(user_id: str | UUID, system: str | None = None) -> None:
@@ -94,7 +101,9 @@ def revoke_sessions_for_user(user_id: str | UUID, system: str | None = None) -> 
     }).eq("user_id", str(user_id)).is_("revoked_at", "null")
     if system:
         q = q.eq("system", system)
-    q.execute()
+    result = q.execute()
+    count = len(result.data) if result.data else 0
+    logger.info("Revoked %d sessions for user=%s system=%s", count, str(user_id)[:8], system or "all")
 
 
 def _load_session(session_id: str) -> dict[str, Any] | None:

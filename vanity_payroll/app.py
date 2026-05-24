@@ -29,11 +29,20 @@
 import json
 import os
 import secrets
+import sys
 import urllib.error
 import urllib.request
 from datetime import date, datetime, timedelta
 from functools import wraps
 from pathlib import Path
+
+_common_dir = Path(__file__).resolve().parent
+if not (_common_dir / "vanity_common").is_dir():
+    _common_dir = _common_dir.parent
+sys.path.insert(0, str(_common_dir))
+
+from vanity_common.auth import load_user_from_session
+from vanity_common.session import SupabaseSessionInterface
 
 from flask import Flask, abort, flash, g, jsonify, redirect, render_template, request, session, url_for, send_from_directory
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
@@ -62,6 +71,10 @@ def create_app():
         SESSION_COOKIE_SECURE=os.getenv("SESSION_COOKIE_SECURE", "false").lower() in {"1", "true", "yes"},
         PERMANENT_SESSION_LIFETIME=timedelta(seconds=HQ_TOKEN_MAX_AGE),
     )
+    app.config["VANITY_HQ_PUBLIC_URL"] = os.getenv("VANITY_HQ_PUBLIC_URL", HQ_PUBLIC_URL)
+    app.config["VANITY_HQ_SECRET_KEY"] = HQ_SECRET_KEY
+    app.config["VANITY_HQ_URL"] = HQ_BASE_URL
+    app.session_interface = SupabaseSessionInterface()
 
     # --- CSRF protection y hooks de request ----------------------------------------
     @app.before_request
@@ -69,6 +82,7 @@ def create_app():
         g.db = connect(DB_PATH)
         g.hq_context = session.get("hq_context")
         g.hq_token = session.get("hq_token")
+        load_user_from_session()
         if request.method in {"POST", "PUT", "PATCH", "DELETE"} and not request.path.startswith("/api/"):
             submitted = request.form.get("_csrf_token") or request.headers.get("X-CSRF-Token", "")
             if not submitted or not secrets.compare_digest(submitted, session.get("_csrf_token", "")):

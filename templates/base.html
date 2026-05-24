@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ title }}{% endblock %}</title>
   <link rel="stylesheet" href="/static/css/dashboard.css">
+  <!-- Progressive Web App -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#3b82f6">
+  <link rel="apple-touch-icon" href="/static/logo_cadrex.png">
   {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -94,5 +98,15 @@
   </div>
 </div>
 {% block extra_js %}{% endblock %}
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      // Registrar el service worker
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(reg => console.log('Service Worker registrado con éxito:', reg.scope))
+        .catch(err => console.error('Error al registrar Service Worker:', err));
+    });
+  }
+</script>
 </body>
 </html>

@@ -12,11 +12,20 @@
 
 import json
 import os
+import sys
 import urllib.error
 import urllib.request
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
+
+_common_dir = Path(__file__).resolve().parent
+if not (_common_dir / "vanity_common").is_dir():
+    _common_dir = _common_dir.parent
+sys.path.insert(0, str(_common_dir))
+
+from vanity_common.auth import load_user_from_session
+from vanity_common.session import SupabaseSessionInterface
 
 from flask import Flask, flash, g, jsonify, redirect, render_template, request, session, url_for
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
@@ -36,13 +45,21 @@ HQ_TOKEN_MAX_AGE = int(os.getenv("VANITY_HQ_TOKEN_MAX_AGE", "43200"))
 
 # --- App factory y hooks de request -----------------------------------------
 def create_app():
+    app = Flask(__name__)
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+    app.secret_key = os.getenv("VANITY_EMPREQ_SECRET_KEY", "dev-empreq-secret")
     app.config["TEMPLATES_AUTO_RELOAD"] = True
+    app.config["VANITY_HQ_PUBLIC_URL"] = os.getenv("VANITY_HQ_PUBLIC_URL", HQ_PUBLIC_URL)
+    app.config["VANITY_HQ_SECRET_KEY"] = HQ_SECRET_KEY
+    app.config["VANITY_HQ_URL"] = HQ_BASE_URL
+    app.session_interface = SupabaseSessionInterface()
 
     @app.before_request
     def before_request():
         g.db = connect(DB_PATH)
         g.hq_context = session.get("hq_context")
         g.hq_token = session.get("hq_token")
+        load_user_from_session()
 
     @app.teardown_appcontext
     def close_db(error=None):
@@ -142,6 +159,9 @@ def audit_hq(action, target_type, target_id="", detail=""):
 
 # --- Rutas -------------------------------------------------------------------
 def register_routes(app):
+
+    @app.route("/")
+    def index():
         return redirect(url_for("dashboard"))
 
     @app.route("/login")
@@ -184,6 +204,14 @@ def register_routes(app):
     @app.route("/healthz")
     def healthz():
         return jsonify({"ok": True, "service": "empreq"})
+
+    @app.route("/manifest.json")
+    def manifest():
+        return render_template("manifest.json"), 200, {"Content-Type": "application/json"}
+
+    @app.route("/service-worker.js")
+    def service_worker():
+        return render_template("service-worker.js"), 200, {"Content-Type": "application/javascript"}
 
     @app.route("/solicitudes")
     @require_permission("requests", "view")

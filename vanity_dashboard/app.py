@@ -22,18 +22,44 @@
 
 import pandas as pd
 import json
-import re
-from flask import Flask, jsonify, request, render_template, session, redirect, url_for
-from flask_cors import CORS
-from datetime import date, timedelta, datetime
 import os
+import re
+import secrets
+import sys
+import urllib.error
+import urllib.request
+from datetime import date, timedelta, datetime
+from functools import wraps
+from pathlib import Path
+
+_common_dir = Path(__file__).resolve().parent
+if not (_common_dir / "vanity_common").is_dir():
+    _common_dir = _common_dir.parent
+sys.path.insert(0, str(_common_dir))
+
+from vanity_common.auth import load_user_from_session, login_required, require_permission
+from vanity_common.session import SupabaseSessionInterface
+
+from flask import Flask, flash, g, jsonify, redirect, render_template, request, session, url_for
+from flask_cors import CORS
+from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 app.secret_key = os.getenv("VANITY_DASHBOARD_SECRET_KEY", "dev-dashboard-secret")
 app.config["TEMPLATES_AUTO_RELOAD"] = True
+app.config["VANITY_HQ_PUBLIC_URL"] = os.getenv("VANITY_HQ_PUBLIC_URL", os.getenv("VANITY_HQ_URL", "http://127.0.0.1:5050"))
+app.config["VANITY_HQ_SECRET_KEY"] = os.getenv("VANITY_HQ_SECRET_KEY", os.getenv("VANITY_DASHBOARD_SECRET_KEY", "dev-secret-change-me"))
+app.config["VANITY_HQ_URL"] = os.getenv("VANITY_HQ_URL", "http://127.0.0.1:5050")
+app.session_interface = SupabaseSessionInterface()
 CORS(app)
+
+SYSTEM_KEY = "vanity_dashboard"
+HQ_BASE_URL = os.getenv("VANITY_HQ_URL", "http://127.0.0.1:5050")
+HQ_PUBLIC_URL = os.getenv("VANITY_HQ_PUBLIC_URL", HQ_BASE_URL)
+HQ_SECRET_KEY = os.getenv("VANITY_HQ_SECRET_KEY", os.getenv("VANITY_DASHBOARD_SECRET_KEY", "dev-secret-change-me"))
+HQ_TOKEN_MAX_AGE = int(os.getenv("VANITY_HQ_TOKEN_MAX_AGE", "43200"))
 
 RAW_DATA_PATH = os.path.join(os.path.dirname(__file__), "all-data.csv")
 STAFF_PATH = os.path.join(os.path.dirname(__file__), "staff_config.json")
@@ -252,16 +278,53 @@ def filter_data(args):
             q = q[q["fecha_programada"].dt.date >= since]
     return q
 
+@app.before_request
+def before_request():
+    load_user_from_session()
+
+def validate_hq_token(token):
+    serializer = URLSafeTimedSerializer(HQ_SECRET_KEY, salt="vanity-hq-app-token")
+    try:
+        data = serializer.loads(token, max_age=HQ_TOKEN_MAX_AGE)
+        if data.get("system") != SYSTEM_KEY:
+            raise ValueError("system mismatch")
+        if data.get("context"):
+            return data["context"]
+    except (BadSignature, SignatureExpired, ValueError):
+        raise
+
+    payload = json.dumps({"token": token, "system": SYSTEM_KEY}).encode()
+    req = urllib.request.Request(
+        f"{HQ_BASE_URL}/api/auth/validate-token",
+        data=payload,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=5) as response:
+        data = json.loads(response.read().decode())
+    if not data.get("ok"):
+        raise ValueError(data.get("error", "invalid token"))
+    return data["context"]
+
 # --- SSO Auth endpoint --------------------------------------------------------
 @app.route("/auth/hq")
 def auth_hq():
     token = request.args.get("token", "")
-    if token:
-        session["hq_token"] = token
-        session["hq_authenticated"] = True
+    if not token:
+        flash("Token HQ faltante.", "danger")
+        return redirect(f"{HQ_PUBLIC_URL}/hq")
+    try:
+        context = validate_hq_token(token)
+    except Exception:
+        flash("No se pudo validar la sesion HQ.", "danger")
+        return redirect(f"{HQ_PUBLIC_URL}/hq")
+    session["hq_token"] = token
+    session["hq_context"] = context
+    session["user_id"] = context["user"]["id"]
     return redirect(url_for("index"))
 
 @app.route("/")
+@login_required
 def index():
     return render_template("index.html")
 
@@ -270,6 +333,8 @@ def healthz():
     return jsonify({"ok": True, "service": "dashboard"})
 
 @app.route("/api/kpi")
+@login_required
+@require_permission("vanity_dashboard", "sales", "view")
 def api_kpi():
     q = filter_data(request.args)
     q_fin = q[q["_status_normalized"].isin(["completed", "cancelled"])]
@@ -335,6 +400,8 @@ def api_kpi():
     })
 
 @app.route("/api/sales_by_category")
+@login_required
+@require_permission("vanity_dashboard", "sales", "view")
 def api_sales_category():
     q = filter_data(request.args)
     qs = q[q["_status_normalized"] == "completed"]
@@ -342,6 +409,8 @@ def api_sales_category():
     return jsonify({"labels": g["categoria"].tolist(), "values": g["ventas_netas"].round(2).tolist()})
 
 @app.route("/api/sales_by_service")
+@login_required
+@require_permission("vanity_dashboard", "sales", "view")
 def api_sales_service():
     q = filter_data(request.args)
     qs = q[q["_status_normalized"] == "completed"]
@@ -363,6 +432,8 @@ def api_sales_service():
     })
 
 @app.route("/api/services/all")
+@login_required
+@require_permission("vanity_dashboard", "sales", "view")
 def api_services_all():
     q = filter_data(request.args)
     qs = q[q["_status_normalized"] == "completed"]
@@ -379,6 +450,8 @@ def api_services_all():
     return jsonify(g.to_dict(orient="records"))
 
 @app.route("/api/sales_timeline")
+@login_required
+@require_permission("vanity_dashboard", "sales", "view")
 def api_sales_timeline():
     q = filter_data(request.args)
     qs = q[q["_status_normalized"] == "completed"]
@@ -404,6 +477,8 @@ def api_sales_timeline():
     return jsonify({"labels": g["label"].tolist(), "values": g["ventas_netas"].round(2).tolist()})
 
 @app.route("/api/appointments_by_staff")
+@login_required
+@require_permission("vanity_dashboard", "appointments", "view")
 def api_appointments_staff():
     q = filter_data(request.args)
     qs = q[q["_status_normalized"] == "completed"]
@@ -411,6 +486,8 @@ def api_appointments_staff():
     return jsonify({"labels": g["miembro_equipo"].tolist(), "values": g["count"].tolist()})
 
 @app.route("/api/staff_performance")
+@login_required
+@require_permission("vanity_dashboard", "staff_performance", "view")
 def api_staff_performance():
     q = filter_data(request.args)
     qs = q[q["_status_normalized"] == "completed"]
@@ -437,6 +514,8 @@ def api_staff_performance():
     return jsonify(g.to_dict(orient="records"))
 
 @app.route("/api/staff_by_branch")
+@login_required
+@require_permission("vanity_dashboard", "staff_performance", "view")
 def api_staff_by_branch():
     q = filter_data(request.args)
     qs = q[q["_status_normalized"] == "completed"]
@@ -458,6 +537,8 @@ def api_staff_by_branch():
     return jsonify(g.to_dict(orient="records"))
 
 @app.route("/api/staff/profiles")
+@login_required
+@require_permission("vanity_dashboard", "staff_performance", "view")
 def api_staff_profiles():
     q = filter_data(request.args)
     qs = q[q["_status_normalized"] == "completed"]
@@ -512,6 +593,8 @@ def api_staff_profiles():
     return jsonify(result)
 
 @app.route("/api/salon/usage")
+@login_required
+@require_permission("vanity_dashboard", "inventory", "view")
 def api_salon_usage():
     q = filter_data(request.args)
     qs = q[q["_status_normalized"] == "completed"]
@@ -548,6 +631,8 @@ def api_salon_usage():
     })
 
 @app.route("/api/salon/resources")
+@login_required
+@require_permission("vanity_dashboard", "inventory", "view")
 def api_salon_resources():
     q = filter_data(request.args)
     qs = q[q["_status_normalized"] == "completed"]
@@ -585,6 +670,8 @@ def api_salon_resources():
     return jsonify(result)
 
 @app.route("/api/salon/by_branch")
+@login_required
+@require_permission("vanity_dashboard", "inventory", "view")
 def api_salon_by_branch():
     q = filter_data(request.args)
     qs = q[q["_status_normalized"] == "completed"]
@@ -605,6 +692,8 @@ def api_salon_by_branch():
     return jsonify(g.to_dict(orient="records"))
 
 @app.route("/api/salon/uptime")
+@login_required
+@require_permission("vanity_dashboard", "inventory", "view")
 def api_salon_uptime():
     q = filter_data(request.args)
     q_final = q[q["_status_normalized"].isin(["completed", "cancelled"])]
@@ -648,6 +737,8 @@ def api_salon_uptime():
     })
 
 @app.route("/api/appointments")
+@login_required
+@require_permission("vanity_dashboard", "appointments", "view")
 def api_appointments():
     q = filter_data(request.args)
     q = q.sort_values("fecha_programada", ascending=False)
@@ -663,6 +754,8 @@ def api_appointments():
     return jsonify(data)
 
 @app.route("/api/appointments/stats")
+@login_required
+@require_permission("vanity_dashboard", "appointments", "view")
 def api_appointments_stats():
     q = filter_data(request.args)
     g = q.groupby("_status_normalized").size().reset_index(name="count")
@@ -676,6 +769,8 @@ def api_appointments_stats():
     return jsonify(result)
 
 @app.route("/api/cancellations")
+@login_required
+@require_permission("vanity_dashboard", "appointments", "view")
 def api_cancellations():
     q = filter_data(request.args)
     g = q.groupby("miembro_equipo").agg(
@@ -694,6 +789,8 @@ def api_cancellations():
     return jsonify(g.to_dict(orient="records"))
 
 @app.route("/api/profitability")
+@login_required
+@require_permission("vanity_dashboard", "reports", "view")
 def api_profitability():
     cfg = load_config()
     ops_pct = cfg.get("costos_operativos_porcentaje", 30) / 100.0
@@ -745,6 +842,8 @@ def api_profitability():
     })
 
 @app.route("/api/report/summary")
+@login_required
+@require_permission("vanity_dashboard", "reports", "view")
 def api_report_summary():
     now_args = request.args
     if "periodo" in now_args and now_args["periodo"]:
@@ -819,12 +918,16 @@ def load_config():
     return {"comision_porcentaje": 10, "costos_operativos_porcentaje": 30, "nomina_porcentaje": 22.5}
 
 @app.route("/api/config", methods=["GET"])
+@login_required
+@require_permission("vanity_dashboard", "settings", "view")
 def api_config_get():
     cfg = load_config()
     cfg["staff"] = staff_config
     return jsonify(cfg)
 
 @app.route("/api/config", methods=["POST"])
+@login_required
+@require_permission("vanity_dashboard", "settings", "configure")
 def api_config_set():
     cfg = load_config()
     data = request.get_json()
@@ -845,6 +948,8 @@ def load_citas_manual():
     return []
 
 @app.route("/api/appointments/create", methods=["POST"])
+@login_required
+@require_permission("vanity_dashboard", "appointments", "create")
 def api_create_cita():
     data = request.get_json()
     citas = load_citas_manual()
@@ -867,6 +972,8 @@ def api_create_cita():
     return jsonify({"ok": True, "cita": cita})
 
 @app.route("/api/filters")
+@login_required
+@require_permission("vanity_dashboard", "sales", "view")
 def api_filters():
     return jsonify({
         "years": sorted(df["tiempo_anio"].unique().astype(int).tolist()),
