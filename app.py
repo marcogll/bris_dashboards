@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import shutil
+from datetime import datetime, timezone
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -775,6 +776,80 @@ def healthz() -> dict[str, str]:
 @app.route("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+# ──────────────────────────────────────────────
+#  Export endpoints (for AI/Streamlit integration)
+# ──────────────────────────────────────────────
+@app.route("/api/export/all")
+@login_required
+def api_export_all() -> Response:
+    stations = read_stations()
+    metrics = build_metrics(stations)
+    return jsonify(
+        {
+            "meta": {
+                "app_title": APP_TITLE,
+                "data_file": str(DATA_FILE),
+                "available_seconds": AVAILABLE_SECONDS,
+                "takt_seconds": TAKT_SECONDS,
+                "exported_at": datetime.now(timezone.utc).isoformat(),
+            },
+            "kpis": {
+                "actual_units": round(metrics["actual_units"], 2),
+                "target_units": round(metrics["target_units"], 2),
+                "gap_units": round(metrics["gap_units"], 2),
+                "takt_utilization": round(metrics["takt_utilization"], 1),
+                "total_work_seconds": metrics["total_work_seconds"],
+                "total_work_minutes": round(metrics["total_work_seconds"] / 60, 1),
+                "station_count": len(metrics["stations"]),
+                "bottleneck": metrics["bottleneck"].station_name if metrics["bottleneck"] else None,
+            },
+            "stations": [
+                {
+                    "id": s["raw"].station_id,
+                    "name": s["raw"].station_name,
+                    "time_seconds": s["raw"].time_seconds,
+                    "operators": s["raw"].operators,
+                    "capacity_per_hour": round(s["raw"].capacity_per_hour, 2),
+                    "work_share": round(s["work_share"], 1),
+                    "takt_gap": round(s["takt_gap"], 0),
+                    "takt_pct": round(s["takt_pct"], 1),
+                    "status": s["status"],
+                }
+                for s in metrics["stations"]
+            ],
+            "balanceo": read_balanceo(),
+            "plan_accion": read_plan_accion(),
+            "demanda": read_demanda(),
+            "bom": read_bom(search="", limit=50),
+            "kanban": read_kanban(),
+            "desperdicios": read_desperdicios(),
+            "throughput": read_throughput(),
+            "summary": read_summary(),
+        }
+    )
+
+
+@app.route("/api/export/summary")
+@login_required
+def api_export_summary() -> Response:
+    stations = read_stations()
+    metrics = build_metrics(stations)
+    return jsonify(
+        {
+            "actual_units": round(metrics["actual_units"], 2),
+            "target_units": round(metrics["target_units"], 2),
+            "gap_units": round(metrics["gap_units"], 2),
+            "takt_utilization": round(metrics["takt_utilization"], 1),
+            "bottleneck": metrics["bottleneck"].station_name if metrics["bottleneck"] else None,
+            "station_count": len(metrics["stations"]),
+            "cuellos": len([s for s in metrics["stations"] if s["status"] in ("critical", "warning")]),
+            "total_work_minutes": round(metrics["total_work_seconds"] / 60, 1),
+            "plan_pendientes": len([a for a in read_plan_accion() if a.get("status") == "pendiente"]),
+            "kanban_alerts": len([k for k in read_kanban() if k.get("_urgency") == "critical"]),
+        }
+    )
 
 
 # ──────────────────────────────────────────────
