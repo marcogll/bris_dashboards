@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Kanban — {{ title }}{% endblock %}
+{% block extra_css %}
+.bar-track-kb { height: 14px; background: #f1f5f9; border-radius: 4px; overflow: hidden; width: 100%; max-width: 150px; display: inline-block; vertical-align: middle; margin-right: 6px; }
+.bar-fill-kb { height: 100%; border-radius: 4px; }
+.bar-fill-kb.critical { background: #dc2626; }
+.bar-fill-kb.warning { background: #d97706; }
+.bar-fill-kb.ok { background: #16a34a; }
+{% endblock %}
+{% block content %}
+  <h1>Kanban — Notificaciones de Reabastecimiento</h1>
+  <p class="subtitle">{{ items|length }} partes con alerta activa</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Part Number</th><th>Dias restantes</th><th>Nivel</th><th>Owner</th><th>Origen</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td><strong>{{ item.part_number }}</strong></td>
+          <td class="num">
+            <div class="bar-track-kb">
+              <div class="bar-fill-kb {{ item._urgency }}" style="width:{{ [item.days_left|float / 30 * 100, 100]|min }}%"></div>
+            </div>
+            {{ item.days_left|float|round(1) }} dias
+          </td>
+          <td><span class="badge badge-{{ 'crit' if item._urgency == 'critical' else ('warn' if item._urgency == 'warning' else 'ok') }}">{{ item._urgency }}</span></td>
+          <td>{{ item.owner }}</td>
+          <td style="font-size:11px;color:#64748b">{{ item.source_file }}</td>
+        </tr>
+        {% endfor %}
+        {% if not items %}
+        <tr><td colspan="5" style="text-align:center;color:#64748b;padding:20px">Sin notificaciones kanban</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

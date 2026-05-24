@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Plan de Accion — {{ title }}{% endblock %}
+{% block content %}
+  <h1>Plan de Accion</h1>
+  <p class="subtitle">{{ acciones|length }} acciones de mejora para lineas de produccion</p>
+
+  <div class="summary" style="display:flex;gap:20px;margin-bottom:18px;">
+    <div class="summary-item" style="font-size:13px;"><strong style="color:#dc2626;margin-right:4px;">ALTA:</strong> {{ alta|length }}</div>
+    <div class="summary-item" style="font-size:13px;"><strong style="color:#d97706;margin-right:4px;">MEDIA:</strong> {{ media|length }}</div>
+    <div class="summary-item" style="font-size:13px;"><strong style="color:#16a34a;margin-right:4px;">BAJA:</strong> {{ baja|length }}</div>
+    <div class="summary-item" style="font-size:13px;"><strong style="margin-right:4px;">Lineas:</strong> {{ lineas|join(', ') }}</div>
+  </div>
+
+  <div class="filters">
+    <label style="font-size:13px;color:#64748b">Filtrar prioridad:</label>
+    <select onchange="filterPriority(this.value)">
+      <option value="all">Todas</option>
+      <option value="ALTA">ALTA</option>
+      <option value="MEDIA">MEDIA</option>
+      <option value="BAJA">BAJA</option>
+    </select>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>Accion</th><th>Linea</th><th>Area</th><th>Prioridad</th><th>Inicio</th><th>Fin</th><th>Responsable</th><th>KPI</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in acciones %}
+        <tr data-priority="{{ a.prioridad }}">
+          <td class="num">{{ a.num }}</td>
+          <td>{{ a.accion }}</td>
+          <td>{{ a.linea }}</td>
+          <td>{{ a.area }}</td>
+          <td><span class="badge badge-{{ a.prioridad|lower }}">{{ a.prioridad }}</span></td>
+          <td>{{ a.inicio }}</td>
+          <td>{{ a.fin }}</td>
+          <td>{{ a.responsable }}</td>
+          <td style="font-size:12px">{{ a.kpi }}</td>
+          <td>
+            <button class="status-btn {{ a.status }}" onclick="toggleStatus({{ a.num }}, this)" data-num="{{ a.num }}">{{ a.status }}</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function filterPriority(val) {
+  document.querySelectorAll('tbody tr').forEach(tr => {
+    tr.style.display = (val === 'all' || tr.dataset.priority === val) ? '' : 'none';
+  });
+}
+function toggleStatus(num, btn) {
+  const originalText = btn.textContent.trim();
+  const next = originalText === 'pendiente' ? 'completado' : 'pendiente';
+  btn.disabled = true;
+  btn.textContent = '...';
+  fetch('/plan/' + num + '/status', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({status: next})
+  }).then(r => r.json()).then(data => {
+    if (data.ok) {
+      btn.textContent = next;
+      btn.className = 'status-btn ' + next;
+    } else {
+      btn.textContent = originalText;
+      alert('Error al actualizar: ' + (data.error || 'desconocido'));
+    }
+    btn.disabled = false;
+  }).catch(err => {
+    btn.textContent = originalText;
+    btn.disabled = false;
+    alert('Error de red: ' + err.message);
+  });
+}
+</script>
+{% endblock %}

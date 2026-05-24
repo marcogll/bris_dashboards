@@ -1,0 +1,7 @@
+[
+  {"categoria": "Trabajo productivo",          "tiempo_seg": "2068", "pct": "46.1"},
+  {"categoria": "Verificaciones / CTQ",        "tiempo_seg": "1037", "pct": "23.1"},
+  {"categoria": "Esperas (QA / material)",     "tiempo_seg": "599",  "pct": "13.3"},
+  {"categoria": "Retrabajo remaches",          "tiempo_seg": "399",  "pct": "8.9"},
+  {"categoria": "Caminatas innecesarias",      "tiempo_seg": "382",  "pct": "8.6"}
+]

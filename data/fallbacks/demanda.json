@@ -1,0 +1,10 @@
+[
+  {"programa": "ASCEND",    "part_number": "ASCND-4RU-12RT",  "dic": "400", "ene": "448", "feb": "300", "mar": "448", "abr": "448", "may": "560", "total": "2604", "pico": "May-25: 560"},
+  {"programa": "ASCEND",    "part_number": "ASCND-2RU-12RT",  "dic": "500", "ene": "400", "feb": "400", "mar": "500", "abr": "400", "may": "400", "total": "2600", "pico": "Dic+Mar: 500"},
+  {"programa": "ASCEND",    "part_number": "ASCND-1RU-12RT",  "dic": "232", "ene": "290", "feb": "232", "mar": "232", "abr": "290", "may": "232", "total": "1508", "pico": "Feb+May: 290"},
+  {"programa": "AFL HYPER", "part_number": "HCF-48U-SPL-001","dic": "0",   "ene": "60",  "feb": "80",  "mar": "60",  "abr": "60",  "may": "40",  "total": "300",  "pico": "Feb-25: 80"},
+  {"programa": "AFL HYPER", "part_number": "HCF-48U-ODF-003","dic": "28",  "ene": "35",  "feb": "28",  "mar": "14",  "abr": "0",   "may": "0",   "total": "105",  "pico": "Ene-25: 35"},
+  {"programa": "ASCEND",    "part_number": "ASCND-4RU-8RT",   "dic": "0",   "ene": "200", "feb": "0",   "mar": "0",   "abr": "0",   "may": "0",   "total": "200",  "pico": "Ene-25: 200"},
+  {"programa": "ASCEND",    "part_number": "ASCND-1RU-8RT",   "dic": "0",   "ene": "0",   "feb": "0",   "mar": "100", "abr": "0",   "may": "200", "total": "300",  "pico": "May-25: 200"},
+  {"programa": "ASCEND",    "part_number": "ASCND-2RU-8RT",   "dic": "100", "ene": "0",   "feb": "0",   "mar": "0",   "abr": "0",   "may": "0",   "total": "100",  "pico": "Dic-24: 100"}
+]
