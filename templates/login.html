@@ -30,8 +30,8 @@
 </head>
 <body>
   <div class="login-card">
-    <div class="login-logo">BRIS Dashboard</div>
-    <p class="login-sub">Ingresa tus credenciales para continuar</p>
+    <div class="login-logo" style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:16px;"><img src="/static/logo_cadrex.png" height="40" alt="Cadrex"><span>Cadrex — Kadrix</span></div>
+    <p class="login-sub">Sistema de Gestion de Proyectos y Mantenimiento</p>
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% for category, message in messages %}
         <div class="flash {{ category }}">{{ message }}</div>

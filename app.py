@@ -48,7 +48,7 @@ BASE_DIR = Path(__file__).resolve().parent
 DATA_FILE = Path(os.getenv("DATA_FILE", BASE_DIR / "data" / "stations.csv"))
 AVAILABLE_SECONDS = float(os.getenv("AVAILABLE_SECONDS", "39900"))
 TAKT_SECONDS = float(os.getenv("TAKT_SECONDS", "2216.666667"))
-APP_TITLE = os.getenv("APP_TITLE", "BRIS Rack Assembly Dashboard")
+APP_TITLE = os.getenv("APP_TITLE", "Cadrex — Kadrix")
 UPLOAD_SECRET = os.getenv("UPLOAD_SECRET", "")
 
 CURATED_DIR = BASE_DIR / "adriana_projects" / "data" / "curated"

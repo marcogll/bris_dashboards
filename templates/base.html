@@ -94,9 +94,9 @@
 <body>
 <nav>
   <div class="nav-inner">
-    <div class="nav-logo">BRIS Dashboard</div>
+    <div class="nav-logo" style="display:flex;align-items:center;gap:8px;"><img src="/static/logo_cadrex.png" height="28" alt="Cadrex"><span>Cadrex</span></div>
     <div class="nav-links">
-      <a class="nav-link {% if nav_active == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">Inicio</a>
+      <a class="nav-link {% if nav_active == 'kadrix' %}active{% endif %}" href="{{ url_for('kadrix.kadrix_hq') }}">Kadrix</a>
       <a class="nav-link {% if nav_active == 'produccion' %}active{% endif %}" href="{{ url_for('produccion') }}">Produccion</a>
       <a class="nav-link {% if nav_active == 'plan' %}active{% endif %}" href="{{ url_for('plan') }}">Plan de Accion</a>
       <a class="nav-link {% if nav_active == 'partes' %}active{% endif %}" href="{{ url_for('partes') }}">Partes</a>
