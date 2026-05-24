@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}Dashboard Maestro{% endblock %}
+
+{% block extra_css %}
+<style>
+.chart-container { position: relative; height: 260px; width: 100%; }
+.chart-container-lg { position: relative; height: 320px; width: 100%; }
+.mini-kpi { display: flex; flex-direction: column; gap: 4px; }
+.mini-kpi .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+.mini-kpi .value { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+.section-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.02em; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ===== HERO KPIs ===== -->
+<div class="kpi-row" style="margin-bottom:28px">
+  <div class="kpi hero">
+    <div class="label">Capacidad Actual</div>
+    <div class="value">{{ metrics.actual_units|num(1) }}<span style="font-size:14px;font-weight:500;opacity:.8"> pzs</span></div>
+    <div class="note">{{ metrics.takt_utilization|num(1) }}% del objetivo takt</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Gap vs Meta</div>
+    <div class="value" style="color:{{ '#ef4444' if metrics.gap_units > 0 else '#10b981' }}">{{ metrics.gap_units|num(1) }}<span style="font-size:14px;font-weight:500;color:var(--text-muted)"> pzs</span></div>
+    <div class="note">Meta: {{ metrics.target_units|num(1) }} pzs/turno</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Estaciones / Cuellos</div>
+    <div class="value" style="color:var(--accent-blue)">{{ metrics.stations|length }}<span style="font-size:14px;font-weight:500;color:var(--text-muted)"> / </span>{{ nf_cuellos + sm_cuellos }}</div>
+    <div class="note">NF: {{ nf_cuellos }} | SM: {{ sm_cuellos }}</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Demanda Total AFL</div>
+    <div class="value" style="color:var(--accent-purple)">{{ demanda_total }}<span style="font-size:14px;font-weight:500;color:var(--text-muted)"> u</span></div>
+    <div class="note">Pico May-25: {{ demanda_pico }}u</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Trabajo Productivo</div>
+    <div class="value" style="color:var(--accent-green)">{{ prod_pct|num(1) }}%</div>
+    <div class="note">de tiempo total estación</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Presupuesto $15K</div>
+    <div class="value" style="color:var(--accent-orange)">{{ cadrex.budget.pct|num(1) }}%</div>
+    <div class="note">${{ cadrex.budget.spent|num(0) }} / ${{ cadrex.budget.total|num(0) }}</div>
+  </div>
+</div>
+
+<!-- ===== PRODUCCION + DESPERDICIOS ===== -->
+<div class="two-col" style="margin-bottom:20px">
+  <div class="card">
+    <div class="card-head"><h3>Cycle Time por Estacion</h3></div>
+    <div class="card-body">
+      <div class="chart-container"><canvas id="chartCt"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Composicion del Tiempo</h3></div>
+    <div class="card-body">
+      <div class="chart-container"><canvas id="chartWaste"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DEMANDA + THROUGHPUT ===== -->
+<div class="two-col" style="margin-bottom:20px">
+  <div class="card">
+    <div class="card-head"><h3>Demanda AFL Mensual</h3></div>
+    <div class="card-body">
+      <div class="chart-container"><canvas id="chartDemand"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Throughput — Impacto Mejoras</h3></div>
+    <div class="card-body">
+      <div class="chart-container"><canvas id="chartThroughput"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PLAN DE ACCION + CADREX ===== -->
+<div class="two-col" style="margin-bottom:20px">
+  <div class="card">
+    <div class="card-head"><h3>Plan de Accion — Resumen</h3></div>
+    <div class="card-body">
+      <div class="kpi-row" style="margin-bottom:16px; grid-template-columns: repeat(4, 1fr);">
+        <div class="mini-kpi"><div class="label">Total</div><div class="value">{{ plan_summary.total }}</div></div>
+        <div class="mini-kpi"><div class="label">Alta</div><div class="value" style="color:var(--accent-red)">{{ plan_summary.alta }}</div></div>
+        <div class="mini-kpi"><div class="label">Media</div><div class="value" style="color:var(--accent-yellow)">{{ plan_summary.media }}</div></div>
+        <div class="mini-kpi"><div class="label">Baja</div><div class="value" style="color:var(--accent-green)">{{ plan_summary.baja }}</div></div>
+      </div>
+      <div class="chart-container"><canvas id="chartPlan"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Cadrex — Operaciones</h3></div>
+    <div class="card-body">
+      <div class="kpi-row" style="margin-bottom:16px; grid-template-columns: repeat(3, 1fr);">
+        <div class="mini-kpi"><div class="label">Fixtures OK</div><div class="value" style="color:var(--accent-green)">{{ cadrex.fixtures_active }}</div></div>
+        <div class="mini-kpi"><div class="label">Proyectos</div><div class="value" style="color:var(--accent-blue)">{{ cadrex.projects_active }}</div></div>
+        <div class="mini-kpi"><div class="label">Tareas</div><div class="value" style="color:var(--accent-purple)">{{ cadrex.tasks_total }}</div></div>
+      </div>
+      {% if cadrex.activities_week %}
+      <div class="chart-container"><canvas id="chartActivities"></canvas></div>
+      {% else %}
+      <div style="text-align:center;color:var(--text-muted);padding:20px">Sin datos de actividades (DB no conectada)</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- ===== ROI + KANBAN ===== -->
+<div class="two-col" style="margin-bottom:20px">
+  <div class="card">
+    <div class="card-head"><h3>ROI — Presupuesto $15K</h3></div>
+    <div class="card-body">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-size:13px;color:var(--text-secondary)">Comprometido</span>
+        <span style="font-size:13px;font-weight:700">${{ cadrex.budget.spent|num(0) }} / ${{ cadrex.budget.total|num(0) }}</span>
+      </div>
+      <div class="progress-bar" style="margin-bottom:16px"><div class="fill" style="width:{{ cadrex.budget.pct }}%"></div></div>
+      <div class="chart-container"><canvas id="chartRoi"></canvas></div>
+      {% if cadrex.improvements %}
+      <div style="margin-top:14px">
+        <div class="label" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:8px">Top Mejoras</div>
+        {% for imp in cadrex.improvements %}
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border-light);font-size:12px">
+          <span>{{ imp.title }}</span>
+          <span style="font-weight:700;color:var(--accent-green)">${{ (imp.expected_savings_usd_annual or 0)|num(0) }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Alertas Kanban & Material</h3></div>
+    <div class="card-body">
+      <div class="kpi-row" style="margin-bottom:16px; grid-template-columns: repeat(2, 1fr);">
+        <div class="mini-kpi"><div class="label">Criticas ≤3 dias</div><div class="value" style="color:var(--accent-red)">{{ kanban_crit }}</div></div>
+        <div class="mini-kpi"><div class="label">Advertencia ≤7 dias</div><div class="value" style="color:var(--accent-yellow)">{{ kanban_warn }}</div></div>
+      </div>
+      <div class="chart-container"><canvas id="chartKanban"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DETALLE ESTACIONES ===== -->
+<div class="card">
+  <div class="card-head"><h3>Detalle de Estaciones — Capacidad</h3></div>
+  <div class="card-body">
+    <div class="bars">
+      {% for s in metrics.stations %}
+      <div class="bar">
+        <div class="bar-label">{{ s.raw.station_name }}</div>
+        <div class="bar-track">
+          <div class="bar-fill {{ 'crit' if s.status == 'critical' else ('warn' if s.status == 'warning' else 'ok') }}" style="width:{{ s.bar_width }}%">{{ s.raw.capacity_per_hour|num(1) }} pzs/h</div>
+        </div>
+        <div class="bar-val" style="color:{{ '#ef4444' if s.takt_gap > 0 else '#10b981' }}">{{ '+' if s.takt_gap > 0 }}{{ s.takt_gap|num(0) }}s</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+Chart.defaults.color = '#64748b';
+Chart.defaults.scale.grid.color = '#f1f5f9';
+
+const colors = {
+  orange: '#f97316',
+  pink: '#ec4899',
+  blue: '#3b82f6',
+  green: '#10b981',
+  red: '#ef4444',
+  yellow: '#f59e0b',
+  purple: '#8b5cf6',
+  teal: '#14b8a6',
+  slate: '#94a3b8'
+};
+
+// 1. CT por estacion (bar chart)
+{% if metrics.stations %}
+new Chart(document.getElementById('chartCt'), {
+  type: 'bar',
+  data: {
+    labels: [{% for s in metrics.stations %}'{{ s.raw.station_name }}'{% if not loop.last %},{% endif %}{% endfor %}],
+    datasets: [
+      {
+        label: 'CT Actual (s)',
+        data: [{% for s in metrics.stations %}{{ s.raw.time_seconds }}{% if not loop.last %},{% endif %}{% endfor %}],
+        backgroundColor: [{% for s in metrics.stations %}'{{ '#ef4444' if s.status == 'critical' else ('#f59e0b' if s.status == 'warning' else '#3b82f6') }}'{% if not loop.last %},{% endif %}{% endfor %}],
+        borderRadius: 6,
+      },
+      {
+        label: 'Takt (s)',
+        data: [{% for s in metrics.stations %}{{ takt_seconds }}{% if not loop.last %},{% endif %}{% endfor %}],
+        type: 'line',
+        borderColor: colors.purple,
+        borderWidth: 2,
+        pointRadius: 0,
+        fill: false,
+      }
+    ]
+  },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true } }, scales: { y: { beginAtZero: true } } }
+});
+{% endif %}
+
+// 2. Desperdicios (doughnut)
+{% if desperdicios %}
+new Chart(document.getElementById('chartWaste'), {
+  type: 'doughnut',
+  data: {
+    labels: [{% for d in desperdicios %}'{{ d.categoria }}'{% if not loop.last %},{% endif %}{% endfor %}],
+    datasets: [{
+      data: [{% for d in desperdicios %}{{ d.pct }}{% if not loop.last %},{% endif %}{% endfor %}],
+      backgroundColor: [colors.orange, colors.blue, colors.red, colors.yellow, colors.purple, colors.teal],
+      borderWidth: 0,
+      hoverOffset: 8
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 11 } } } } }
+});
+{% endif %}
+
+// 3. Demanda mensual (line chart)
+{% if demanda %}
+new Chart(document.getElementById('chartDemand'), {
+  type: 'line',
+  data: {
+    labels: ['Dic', 'Ene', 'Feb', 'Mar', 'Abr', 'May'],
+    datasets: [
+      {% for d in demanda %}
+      {
+        label: '{{ d.programa }}',
+        data: [{{ d.dic or 0 }}, {{ d.ene or 0 }}, {{ d.feb or 0 }}, {{ d.mar or 0 }}, {{ d.abr or 0 }}, {{ d.may or 0 }}],
+        borderColor: '{{ ['#f97316','#3b82f6','#10b981','#8b5cf6','#ef4444','#f59e0b'][loop.index0 % 6] }}',
+        backgroundColor: '{{ ['#f97316','#3b82f6','#10b981','#8b5cf6','#ef4444','#f59e0b'][loop.index0 % 6] }}20',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 4,
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true } }, scales: { y: { beginAtZero: true } } }
+});
+{% endif %}
+
+// 4. Throughput (bar chart)
+{% if throughput %}
+new Chart(document.getElementById('chartThroughput'), {
+  type: 'bar',
+  data: {
+    labels: [{% for t in throughput %}'{{ t.etapa }}'{% if not loop.last %},{% endif %}{% endfor %}],
+    datasets: [{
+      label: 'Pzas/turno',
+      data: [{% for t in throughput %}{{ t.pzas_hr }}{% if not loop.last %},{% endif %}{% endfor %}],
+      backgroundColor: [{% for t in throughput %}'{{ '#f97316' if loop.last else '#3b82f6' }}'{% if not loop.last %},{% endif %}{% endfor %}],
+      borderRadius: 6,
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+});
+{% endif %}
+
+// 5. Plan de accion (stacked bar)
+new Chart(document.getElementById('chartPlan'), {
+  type: 'bar',
+  data: {
+    labels: ['ALTA', 'MEDIA', 'BAJA'],
+    datasets: [
+      { label: 'Pendiente', data: [{{ plan_summary.alta }}, {{ plan_summary.media }}, {{ plan_summary.baja }}], backgroundColor: colors.slate, borderRadius: 4 },
+      { label: 'Completado', data: [0, 0, 0], backgroundColor: colors.green, borderRadius: 4 }
+    ]
+  },
+  options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: true } }, scales: { x: { stacked: true }, y: { stacked: true } } }
+});
+
+// 6. Actividades (doughnut)
+{% if cadrex.activities_week %}
+new Chart(document.getElementById('chartActivities'), {
+  type: 'doughnut',
+  data: {
+    labels: [{% for a in cadrex.activities_week %}'{{ a.activity_type }}'{% if not loop.last %},{% endif %}{% endfor %}],
+    datasets: [{
+      data: [{% for a in cadrex.activities_week %}{{ a.total_min }}{% if not loop.last %},{% endif %}{% endfor %}],
+      backgroundColor: [colors.orange, colors.blue, colors.green, colors.purple, colors.red, colors.teal],
+      borderWidth: 0,
+      hoverOffset: 8
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 11 } } } } }
+});
+{% endif %}
+
+// 7. ROI (bar chart)
+{% if cadrex.improvements %}
+new Chart(document.getElementById('chartRoi'), {
+  type: 'bar',
+  data: {
+    labels: [{% for imp in cadrex.improvements %}'{{ imp.title[:12] }}...'{% if not loop.last %},{% endif %}{% endfor %}],
+    datasets: [{
+      label: 'Ahorro Anual ($)',
+      data: [{% for imp in cadrex.improvements %}{{ imp.expected_savings_usd_annual or 0 }}{% if not loop.last %},{% endif %}{% endfor %}],
+      backgroundColor: colors.green,
+      borderRadius: 6,
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+});
+{% endif %}
+
+// 8. Kanban (gauge-like bar)
+new Chart(document.getElementById('chartKanban'), {
+  type: 'bar',
+  data: {
+    labels: ['Criticas', 'Advertencia', 'OK'],
+    datasets: [{
+      label: 'Alertas',
+      data: [{{ kanban_crit }}, {{ kanban_warn }}, {{ 0 if kanban_crit == 0 and kanban_warn == 0 else 1 }}],
+      backgroundColor: [colors.red, colors.yellow, colors.green],
+      borderRadius: 6,
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
+});
+</script>
+{% endblock %}

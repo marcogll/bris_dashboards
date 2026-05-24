@@ -18,8 +18,8 @@
 
     <nav class="sidebar-nav">
       <div class="nav-section-title">Principal</div>
-      <a class="nav-item {% if nav_active == 'cadrex' %}active{% endif %}" href="{{ url_for('cadrex.kadrix_hq') }}">
-        <span class="nav-icon">◆</span> Cadrex HQ
+      <a class="nav-item {% if nav_active == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
+        <span class="nav-icon">◆</span> Dashboard
       </a>
       <a class="nav-item {% if nav_active == 'produccion' %}active{% endif %}" href="{{ url_for('produccion') }}">
         <span class="nav-icon">▣</span> Produccion

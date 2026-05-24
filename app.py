@@ -22,6 +22,7 @@ from flask import (
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from kadrix import kadrix_bp
+from kadrix.db import query as db_query
 
 # ──────────────────────────────────────────────
 #  Logging
@@ -387,11 +388,166 @@ def server_error(e):
 
 
 # ──────────────────────────────────────────────
-#  Routes — main dashboard (now Cadrex HQ)
+#  KPI Dashboard (master view)
 # ──────────────────────────────────────────────
+def _kpi_cadrex() -> dict:
+    """Collect Cadrex operational KPIs from MySQL with graceful fallback."""
+    kpis: dict[str, Any] = {
+        "fixtures_total": 0,
+        "fixtures_active": 0,
+        "fixtures_maintenance": 0,
+        "fixtures_damaged": 0,
+        "projects_total": 0,
+        "projects_active": 0,
+        "tasks_total": 0,
+        "tasks_overdue": 0,
+        "activities_week": [],
+        "budget": {},
+        "improvements": [],
+        "lines": [],
+    }
+    # Fixtures
+    rows = db_query("SELECT status, COUNT(*) as n FROM kadrix_fixtures GROUP BY status")
+    for r in rows:
+        st = r.get("status", "")
+        n = r.get("n", 0) or 0
+        kpis["fixtures_total"] += n
+        if st == "active":
+            kpis["fixtures_active"] = n
+        elif st == "maintenance":
+            kpis["fixtures_maintenance"] = n
+        elif st == "inactive":
+            kpis["fixtures_damaged"] = n
+
+    # Projects
+    rows = db_query("SELECT status, COUNT(*) as n FROM kadrix_projects GROUP BY status")
+    for r in rows:
+        st = r.get("status", "")
+        n = r.get("n", 0) or 0
+        kpis["projects_total"] += n
+        if st == "active":
+            kpis["projects_active"] = n
+
+    # Tasks
+    rows = db_query(
+        "SELECT COUNT(*) as n FROM kadrix_tasks t JOIN kadrix_columns c ON t.column_id = c.id WHERE c.name != 'Done'"
+    )
+    if rows:
+        kpis["tasks_total"] = rows[0].get("n", 0) or 0
+
+    rows = db_query(
+        "SELECT COUNT(*) as n FROM kadrix_tasks WHERE due_date IS NOT NULL AND due_date < CURDATE()"
+    )
+    if rows:
+        kpis["tasks_overdue"] = rows[0].get("n", 0) or 0
+
+    # Activities last 7 days
+    kpis["activities_week"] = db_query(
+        "SELECT activity_type, SUM(duration_minutes) as total_min "
+        "FROM kadrix_activities WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) "
+        "GROUP BY activity_type ORDER BY total_min DESC"
+    )
+
+    # Budget / ROI
+    rows = db_query("SELECT COALESCE(SUM(amount),0) as spent FROM kadrix_budget_tracking")
+    spent = (rows[0].get("spent") if rows else 0) or 0
+    kpis["budget"] = {
+        "total": 15000,
+        "spent": float(spent),
+        "remaining": 15000 - float(spent),
+        "pct": round(float(spent) / 15000 * 100, 1) if 15000 else 0,
+    }
+
+    # Improvements
+    kpis["improvements"] = db_query(
+        "SELECT title, expected_savings_usd_annual, expected_time_saved_sec, status "
+        "FROM kadrix_improvements ORDER BY expected_savings_usd_annual DESC LIMIT 5"
+    )
+
+    # Lines with baseline
+    kpis["lines"] = db_query(
+        "SELECT l.code, l.name, l.takt_seconds, l.target_pieces_per_shift, "
+        "COUNT(DISTINCT s.id) as station_count, "
+        "COALESCE(AVG(b.cycle_time_seconds),0) as avg_ct, "
+        "COALESCE(MAX(b.cycle_time_seconds),0) as max_ct "
+        "FROM kadrix_lines l "
+        "LEFT JOIN kadrix_stations s ON s.line_id = l.id AND s.active = 1 "
+        "LEFT JOIN kadrix_baseline_metrics b ON b.line_id = l.id "
+        "WHERE l.active = 1 GROUP BY l.id ORDER BY l.code"
+    )
+
+    return kpis
+
+
 @app.route("/")
 def dashboard() -> str:
-    return redirect(url_for("cadrex.kadrix_hq"))
+    # Production metrics from stations.csv
+    stations = read_stations()
+    metrics = build_metrics(stations)
+
+    # Curated data
+    balanceo = read_balanceo()
+    desperdicios = read_desperdicios()
+    throughput = read_throughput()
+    demanda = read_demanda()
+    plan = read_plan_accion()
+
+    # Plan summary
+    plan_summary = {
+        "total": len(plan),
+        "alta": len([p for p in plan if p.get("prioridad") == "ALTA"]),
+        "media": len([p for p in plan if p.get("prioridad") == "MEDIA"]),
+        "baja": len([p for p in plan if p.get("prioridad") == "BAJA"]),
+        "completado": len([p for p in plan if p.get("status") == "completado"]),
+        "pendiente": len([p for p in plan if p.get("status") != "completado"]),
+    }
+
+    # Demand totals
+    demanda_total = sum(int(float(d.get("total", 0) or 0)) for d in demanda)
+    demanda_pico = max((int(float(d.get("may", 0) or 0)) for d in demanda), default=0)
+
+    # Balanceo summary
+    nf_rows = balanceo.get("NORTHFACE", [])
+    sm_rows = balanceo.get("SANMINA", [])
+    nf_cuellos = [r for r in nf_rows if float(r.get("ct_actual", 0) or 0) > float(r.get("takt", 0) or 0)]
+    sm_cuellos = [r for r in sm_rows if float(r.get("ct_actual", 0) or 0) > float(r.get("takt", 0) or 0)]
+
+    # Desperdicios productive %
+    prod_pct = 0.0
+    for d in desperdicios:
+        if "productivo" in d.get("categoria", "").lower():
+            prod_pct = float(d.get("pct", 0) or 0)
+            break
+
+    # Cadrex/MySQL KPIs
+    cadrex = _kpi_cadrex()
+
+    # Kanban critical alerts
+    kanban = read_kanban()
+    kanban_crit = len([k for k in kanban if k.get("_urgency") == "critical"])
+    kanban_warn = len([k for k in kanban if k.get("_urgency") == "warning"])
+
+    return render_template(
+        "dashboard_master.html",
+        title="Cadrex — Dashboard Maestro",
+        nav_active="dashboard",
+        metrics=metrics,
+        balanceo=balanceo,
+        desperdicios=desperdicios,
+        throughput=throughput,
+        demanda=demanda,
+        demanda_total=demanda_total,
+        demanda_pico=demanda_pico,
+        plan_summary=plan_summary,
+        nf_cuellos=len(nf_cuellos),
+        sm_cuellos=len(sm_cuellos),
+        prod_pct=prod_pct,
+        cadrex=cadrex,
+        kanban_crit=kanban_crit,
+        kanban_warn=kanban_warn,
+        available_seconds=AVAILABLE_SECONDS,
+        takt_seconds=TAKT_SECONDS,
+    )
 
 
 @app.route("/data.csv")
