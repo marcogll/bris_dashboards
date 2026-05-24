@@ -20,14 +20,13 @@ services:
     networks:
       - bris-network
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health').read()"]
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health').read()"]
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 30s
     depends_on:
-      mysql:
-        condition: service_healthy
+      - mysql
 
   mysql:
     image: mysql:8.4
@@ -65,8 +64,7 @@ services:
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
     depends_on:
-      mysql:
-        condition: service_healthy
+      - mysql
     command: ["python", "adriana_projects/scripts/load_mysql.py"]
     networks:
       - bris-network
