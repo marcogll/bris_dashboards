@@ -26,6 +26,7 @@ from flask_login import (
     login_user,
     logout_user,
 )
+from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import check_password_hash, generate_password_hash
 
 # ──────────────────────────────────────────────
@@ -52,6 +53,7 @@ USERS_FILE = BASE_DIR / "data" / "users.json"
 FALLBACKS_DIR = BASE_DIR / "data" / "fallbacks"
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
 SECRET_KEY = os.getenv("SECRET_KEY", "")
 FLASK_ENV = os.getenv("FLASK_ENV", "production")
@@ -763,6 +765,11 @@ def api_summary() -> Response:
 @login_required
 def api_demanda() -> Response:
     return jsonify(read_demanda())
+
+
+@app.route("/healthz")
+def healthz() -> dict[str, str]:
+    return {"status": "ok"}
 
 
 @app.route("/health")

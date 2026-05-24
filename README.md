@@ -281,6 +281,39 @@ Para actualizar informacion:
 4. Las vistas permiten revisar riesgos de materiales, carga de estaciones y work centers.
 5. El dashboard sigue disponible para KPIs rapidos de ensamble desde CSV.
 
+## Integracion Multiagente (Vanity Ecosystem)
+
+BRIS Dashboard puede operar como un agente mas dentro del ecosistema Vanity.
+
+### Caracteristicas de compatibilidad
+
+- **ProxyFix**: soporta reverse proxy (Traefik/Nginx) via `werkzeug.middleware.proxy_fix`
+- **Healthcheck**: endpoint `/healthz` compatible con el patron de servicios Vanity
+- **Puerto dinamico**: configurable via variable `PORT`
+
+### Registro en HQ Wrapper
+
+Agregar a `SYSTEMS` en `vanity_hq_wrapper/app.py`:
+
+```python
+"bris_dashboard": {
+    "name": "BRIS Dashboard",
+    "description": "KPIs de ensamble, balanceo de lineas, BOM y kanban.",
+    "url": os.getenv("VANITY_BRIS_PUBLIC_URL", "http://bris-dashboard:5004"),
+    "modules": ["production", "plan", "parts", "kanban", "reports"],
+}
+```
+
+### Docker Compose con Vanity
+
+Usar `docker-compose.vanity.yml`:
+
+```bash
+docker compose -f docker-compose.vanity.yml up -d
+```
+
+Requiere que la red `vanity-network` ya exista (creada por el compose principal de Vanity).
+
 ## Notas de mantenimiento
 
 - Los Excel originales se conservan como fuentes.

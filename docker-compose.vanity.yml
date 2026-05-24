@@ -1,15 +1,29 @@
+# Integracion de BRIS Dashboard en el ecosistema Vanity Multiagente
+# Uso: docker compose -f docker-compose.vanity.yml up -d
+#
+# Este compose asume que la red vanity-network ya existe (creada por el compose principal de vanity).
+# Si no existe, crearla primero: docker network create vanity-network
+
 services:
   bris-dashboard:
     build: .
+    container_name: vanity-bris-dashboard
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      - PORT=5004
+      - SECRET_KEY=${SECRET_KEY:?required}
+      - FLASK_ENV=production
     expose:
-      - "5000"
+      - "5004"
     volumes:
       - ./data:/app/data
+      - bris_data:/app/instance
+    networks:
+      - vanity-network
     healthcheck:
-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/healthz').read()"]
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5004/healthz').read()"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -19,6 +33,7 @@ services:
 
   mysql:
     image: mysql:8.4
+    container_name: vanity-bris-mysql
     restart: unless-stopped
     env_file:
       - .env
@@ -30,8 +45,10 @@ services:
     expose:
       - "3306"
     volumes:
-      - mysql-data:/var/lib/mysql
+      - bris_mysql_data:/var/lib/mysql
       - ./adriana_projects/mysql/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - vanity-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-bris_root_password}"]
       interval: 20s
@@ -41,6 +58,7 @@ services:
 
   adriana-importer:
     build: .
+    container_name: vanity-bris-importer
     profiles:
       - import
     env_file:
@@ -51,6 +69,13 @@ services:
     depends_on:
       - mysql
     command: ["python", "adriana_projects/scripts/load_mysql.py"]
+    networks:
+      - vanity-network
 
 volumes:
-  mysql-data:
+  bris_mysql_data:
+  bris_data:
+
+networks:
+  vanity-network:
+    external: true
