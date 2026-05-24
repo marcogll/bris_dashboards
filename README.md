@@ -34,7 +34,7 @@ El objetivo es que la informacion de proyectos, materiales, BOM, PFEP, work cent
 ```text
 .
 ├── app.py
-├── compose.yml
+├── docker-compose.yml
 ├── Dockerfile
 ├── data/
 │   └── stations.csv
@@ -256,7 +256,7 @@ ORDER BY station_name, step;
 
 ## Coolify
 
-Usar `compose.yml` como Docker Compose file.
+Usar `docker-compose.yml` como Docker Compose file.
 
 Configuracion recomendada:
 
