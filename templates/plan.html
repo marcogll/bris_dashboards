@@ -1,18 +1,34 @@
 {% extends "base.html" %}
 {% block title %}Plan de Accion — {{ title }}{% endblock %}
+{% block page_title %}Plan de Accion{% endblock %}
 {% block content %}
-  <h1>Plan de Accion</h1>
-  <p class="subtitle">{{ acciones|length }} acciones de mejora para lineas de produccion</p>
+  <div class="page-header">
+    <h1>Plan de Accion</h1>
+    <p class="subtitle">{{ acciones|length }} acciones de mejora para lineas de produccion</p>
+  </div>
 
-  <div class="summary" style="display:flex;gap:20px;margin-bottom:18px;">
-    <div class="summary-item" style="font-size:13px;"><strong style="color:#dc2626;margin-right:4px;">ALTA:</strong> {{ alta|length }}</div>
-    <div class="summary-item" style="font-size:13px;"><strong style="color:#d97706;margin-right:4px;">MEDIA:</strong> {{ media|length }}</div>
-    <div class="summary-item" style="font-size:13px;"><strong style="color:#16a34a;margin-right:4px;">BAJA:</strong> {{ baja|length }}</div>
-    <div class="summary-item" style="font-size:13px;"><strong style="margin-right:4px;">Lineas:</strong> {{ lineas|join(', ') }}</div>
+  <div class="kpi-row" style="margin-bottom:20px">
+    <div class="kpi">
+      <div class="label">Prioridad Alta</div>
+      <div class="value" style="color:var(--accent-red)">{{ alta|length }}</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Prioridad Media</div>
+      <div class="value" style="color:var(--accent-yellow)">{{ media|length }}</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Prioridad Baja</div>
+      <div class="value" style="color:var(--accent-green)">{{ baja|length }}</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Lineas</div>
+      <div class="value">{{ lineas|length }}</div>
+      <div class="note">{{ lineas|join(', ') }}</div>
+    </div>
   </div>
 
   <div class="filters">
-    <label style="font-size:13px;color:#64748b">Filtrar prioridad:</label>
+    <label style="font-size:13px;color:var(--text-secondary);font-weight:500">Filtrar prioridad:</label>
     <select onchange="filterPriority(this.value)">
       <option value="all">Todas</option>
       <option value="ALTA">ALTA</option>
@@ -21,32 +37,36 @@
     </select>
   </div>
 
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>#</th><th>Accion</th><th>Linea</th><th>Area</th><th>Prioridad</th><th>Inicio</th><th>Fin</th><th>Responsable</th><th>KPI</th><th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for a in acciones %}
-        <tr data-priority="{{ a.prioridad }}">
-          <td class="num">{{ a.num }}</td>
-          <td>{{ a.accion }}</td>
-          <td>{{ a.linea }}</td>
-          <td>{{ a.area }}</td>
-          <td><span class="badge badge-{{ a.prioridad|lower }}">{{ a.prioridad }}</span></td>
-          <td>{{ a.inicio }}</td>
-          <td>{{ a.fin }}</td>
-          <td>{{ a.responsable }}</td>
-          <td style="font-size:12px">{{ a.kpi }}</td>
-          <td>
-            <button class="status-btn {{ a.status }}" onclick="toggleStatus({{ a.num }}, this)" data-num="{{ a.num }}">{{ a.status }}</button>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="card">
+    <div class="card-body">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="num">#</th><th>Accion</th><th>Linea</th><th>Area</th><th>Prioridad</th><th>Inicio</th><th>Fin</th><th>Responsable</th><th>KPI</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for a in acciones %}
+            <tr data-priority="{{ a.prioridad }}">
+              <td class="num">{{ a.num }}</td>
+              <td>{{ a.accion }}</td>
+              <td>{{ a.linea }}</td>
+              <td>{{ a.area }}</td>
+              <td><span class="badge badge-{{ a.prioridad|lower }}">{{ a.prioridad }}</span></td>
+              <td>{{ a.inicio }}</td>
+              <td>{{ a.fin }}</td>
+              <td>{{ a.responsable }}</td>
+              <td style="font-size:12px">{{ a.kpi }}</td>
+              <td>
+                <button class="status-btn {{ a.status }}" onclick="toggleStatus({{ a.num }}, this)" data-num="{{ a.num }}">{{ a.status }}</button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 {% endblock %}
 {% block extra_js %}

@@ -1,41 +1,35 @@
 {% extends "base.html" %}
 
 {% block title %}{{ title }}{% endblock %}
-
-{% block extra_css %}
-<style>
-  .summary-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-bottom: 22px; }
-  .summary-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; }
-  .summary-item .s-label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
-  .summary-item .s-value { font-size: 20px; font-weight: 700; }
-</style>
-{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
 
 {% block content %}
-<h1>{{ title }}</h1>
-<p class="subtitle">Inventario completo de fixtures y su estado operativo.</p>
+<div class="page-header">
+  <h1>{{ title }}</h1>
+  <p class="subtitle">Inventario completo de fixtures y su estado operativo.</p>
+</div>
 
 <!-- Resumen -->
-<div class="summary-row">
-  <div class="summary-item green">
-    <div class="s-label">Fixtures Operativos</div>
-    <div class="s-value" style="color:#16a34a;">{{ stats.by_status.get('active', 0) }}</div>
+<div class="kpi-row" style="margin-bottom:22px">
+  <div class="kpi">
+    <div class="label">Operativos</div>
+    <div class="value" style="color:var(--accent-green)">{{ stats.by_status.get('active', 0) }}</div>
   </div>
-  <div class="summary-item amber">
-    <div class="s-label">En Mantenimiento</div>
-    <div class="s-value" style="color:#d97706;">{{ stats.in_maintenance }}</div>
+  <div class="kpi">
+    <div class="label">En Mantenimiento</div>
+    <div class="value" style="color:var(--accent-yellow)">{{ stats.in_maintenance }}</div>
   </div>
-  <div class="summary-item red">
-    <div class="s-label">Dañados</div>
-    <div class="s-value" style="color:#dc2626;">{{ stats.damaged }}</div>
+  <div class="kpi">
+    <div class="label">Danados</div>
+    <div class="value" style="color:var(--accent-red)">{{ stats.damaged }}</div>
   </div>
-  <div class="summary-item">
-    <div class="s-label">Retirados</div>
-    <div class="s-value" style="color:#64748b;">{{ stats.by_status.get('retired', 0) }}</div>
+  <div class="kpi">
+    <div class="label">Retirados</div>
+    <div class="value" style="color:var(--text-muted)">{{ stats.by_status.get('retired', 0) }}</div>
   </div>
-  <div class="summary-item blue">
-    <div class="s-label">Total</div>
-    <div class="s-value" style="color:#2563eb;">{{ stats.total }}</div>
+  <div class="kpi">
+    <div class="label">Total</div>
+    <div class="value" style="color:var(--accent-blue)">{{ stats.total }}</div>
   </div>
 </div>
 
@@ -54,8 +48,8 @@
     <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Dañado</option>
     <option value="retired" {% if status_filter == 'retired' %}selected{% endif %}>Retirado</option>
   </select>
-  <button type="submit" style="padding:6px 12px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;font:inherit;font-size:13px;cursor:pointer;">🔍 Filtrar</button>
-  <button type="button" onclick="alert('Funcionalidad en desarrollo')" style="padding:6px 12px;border:1px solid #2563eb;border-radius:6px;background:#2563eb;color:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer;margin-left:auto;">Registrar Mantenimiento</button>
+  <button type="submit" class="btn btn-ghost">🔍 Filtrar</button>
+  <button type="button" onclick="alert('Funcionalidad en desarrollo')" class="btn btn-primary" style="margin-left:auto">Registrar Mantenimiento</button>
 </form>
 
 <!-- Tabla -->
@@ -81,13 +75,13 @@
         <td>{{ f.station or '—' }}</td>
         <td>
           {% if f.status == 'active' %}
-          <span class="badge" style="background:#dcfce7;color:#16a34a;">Operativo</span>
+          <span class="badge badge-ok">Operativo</span>
           {% elif f.status == 'inactive' %}
-          <span class="badge" style="background:#fee2e2;color:#dc2626;">Dañado</span>
+          <span class="badge badge-crit">Dañado</span>
           {% elif f.status == 'maintenance' %}
-          <span class="badge" style="background:#fef3c7;color:#d97706;">Mantenimiento</span>
+          <span class="badge badge-warn">Mantenimiento</span>
           {% elif f.status == 'retired' %}
-          <span class="badge" style="background:#f1f5f9;color:#64748b;">Retirado</span>
+          <span class="badge badge-pendiente">Retirado</span>
           {% else %}
           <span class="badge badge-pendiente">{{ f.status or 'Desconocido' }}</span>
           {% endif %}
@@ -98,7 +92,7 @@
     </tbody>
   </table>
   {% else %}
-  <div style="padding: 24px; text-align: center; color: #64748b;">
+  <div style="padding: 28px; text-align: center; color: var(--text-muted);">
     No se encontraron fixtures con los filtros seleccionados.
   </div>
   {% endif %}

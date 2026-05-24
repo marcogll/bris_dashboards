@@ -1,22 +1,45 @@
 {% extends "base.html" %}
 {% block title %}Produccion — {{ title }}{% endblock %}
+{% block page_title %}Produccion{% endblock %}
 {% block extra_css %}
-.bars-prod { display: grid; gap: 6px; }
-.bar-prod { display: grid; grid-template-columns: 120px 1fr 1fr 70px 70px; align-items: center; gap: 8px; }
-.bar-prod .bar-label { font-size: 12px; font-weight: 500; }
-.bar-prod .bar-track { height: 18px; background: #f1f5f9; border-radius: 4px; overflow: hidden; position: relative; }
-.bar-prod .bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 6px; font-size: 10px; color: #fff; font-weight: 600; }
-.bar-prod .bar-fill.act.over { background: #dc2626; }
-.bar-prod .bar-fill.act.warn { background: #d97706; }
-.bar-prod .bar-fill.act.ok { background: #16a34a; }
-.bar-prod .bar-fill.meta { background: #93c5fd; }
-.bar-prod .bar-ahorro { font-size: 11px; font-weight: 600; color: #16a34a; text-align: right; }
-.bar-prod .bar-status { font-size: 11px; text-align: center; }
-@media(max-width:800px) { .bar-prod { grid-template-columns: 1fr; } }
+<style>
+.bars-prod { display: grid; gap: 8px; }
+.bar-prod {
+  display: grid;
+  grid-template-columns: 130px 1fr 1fr 80px 70px;
+  align-items: center; gap: 10px;
+  padding: 6px 0;
+}
+.bar-prod .bar-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.bar-prod .bar-track {
+  height: 22px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  position: relative;
+  box-shadow: var(--shadow-inset);
+}
+.bar-prod .bar-fill {
+  height: 100%; border-radius: var(--radius-sm);
+  display: flex; align-items: center;
+  padding-left: 8px;
+  font-size: 10px; font-weight: 700; color: #fff;
+}
+.bar-prod .bar-fill.act.over { background: linear-gradient(90deg, #ef4444, #f97316); }
+.bar-prod .bar-fill.act.warn { background: linear-gradient(90deg, #f59e0b, #f97316); }
+.bar-prod .bar-fill.act.ok { background: var(--gradient-green); }
+.bar-prod .bar-fill.meta { background: var(--gradient-blue); }
+.bar-prod .bar-ahorro { font-size: 11px; font-weight: 700; color: var(--accent-green); text-align: right; }
+.bar-prod .bar-status { text-align: center; }
+@media(max-width:900px) { .bar-prod { grid-template-columns: 1fr; gap: 6px; } }
+</style>
 {% endblock %}
+
 {% block content %}
-  <h1>Produccion — Balanceo de Lineas</h1>
-  <p class="subtitle">CT actual vs meta · NORTHFACE · SANMINA · Demanda AFL</p>
+  <div class="page-header">
+    <h1>Balanceo de Lineas</h1>
+    <p class="subtitle">CT actual vs meta · NORTHFACE · SANMINA · Demanda AFL</p>
+  </div>
 
   <div class="tabs">
     <button class="tab active" onclick="switchTab('nf', this)">NORTHFACE</button>
@@ -29,8 +52,8 @@
     {% set nf_rows = balanceo.get('NORTHFACE', []) %}
     <div class="card">
       <div class="card-head">
-        <h3>NORTHFACE — CT Actual vs Meta (Takt = 2,821 seg)</h3>
-        <span style="font-size:11px;color:#64748b">linea indigo = Takt</span>
+        <h3>NORTHFACE — CT Actual vs Meta <span style="font-size:12px;color:var(--text-muted);font-weight:500;">(Takt = 2,821 seg)</span></h3>
+        <span style="font-size:11px;color:var(--text-muted)">linea indigo = Takt</span>
       </div>
       <div class="card-body">
         {% set nf_max = 5000 %}
@@ -42,7 +65,7 @@
         {% set pct_met = (ct_met / nf_max * 100)|round %}
         {% set takt_pct = (takt / nf_max * 100)|round %}
         {% set s_class = 'over' if ct_act > takt else ('warn' if ct_act > takt * 0.95 else 'ok') %}
-        <div class="bars-prod" style="margin-bottom:6px">
+        <div class="bars-prod">
           <div class="bar-prod">
             <div class="bar-label">{{ r.estacion }}</div>
             <div class="bar-track">
@@ -66,13 +89,13 @@
     {% set sm_rows = balanceo.get('SANMINA', []) %}
     <div class="card">
       <div class="card-head">
-        <h3>SANMINA — CT Actual vs Meta (Takt = 2,217 seg)</h3>
+        <h3>SANMINA — CT Actual vs Meta <span style="font-size:12px;color:var(--text-muted);font-weight:500;">(Takt = 2,217 seg)</span></h3>
       </div>
       <div class="card-body">
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Estacion</th><th>CT Actual</th><th>CT Meta</th><th>Ahorro</th><th>Status</th></tr>
+              <tr><th>Estacion</th><th class="num">CT Actual</th><th class="num">CT Meta</th><th class="num">Ahorro</th><th>Status</th></tr>
             </thead>
             <tbody>
               {% for r in sm_rows %}
@@ -84,7 +107,7 @@
                 <td><strong>{{ r.estacion }}</strong></td>
                 <td class="num">{{ ct_act|int }}s</td>
                 <td class="num">{{ ct_met|int }}s</td>
-                <td class="num" style="color:#16a34a">{% if r.ahorro_seg|float > 0 %}-{{ r.ahorro_seg }}s{% else %}—{% endif %}</td>
+                <td class="num" style="color:var(--accent-green)">{% if r.ahorro_seg|float > 0 %}-{{ r.ahorro_seg }}s{% else %}—{% endif %}</td>
                 <td><span class="badge {{ s_class }}">{{ 'CUELLO' if ct_act > takt else 'OK' }}</span></td>
               </tr>
               {% endfor %}
@@ -100,10 +123,12 @@
       <div class="card">
         <div class="card-head"><h3>Composicion del tiempo — Est.7 NORTHFACE</h3></div>
         <div class="card-body">
-          <p style="font-size:12px;color:#64748b;margin-bottom:14px">Solo 46% es trabajo de valor. 2,417 seg perdidos en esperas, retrabajo y caminatas.</p>
+          <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px">
+            Solo <strong style="color:var(--text)">46%</strong> es trabajo de valor. 2,417 seg perdidos en esperas, retrabajo y caminatas.
+          </p>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Categoria</th><th>Tiempo (s)</th><th>%</th></tr></thead>
+              <thead><tr><th>Categoria</th><th class="num">Tiempo (s)</th><th class="num">%</th></tr></thead>
               <tbody>
                 {% for d in desperdicios %}
                 <tr>
@@ -122,7 +147,7 @@
         <div class="card-body">
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Etapa</th><th>Pzas/turno</th></tr></thead>
+              <thead><tr><th>Etapa</th><th class="num">Pzas/turno</th></tr></thead>
               <tbody>
                 {% for tp in throughput %}
                 <tr>
@@ -145,17 +170,17 @@
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Programa / PN</th><th>Dic</th><th>Ene</th><th>Feb</th><th>Mar</th><th>Abr</th><th>May</th><th>Total</th><th>Pico</th></tr>
+              <tr><th>Programa / PN</th><th class="num">Dic</th><th class="num">Ene</th><th class="num">Feb</th><th class="num">Mar</th><th class="num">Abr</th><th class="num">May</th><th class="num">Total</th><th>Pico</th></tr>
             </thead>
             <tbody>
               {% for d in demanda %}
               <tr>
-                <td><strong>{{ d.part_number }}</strong><br><span style="font-size:11px;color:#64748b">{{ d.programa }}</span></td>
+                <td><strong>{{ d.part_number }}</strong><br><span style="font-size:11px;color:var(--text-muted)">{{ d.programa }}</span></td>
                 {% for m in ['dic','ene','feb','mar','abr','may'] %}
                 <td class="num">{{ d[m] if d[m]|int > 0 else '—' }}</td>
                 {% endfor %}
-                <td class="num"><strong style="color:#2563eb">{{ d.total }}</strong></td>
-                <td><span style="font-size:11px;color:#d97706">{{ d.pico }}</span></td>
+                <td class="num"><strong style="color:var(--accent-blue)">{{ d.total }}</strong></td>
+                <td><span style="font-size:11px;color:var(--accent-orange)">{{ d.pico }}</span></td>
               </tr>
               {% endfor %}
             </tbody>
@@ -164,10 +189,11 @@
       </div>
     </div>
     <div class="alert warn">
-      Con los cuellos actuales (Est.6 NF a 4,923s vs Takt 2,821s) el sistema opera al 57% de capacidad. En el pico de May-25 (560u) se generarian retrasos en entregas AFL.
+      <strong>Alerta de capacidad:</strong> Con los cuellos actuales (Est.6 NF a 4,923s vs Takt 2,821s) el sistema opera al 57% de capacidad. En el pico de May-25 (560u) se generarian retrasos en entregas AFL.
     </div>
   </div>
 {% endblock %}
+
 {% block extra_js %}
 <script>
 function switchTab(id, btn) {

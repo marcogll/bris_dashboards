@@ -1,26 +1,31 @@
 {% extends "base.html" %}
 
 {% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
 
 {% block extra_css %}
 <style>
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-  .form-group label { display: block; font-size: 12px; font-weight: 500; color: #64748b; margin-bottom: 4px; }
-  .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font: inherit; font-size: 13px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); font: inherit; font-size: 13px; background: var(--surface); outline: none; transition: var(--transition); }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent-orange); box-shadow: 0 0 0 3px rgba(249,115,22,0.08); }
   .form-group textarea { resize: vertical; min-height: 80px; }
-  .form-actions { display: flex; gap: 10px; margin-top: 18px; }
-  .btn-primary { padding: 8px 18px; background: #2563eb; color: #fff; border: none; border-radius: 6px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
-  .hours-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
-  .hours-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; text-align: center; }
-  .hours-item .h-label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
-  .hours-item .h-value { font-size: 22px; font-weight: 700; color: #2563eb; }
+  .form-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .form-actions .btn-primary { padding: 10px 20px; background: var(--text); color: #fff; border: none; border-radius: var(--radius-sm); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: var(--transition); }
+  .form-actions .btn-primary:hover { background: #334155; }
+  .hours-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+  .hours-item { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 18px; text-align: center; box-shadow: var(--shadow-soft); }
+  .hours-item .h-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .hours-item .h-value { font-size: 24px; font-weight: 800; color: var(--accent-blue); letter-spacing: -0.02em; }
   @media(max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
 </style>
 {% endblock %}
 
 {% block content %}
-<h1>{{ title }}</h1>
-<p class="subtitle">Registra y consulta actividades de mantenimiento, reparación y mejora.</p>
+<div class="page-header">
+  <h1>{{ title }}</h1>
+  <p class="subtitle">Registra y consulta actividades de mantenimiento, reparacion y mejora.</p>
+</div>
 
 <!-- Formulario -->
 <div class="card" style="margin-bottom: 22px;">
@@ -87,7 +92,7 @@
       {% endfor %}
     </div>
     {% else %}
-    <div style="padding: 12px; text-align: center; color: #64748b;">
+    <div style="padding: 20px; text-align: center; color: var(--text-muted);">
       No hay actividades registradas esta semana.
     </div>
     {% endif %}
@@ -125,7 +130,7 @@
         </tbody>
       </table>
       {% else %}
-      <div style="padding: 24px; text-align: center; color: #64748b;">
+      <div style="padding: 28px; text-align: center; color: var(--text-muted);">
         No hay actividades registradas hoy.
       </div>
       {% endif %}

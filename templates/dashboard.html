@@ -1,33 +1,38 @@
 {% extends "base.html" %}
 {% block title %}{{ title }}{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
 {% block content %}
-  <h1>Rack Assembly Dashboard</h1>
-  <p class="subtitle">KPIs operativos — fuente: {{ data_file.name }}</p>
+  <div class="page-header">
+    <h1>Rack Assembly Dashboard</h1>
+    <p class="subtitle">KPIs operativos — fuente: {{ data_file.name }}</p>
+  </div>
 
   <div class="kpi-row">
-    <div class="kpi blue">
+    <div class="kpi hero">
       <div class="label">Capacidad actual</div>
-      <div class="value">{{ metrics.actual_units|num(1) }}<span style="font-size:14px;font-weight:400;color:#64748b"> pzs/turno</span></div>
+      <div class="value">{{ metrics.actual_units|num(1) }}<span style="font-size:15px;font-weight:500;opacity:.8"> pzs/turno</span></div>
       <div class="note">{{ metrics.takt_utilization|num(1) }}% del objetivo takt</div>
     </div>
-    <div class="kpi green">
+    <div class="kpi">
       <div class="label">Meta por takt</div>
-      <div class="value">{{ metrics.target_units|num(1) }}<span style="font-size:14px;font-weight:400;color:#64748b"> pzs/turno</span></div>
+      <div class="value" style="color:var(--accent-green)">{{ metrics.target_units|num(1) }}<span style="font-size:15px;font-weight:500;color:var(--text-muted)"> pzs/turno</span></div>
       <div class="note">{{ available_seconds|num(0) }}s / {{ takt_seconds|num(1) }}s takt</div>
     </div>
-    <div class="kpi {{ 'red' if metrics.gap_units > 0 else 'green' }}">
+    <div class="kpi">
       <div class="label">Gap vs meta</div>
-      <div class="value">{{ metrics.gap_units|num(1) }}<span style="font-size:14px;font-weight:400;color:#64748b"> pzs</span></div>
-      <div class="note">{{ 'Faltante' if metrics.gap_units > 0 else 'Dentro de meta' }}</div>
+      <div class="value" style="color:{{ '#ef4444' if metrics.gap_units > 0 else '#10b981' }}">{{ metrics.gap_units|num(1) }}<span style="font-size:15px;font-weight:500;color:var(--text-muted)"> pzs</span></div>
+      <div class="note">
+        <span class="trend {{ 'down' if metrics.gap_units > 0 else 'up' }}">{{ 'Faltante' if metrics.gap_units > 0 else 'Dentro de meta' }}</span>
+      </div>
     </div>
-    <div class="kpi amber">
+    <div class="kpi">
       <div class="label">Trabajo total</div>
-      <div class="value">{{ (metrics.total_work_seconds / 60)|num(1) }}<span style="font-size:14px;font-weight:400;color:#64748b"> min</span></div>
+      <div class="value" style="color:var(--accent-blue)">{{ (metrics.total_work_seconds / 60)|num(1) }}<span style="font-size:15px;font-weight:500;color:var(--text-muted)"> min</span></div>
       <div class="note">Suma de estaciones</div>
     </div>
-    <div class="kpi blue">
+    <div class="kpi">
       <div class="label">Estaciones</div>
-      <div class="value">{{ metrics.stations|length }}<span style="font-size:14px;font-weight:400;color:#64748b"> activas</span></div>
+      <div class="value" style="color:var(--accent-purple)">{{ metrics.stations|length }}<span style="font-size:15px;font-weight:500;color:var(--text-muted)"> activas</span></div>
       {% set cuellos = metrics.stations | selectattr('status', 'in', ['critical', 'warning']) | list %}
       <div class="note">{{ cuellos|length }} sobre takt</div>
     </div>
@@ -66,52 +71,56 @@
     </a>
   </div>
 
-  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:20px;margin-bottom:16px">
-    <h3 style="font-size:15px;font-weight:600;margin-bottom:14px">Capacidad por estacion</h3>
-    <div class="bars">
-      {% for s in metrics.stations %}
-      <div class="bar">
-        <div class="bar-label">{{ s.raw.station_name }}</div>
-        <div class="bar-track">
-          <div class="bar-fill {{ 'crit' if s.status == 'critical' else ('warn' if s.status == 'warning' else 'ok') }}" style="width:{{ s.bar_width }}%">{{ s.raw.capacity_per_hour|num(1) }} pzs/h</div>
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-head"><h3>Capacidad por estacion</h3></div>
+    <div class="card-body">
+      <div class="bars">
+        {% for s in metrics.stations %}
+        <div class="bar">
+          <div class="bar-label">{{ s.raw.station_name }}</div>
+          <div class="bar-track">
+            <div class="bar-fill {{ 'crit' if s.status == 'critical' else ('warn' if s.status == 'warning' else 'ok') }}" style="width:{{ s.bar_width }}%">{{ s.raw.capacity_per_hour|num(1) }} pzs/h</div>
+          </div>
+          <div class="bar-val" style="color:{{ '#ef4444' if s.takt_gap > 0 else '#10b981' }}">{{ '+' if s.takt_gap > 0 }}{{ s.takt_gap|num(0) }}s</div>
         </div>
-        <div class="bar-val" style="color:{{ '#dc2626' if s.takt_gap > 0 else '#16a34a' }}">{{ '+' if s.takt_gap > 0 }}{{ s.takt_gap|num(0) }}s</div>
+        {% endfor %}
       </div>
-      {% endfor %}
     </div>
   </div>
 
-  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:20px">
-    <h3 style="font-size:15px;font-weight:600;margin-bottom:12px">Detalle de estaciones</h3>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Estacion</th>
-            <th>Tiempo (s)</th>
-            <th>Ops</th>
-            <th>Pzs/h</th>
-            <th>Ciclo efectivo</th>
-            <th>% Trabajo</th>
-            <th>Takt %</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for s in metrics.stations %}
-          <tr>
-            <td>{{ s.raw.station_name }}</td>
-            <td class="num">{{ s.raw.time_seconds|num(0) }}</td>
-            <td class="num">{{ s.raw.operators|num(0) }}</td>
-            <td class="num"><strong>{{ s.raw.capacity_per_hour|num(2) }}</strong></td>
-            <td class="num">{{ s.raw.effective_cycle_seconds|num(0) }}s</td>
-            <td class="num">{{ s.work_share|num(1) }}%</td>
-            <td class="num">{{ s.takt_pct|num(0) }}%</td>
-            <td><span class="badge {{ 'badge-crit' if s.status == 'critical' else ('badge-warn' if s.status == 'warning' else 'badge-ok') }}">{{ s.status }}</span></td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <div class="card">
+    <div class="card-head"><h3>Detalle de estaciones</h3></div>
+    <div class="card-body">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Estacion</th>
+              <th class="num">Tiempo (s)</th>
+              <th class="num">Ops</th>
+              <th class="num">Pzs/h</th>
+              <th class="num">Ciclo efectivo</th>
+              <th class="num">% Trabajo</th>
+              <th class="num">Takt %</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in metrics.stations %}
+            <tr>
+              <td>{{ s.raw.station_name }}</td>
+              <td class="num">{{ s.raw.time_seconds|num(0) }}</td>
+              <td class="num">{{ s.raw.operators|num(0) }}</td>
+              <td class="num"><strong>{{ s.raw.capacity_per_hour|num(2) }}</strong></td>
+              <td class="num">{{ s.raw.effective_cycle_seconds|num(0) }}s</td>
+              <td class="num">{{ s.work_share|num(1) }}%</td>
+              <td class="num">{{ s.takt_pct|num(0) }}%</td>
+              <td><span class="badge {{ 'badge-crit' if s.status == 'critical' else ('badge-warn' if s.status == 'warning' else 'badge-ok') }}">{{ s.status }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 {% endblock %}

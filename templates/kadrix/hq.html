@@ -1,34 +1,37 @@
 {% extends "base.html" %}
 
 {% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
 
 {% block content %}
-<h1>{{ title }}</h1>
-<p class="subtitle">Dashboard de gestión de proyectos y mantenimiento de fixtures — Kadrix</p>
+<div class="page-header">
+  <h1>{{ title }}</h1>
+  <p class="subtitle">Dashboard de gestión de proyectos y mantenimiento de fixtures — Kadrix</p>
+</div>
 
 <!-- KPIs -->
 <div class="kpi-row">
-  <div class="kpi blue">
+  <div class="kpi">
     <div class="label">Tareas Activas</div>
-    <div class="value">{{ active_tasks }}</div>
+    <div class="value" style="color:var(--accent-blue)">{{ active_tasks }}</div>
     <div class="note">de {{ total_tasks }} totales</div>
   </div>
-  <div class="kpi green">
+  <div class="kpi">
     <div class="label">Fixtures Operativos</div>
-    <div class="value">{{ fixtures_ok }}</div>
+    <div class="value" style="color:var(--accent-green)">{{ fixtures_ok }}</div>
     <div class="note">de {{ total_fixtures }} totales</div>
   </div>
-  <div class="kpi amber">
+  <div class="kpi">
     <div class="label">Fixtures en Mantenimiento</div>
-    <div class="value">{{ fixtures_maintenance }}</div>
+    <div class="value" style="color:var(--accent-yellow)">{{ fixtures_maintenance }}</div>
     <div class="note">{% if fixtures_maintenance %}Requieren atención{% else %}Todo en orden{% endif %}</div>
   </div>
-  <div class="kpi blue">
+  <div class="kpi">
     <div class="label">Proyectos Activos</div>
-    <div class="value">{{ project_active }}</div>
+    <div class="value" style="color:var(--accent-purple)">{{ project_active }}</div>
     <div class="note">de {{ project_total }} totales</div>
   </div>
-  <div class="kpi red">
+  <div class="kpi hero">
     <div class="label">Tareas Atrasadas</div>
     <div class="value">{{ overdue|length }}</div>
     <div class="note">{% if overdue %}Requieren atención inmediata{% else %}Sin tareas atrasadas{% endif %}</div>
@@ -64,7 +67,7 @@
   <div class="card-head">
     <h3>⚠️ Tareas Atrasadas</h3>
     {% if board %}
-    <a href="{{ url_for('kadrix.kadrix_board', board_id=board.id) }}" style="font-size:13px;color:#2563eb;text-decoration:none;font-weight:500;">Ver tablero →</a>
+    <a href="{{ url_for('kadrix.kadrix_board', board_id=board.id) }}" style="font-size:13px;color:var(--accent-blue);text-decoration:none;font-weight:600;">Ver tablero →</a>
     {% endif %}
   </div>
   <div class="card-body" style="padding:0;">
@@ -99,7 +102,7 @@
         </tbody>
       </table>
       {% else %}
-      <div style="padding: 24px; text-align: center; color: #64748b;">
+      <div style="padding: 28px; text-align: center; color: var(--text-muted);">
         🎉 No hay tareas atrasadas.
       </div>
       {% endif %}
