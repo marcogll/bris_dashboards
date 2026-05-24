@@ -23,6 +23,19 @@ Roles: Owner(100), Admin(80), Manager(60), Operador(40), Solo lectura(20), Socia
 
 Permisos: Por sistema > modulo > accion > scope(all/branch/own/assigned/none)
 
+## Soporte PWA (Progressive Web App) y Redirección Seamless SSO
+
+### Redirección Seamless en Producción
+Para garantizar que el flujo de SSO sea totalmente transparente ("seamless") para el cliente externo desde internet:
+- Los decoradores `login_required` y `require_permission` de los microservicios downstream redirigen solicitudes no autenticadas utilizando la URL pública del portal (`VANITY_HQ_PUBLIC_URL`, por ejemplo `https://vanityhq.soul23.cloud`) en lugar de la dirección IP/nombre interna de Docker (`HQ_BASE_URL`). Esto previene errores de "Connection Refused" en el navegador del usuario final.
+
+### Soporte de Progressive Web App (PWA)
+Se ha implementado compatibilidad con PWA en los servicios **HR Manager (Django)** y **EmpReq (Flask)**:
+- **`manifest.json` y `service-worker.js` unificados**: Servidos a nivel raíz como templates dinámicos y responsivos, usando `start_url: "./"` para autoadaptarse tanto al dominio dedicado (`vanityerq.soul23.cloud`) como a la sub-ruta del HQ (`vanityhq.soul23.cloud/empleadas/`).
+- **Registro Automático**: El layout común `templates/base.html` detecta y registra el service worker automáticamente en el navegador del cliente.
+- **Estrategia de Caché**: El service worker implementa una estrategia de "Network First con fallback a Caché" para asegurar el funcionamiento sin conexión y una velocidad de carga neumórfica ágil para activos estáticos (`/static/css/dashboard.css` y `logo_cadrex.png`).
+- **Despliegue Docker**: Todos los Dockerfiles copian recursivamente las carpetas compartidas `/templates` y `/static` al compilarse, garantizando la consistencia visual y de recursos en los contenedores aislados de VPS Coolify.
+
 ## Puertos y Rutas
 
 ### HQ Wrapper (5050)

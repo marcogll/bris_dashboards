@@ -120,7 +120,7 @@ def login_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
         if not g.hq_context:
-            return redirect(f"{HQ_BASE_URL}/launch/{SYSTEM_KEY}")
+            return redirect(f"{HQ_PUBLIC_URL}/launch/{SYSTEM_KEY}")
         return fn(*args, **kwargs)
     return wrapper
 
@@ -130,7 +130,7 @@ def require_permission(module, action):
         @wraps(fn)
         def wrapper(*args, **kwargs):
             if not g.hq_context:
-                return redirect(f"{HQ_BASE_URL}/launch/{SYSTEM_KEY}")
+                return redirect(f"{HQ_PUBLIC_URL}/launch/{SYSTEM_KEY}")
             if not has_permission(module, action):
                 flash("No tienes permiso para esta accion.", "warning")
                 return redirect(url_for("dashboard"))
