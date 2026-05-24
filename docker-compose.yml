@@ -1,24 +1,13 @@
-# Coolify-compatible Docker Compose
-# Configuracion recomendada en Coolify:
-#   - Tipo: Docker Compose (usar este archivo)
-#   - Dominio: asignar desde el panel de Coolify al servicio bris-dashboard
-#   - Variables: cargar desde .env o definirlas en el panel de Coolify
-#   - Para recargar MySQL: docker compose --profile import run --rm adriana-importer
-
 services:
   bris-dashboard:
     build: .
     restart: unless-stopped
     env_file:
       - .env
-    ports:
-      - "${PORT:-5000}:5000"
     expose:
       - "5000"
     volumes:
       - ./data:/app/data
-    networks:
-      - bris-network
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health').read()"]
       interval: 30s
@@ -38,15 +27,11 @@ services:
       MYSQL_USER: ${MYSQL_USER:-bris_user}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-bris_password}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-bris_root_password}
-    ports:
-      - "${MYSQL_PORT:-3306}:3306"
     expose:
       - "3306"
     volumes:
       - mysql-data:/var/lib/mysql
       - ./adriana_projects/mysql/init:/docker-entrypoint-initdb.d:ro
-    networks:
-      - bris-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-bris_root_password}"]
       interval: 20s
@@ -66,12 +51,6 @@ services:
     depends_on:
       - mysql
     command: ["python", "adriana_projects/scripts/load_mysql.py"]
-    networks:
-      - bris-network
 
 volumes:
   mysql-data:
-
-networks:
-  bris-network:
-    driver: bridge
