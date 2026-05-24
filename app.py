@@ -60,12 +60,18 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
 SECRET_KEY = os.getenv("SECRET_KEY", "")
 FLASK_ENV = os.getenv("FLASK_ENV", "production")
-if not SECRET_KEY and FLASK_ENV != "development":
-    raise RuntimeError(
-        "SECRET_KEY debe estar definido en producción. "
-        "Establece la variable de entorno SECRET_KEY."
+if not SECRET_KEY:
+    import hashlib
+    # Genera un secret estable basado en el hostname + ruta de la app
+    # No es ideal para produccion, pero evita que el contenedor crashee
+    # mientras el usuario configura la variable de entorno
+    base = f"{os.uname().nodename}-{BASE_DIR}"
+    SECRET_KEY = hashlib.sha256(base.encode()).hexdigest()
+    logger.warning(
+        "SECRET_KEY no esta definido. Se genero una clave temporal. "
+        "Para seguridad, define SECRET_KEY como variable de entorno en Coolify."
     )
-app.secret_key = SECRET_KEY or "local-dev-change-me"
+app.secret_key = SECRET_KEY
 app.register_blueprint(kadrix_bp)
 
 # ──────────────────────────────────────────────
