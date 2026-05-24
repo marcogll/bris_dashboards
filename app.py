@@ -19,16 +19,7 @@ from flask import (
     send_file,
     url_for,
 )
-from flask_login import (
-    LoginManager,
-    UserMixin,
-    current_user,
-    login_required,
-    login_user,
-    logout_user,
-)
 from werkzeug.middleware.proxy_fix import ProxyFix
-from werkzeug.security import check_password_hash, generate_password_hash
 
 from kadrix import kadrix_bp
 
@@ -92,78 +83,6 @@ def add_security_headers(response: Response) -> Response:
         "script-src 'self' 'unsafe-inline'"
     )
     return response
-
-
-# ──────────────────────────────────────────────
-#  Authentication
-# ──────────────────────────────────────────────
-login_manager = LoginManager(app)
-login_manager.login_view = "login"
-login_manager.login_message = "Inicia sesión para acceder al dashboard."
-
-
-class User(UserMixin):
-    def __init__(self, uid: str, username: str, password_hash: str, role: str = "user"):
-        super().__init__()
-        self.id = uid
-        self.username = username
-        self.password_hash = password_hash
-        self.role = role
-
-
-def _load_users() -> dict:
-    if USERS_FILE.exists():
-        return json.loads(USERS_FILE.read_text(encoding="utf-8"))
-    return {}
-
-
-def _save_users(data: dict) -> None:
-    USERS_FILE.parent.mkdir(parents=True, exist_ok=True)
-    USERS_FILE.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-
-
-def _ensure_default_user() -> None:
-    users = _load_users()
-    admin_password = os.getenv("ADMIN_DEFAULT_PASSWORD", "")
-
-    # Siempre actualiza el hash si ADMIN_DEFAULT_PASSWORD está definido en entorno
-    if admin_password:
-        users["marco"] = {
-            "id": "1",
-            "username": "marco",
-            "password_hash": generate_password_hash(admin_password),
-            "role": "admin",
-        }
-        _save_users(users)
-        return
-
-    if "marco" not in users:
-        import secrets
-
-        admin_password = secrets.token_urlsafe(16)
-        logger.warning(
-            "ADMIN_DEFAULT_PASSWORD no está definido. "
-            f"Se generó una contraseña temporal para 'marco': {admin_password}"
-        )
-        users["marco"] = {
-            "id": "1",
-            "username": "marco",
-            "password_hash": generate_password_hash(admin_password),
-            "role": "admin",
-        }
-        _save_users(users)
-
-
-_ensure_default_user()
-
-
-@login_manager.user_loader
-def load_user(user_id: str):
-    users = _load_users()
-    for u in users.values():
-        if u.get("id") == user_id:
-            return User(u["id"], u["username"], u["password_hash"], u.get("role", "user"))
-    return None
 
 
 # ──────────────────────────────────────────────
@@ -468,49 +387,14 @@ def server_error(e):
 
 
 # ──────────────────────────────────────────────
-#  Auth routes
-# ──────────────────────────────────────────────
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        username = request.form.get("username", "").strip()
-        password = request.form.get("password", "")
-        users = _load_users()
-        user_data = users.get(username)
-        if user_data and check_password_hash(user_data["password_hash"], password):
-            user = User(
-                user_data["id"],
-                user_data["username"],
-                user_data["password_hash"],
-                user_data.get("role", "user"),
-            )
-            login_user(user)
-            flash(f"Bienvenido, {user.username}", "success")
-            next_page = request.args.get("next")
-            return redirect(next_page or url_for("dashboard"))
-        flash("Usuario o contraseña incorrectos.", "danger")
-    return render_template("login.html", title=APP_TITLE)
-
-
-@app.route("/logout")
-@login_required
-def logout():
-    logout_user()
-    flash("Sesión cerrada.", "success")
-    return redirect(url_for("login"))
-
-
-# ──────────────────────────────────────────────
 #  Routes — main dashboard (now Kadrix HQ)
 # ──────────────────────────────────────────────
 @app.route("/")
-@login_required
 def dashboard() -> str:
     return redirect(url_for("kadrix.kadrix_hq"))
 
 
 @app.route("/data.csv")
-@login_required
 def download_csv() -> Response:
     if not DATA_FILE.exists():
         return Response("CSV no encontrado\n", status=404, mimetype="text/plain")
@@ -539,7 +423,6 @@ def _validate_station_csv(path: Path) -> tuple[bool, str]:
 
 
 @app.route("/upload", methods=["POST"])
-@login_required
 def upload_csv() -> Response:
     if UPLOAD_SECRET and request.form.get("upload_secret") != UPLOAD_SECRET:
         flash("Clave de actualización inválida.", "danger")
@@ -564,7 +447,7 @@ def upload_csv() -> Response:
         shutil.copyfile(DATA_FILE, backup)
     temp_path.replace(DATA_FILE)
     invalidate_csv_cache(DATA_FILE)
-    logger.info("CSV actualizado por %s: %s", current_user.username, DATA_FILE)
+    logger.info("CSV actualizado: %s", DATA_FILE)
     flash("CSV actualizado. El dashboard ya está usando la nueva data.", "success")
     return redirect(url_for("dashboard"))
 
@@ -573,7 +456,6 @@ def upload_csv() -> Response:
 #  Routes — produccion
 # ──────────────────────────────────────────────
 @app.route("/produccion")
-@login_required
 def produccion() -> str:
     balanceo = read_balanceo()
     demanda = read_demanda()
@@ -618,7 +500,6 @@ def produccion() -> str:
 #  Routes — plan de accion
 # ──────────────────────────────────────────────
 @app.route("/plan")
-@login_required
 def plan() -> str:
     acciones = read_plan_accion()
     alta = [a for a in acciones if a.get("prioridad") == "ALTA"]
@@ -638,7 +519,6 @@ def plan() -> str:
 
 
 @app.route("/plan/<int:num>/status", methods=["POST"])
-@login_required
 def update_plan_status(num: int) -> Response:
     """AJAX endpoint: toggle status of a plan action."""
     new_status = request.json.get("status", "pendiente") if request.is_json else "pendiente"
@@ -668,7 +548,6 @@ def update_plan_status(num: int) -> Response:
 #  Routes — partes / BOM
 # ──────────────────────────────────────────────
 @app.route("/partes")
-@login_required
 def partes() -> str:
     search = request.args.get("q", "").strip()
     bom = read_bom(search=search, limit=150)
@@ -687,7 +566,6 @@ def partes() -> str:
 #  Routes — kanban
 # ──────────────────────────────────────────────
 @app.route("/kanban")
-@login_required
 def kanban() -> str:
     items = read_kanban()
     return render_template(
@@ -702,7 +580,6 @@ def kanban() -> str:
 #  Routes — reporte ejecutivo (serve the HTML)
 # ──────────────────────────────────────────────
 @app.route("/reporte")
-@login_required
 def reporte() -> str:
     return render_template("reporte_ejecutivo_15k.html")
 
@@ -711,7 +588,6 @@ def reporte() -> str:
 #  API JSON
 # ──────────────────────────────────────────────
 @app.route("/api/metrics")
-@login_required
 def api_metrics() -> Response:
     stations = read_stations()
     m = build_metrics(stations)
@@ -729,7 +605,6 @@ def api_metrics() -> Response:
 
 
 @app.route("/api/stations")
-@login_required
 def api_stations() -> Response:
     stations = read_stations()
     m = build_metrics(stations)
@@ -752,26 +627,22 @@ def api_stations() -> Response:
 
 
 @app.route("/api/produccion")
-@login_required
 def api_produccion() -> Response:
     return jsonify(read_balanceo())
 
 
 @app.route("/api/bom")
-@login_required
 def api_bom() -> Response:
     q = request.args.get("q", "")
     return jsonify(read_bom(search=q, limit=100))
 
 
 @app.route("/api/summary")
-@login_required
 def api_summary() -> Response:
     return jsonify(read_summary())
 
 
 @app.route("/api/demanda")
-@login_required
 def api_demanda() -> Response:
     return jsonify(read_demanda())
 
@@ -790,7 +661,6 @@ def health() -> dict[str, str]:
 #  Export endpoints (for AI/Streamlit integration)
 # ──────────────────────────────────────────────
 @app.route("/api/export/all")
-@login_required
 def api_export_all() -> Response:
     stations = read_stations()
     metrics = build_metrics(stations)
@@ -840,7 +710,6 @@ def api_export_all() -> Response:
 
 
 @app.route("/api/export/summary")
-@login_required
 def api_export_summary() -> Response:
     stations = read_stations()
     metrics = build_metrics(stations)

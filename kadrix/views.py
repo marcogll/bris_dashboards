@@ -8,8 +8,6 @@ from flask import (
     request,
     url_for,
 )
-from flask_login import current_user, login_required
-
 from . import kadrix_bp
 from .db import execute, query
 
@@ -122,7 +120,6 @@ def _overdue_tasks() -> list:
 #  HQ Dashboard
 # ──────────────────────────────────────────────
 @kadrix_bp.route("/")
-@login_required
 def kadrix_hq():
     bid = _ensure_default_board()
     board_data = _board_data(bid)
@@ -159,7 +156,6 @@ def kadrix_hq():
 #  Kanban Board
 # ──────────────────────────────────────────────
 @kadrix_bp.route("/board/<int:board_id>")
-@login_required
 def kadrix_board(board_id: int):
     data = _board_data(board_id)
     if not data:
@@ -177,7 +173,6 @@ def kadrix_board(board_id: int):
 
 
 @kadrix_bp.route("/board/<int:board_id>/task/create", methods=["POST"])
-@login_required
 def create_task(board_id: int):
     title = request.form.get("title", "").strip()
     column_id = request.form.get("column_id", type=int)
@@ -194,13 +189,12 @@ def create_task(board_id: int):
         (board_id, column_id, title, description, assigned_to, priority, due_date, created_by)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """,
-        (board_id, column_id, title, description, assigned_to, priority, due_date, getattr(current_user, "id", None)),
+        (board_id, column_id, title, description, assigned_to, priority, due_date, None),
     )
     return jsonify({"ok": True, "task_id": tid})
 
 
 @kadrix_bp.route("/task/<int:task_id>/move", methods=["POST"])
-@login_required
 def move_task(task_id: int):
     column_id = request.json.get("column_id", type=int) if request.is_json else None
     if not column_id:
@@ -216,7 +210,6 @@ def move_task(task_id: int):
 #  Fixtures
 # ──────────────────────────────────────────────
 @kadrix_bp.route("/fixtures")
-@login_required
 def kadrix_fixtures():
     line_filter = request.args.get("line", "").strip()
     status_filter = request.args.get("status", "").strip()
@@ -245,7 +238,6 @@ def kadrix_fixtures():
 
 
 @kadrix_bp.route("/fixtures/create", methods=["POST"])
-@login_required
 def create_fixture():
     code = request.form.get("code", "").strip()
     name = request.form.get("name", "").strip()
@@ -266,7 +258,6 @@ def create_fixture():
 
 
 @kadrix_bp.route("/fixtures/<int:fixture_id>/maintenance", methods=["POST"])
-@login_required
 def create_maintenance(fixture_id: int):
     mtype = request.form.get("type", "corrective")
     description = request.form.get("description", "").strip()
@@ -293,7 +284,6 @@ def create_maintenance(fixture_id: int):
 #  Projects
 # ──────────────────────────────────────────────
 @kadrix_bp.route("/projects")
-@login_required
 def kadrix_projects():
     projects = query("SELECT * FROM kadrix_projects ORDER BY created_at DESC")
     # Simple progress: count tasks linked / total tasks in project
@@ -322,7 +312,6 @@ def kadrix_projects():
 
 
 @kadrix_bp.route("/projects/create", methods=["POST"])
-@login_required
 def create_project():
     name = request.form.get("name", "").strip()
     description = request.form.get("description", "").strip()
@@ -348,7 +337,6 @@ def create_project():
 #  Activities
 # ──────────────────────────────────────────────
 @kadrix_bp.route("/activity")
-@login_required
 def kadrix_activity():
     today = date.today().isoformat()
     week_ago = (date.today() - timedelta(days=7)).isoformat()
@@ -386,7 +374,6 @@ def kadrix_activity():
 
 
 @kadrix_bp.route("/activity/create", methods=["POST"])
-@login_required
 def create_activity():
     atype = request.form.get("activity_type", "other")
     description = request.form.get("description", "").strip()
@@ -400,6 +387,6 @@ def create_activity():
         (user_id, activity_type, description, related_fixture_id, duration_minutes)
         VALUES (%s, %s, %s, %s, %s)
         """,
-        (getattr(current_user, "id", 1), atype, description, fixture_id, duration),
+        (1, atype, description, fixture_id, duration),
     )
     return jsonify({"ok": True})

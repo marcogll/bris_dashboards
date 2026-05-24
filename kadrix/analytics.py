@@ -1,7 +1,5 @@
 """Kadrix — Analytics & ROI Justification Engine."""
 from flask import jsonify, render_template
-from flask_login import login_required
-
 from . import kadrix_bp
 from .db import query
 
@@ -111,7 +109,6 @@ def _line_summary(line_id: int) -> dict:
 #  Analytics Dashboard
 # ──────────────────────────────────────────────
 @kadrix_bp.route("/analytics")
-@login_required
 def analytics():
     lines = _lines()
     improvements = _improvements()
@@ -149,18 +146,15 @@ def analytics():
 #  API endpoints for charts
 # ──────────────────────────────────────────────
 @kadrix_bp.route("/api/analytics/budget")
-@login_required
 def api_budget():
     return jsonify(_budget_summary())
 
 
 @kadrix_bp.route("/api/analytics/line/<int:line_id>")
-@login_required
 def api_line_summary(line_id: int):
     return jsonify(_line_summary(line_id))
 
 
 @kadrix_bp.route("/api/analytics/improvements")
-@login_required
 def api_improvements():
     return jsonify(_improvements())
