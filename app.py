@@ -124,16 +124,27 @@ def _save_users(data: dict) -> None:
 
 def _ensure_default_user() -> None:
     users = _load_users()
-    if "marco" not in users:
-        admin_password = os.getenv("ADMIN_DEFAULT_PASSWORD", "")
-        if not admin_password:
-            import secrets
+    admin_password = os.getenv("ADMIN_DEFAULT_PASSWORD", "")
 
-            admin_password = secrets.token_urlsafe(16)
-            logger.warning(
-                "ADMIN_DEFAULT_PASSWORD no está definido. "
-                f"Se generó una contraseña temporal para 'marco': {admin_password}"
-            )
+    # Siempre actualiza el hash si ADMIN_DEFAULT_PASSWORD está definido en entorno
+    if admin_password:
+        users["marco"] = {
+            "id": "1",
+            "username": "marco",
+            "password_hash": generate_password_hash(admin_password),
+            "role": "admin",
+        }
+        _save_users(users)
+        return
+
+    if "marco" not in users:
+        import secrets
+
+        admin_password = secrets.token_urlsafe(16)
+        logger.warning(
+            "ADMIN_DEFAULT_PASSWORD no está definido. "
+            f"Se generó una contraseña temporal para 'marco': {admin_password}"
+        )
         users["marco"] = {
             "id": "1",
             "username": "marco",
