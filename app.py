@@ -358,6 +358,18 @@ def read_summary() -> dict:
     return {}
 
 
+def read_dashboard_resumen() -> list[dict]:
+    return read_csv_safe(CURATED_DIR / "dashboard_resumen.csv")
+
+
+def read_dashboard_estaciones() -> list[dict]:
+    return read_csv_safe(CURATED_DIR / "dashboard_estaciones.csv")
+
+
+def read_flujo_proceso() -> list[dict]:
+    return read_csv_safe(CURATED_DIR / "flujo_proceso.csv")
+
+
 # ──────────────────────────────────────────────
 #  Template filters
 # ──────────────────────────────────────────────
@@ -497,6 +509,9 @@ def dashboard() -> str:
     plan = read_plan_accion()
     inversion = read_csv_safe(CURATED_DIR / "inversion_15k.csv")
     roi = read_csv_safe(CURATED_DIR / "roi_summary.csv")
+    dashboard_resumen = read_dashboard_resumen()
+    dashboard_estaciones = read_dashboard_estaciones()
+    flujo_proceso = read_flujo_proceso()
 
     # Plan summary
     plan_summary = {
@@ -555,6 +570,9 @@ def dashboard() -> str:
         takt_seconds=TAKT_SECONDS,
         inversion=inversion,
         roi=roi,
+        dashboard_resumen=dashboard_resumen,
+        dashboard_estaciones=dashboard_estaciones,
+        flujo_proceso=flujo_proceso,
     )
 
 

@@ -144,9 +144,14 @@ def extract_etiquetas_bins(xl: pd.ExcelFile) -> pd.DataFrame:
 
 def extract_flujo_proceso(xl: pd.ExcelFile) -> pd.DataFrame:
     df = xl.parse("🔄 Flujo de Proceso", header=1)
-    df = df.iloc[:, 1:].copy()
-    df.columns = ["northface", "nf_obs", "sanmina", "sm_obs", "kantishna", "kn_obs"]
-    return df.dropna(how="all").reset_index(drop=True)
+    # Las columnas son: Unnamed: 0, NORTHFACE, Unnamed: 2, SANMINA, Unnamed: 4, KANTISHNA
+    # Solo nos interesan las columnas de datos (no las flechas vacías)
+    df = df[["NORTHFACE", "SANMINA", "KANTISHNA"]].copy()
+    df.columns = ["northface", "sanmina", "kantishna"]
+    # Filtrar filas vacías y flechas
+    df = df[~df["northface"].astype(str).str.match(r"^\s*▼\s*$", na=False)]
+    df = df.dropna(how="all").reset_index(drop=True)
+    return df
 
 
 def extract_estaciones_nf(xl: pd.ExcelFile) -> pd.DataFrame:
@@ -164,9 +169,36 @@ def extract_estaciones_sanmina(xl: pd.ExcelFile) -> pd.DataFrame:
 
 
 def extract_dashboard_resumen(xl: pd.ExcelFile) -> pd.DataFrame:
-    df = xl.parse("📊 Dashboard", header=3)
-    df = df.dropna(how="all").reset_index(drop=True)
-    return df
+    """Extrae el resumen ejecutivo del sheet Dashboard.
+    Fila 5 = headers KPI, Fila 6 = valores KPI."""
+    df = xl.parse("📊 Dashboard", header=None)
+    # Fila 5 (índice 5) tiene los headers, fila 6 (índice 6) los valores
+    headers = df.iloc[5]
+    values = df.iloc[6]
+    records = []
+    for h, v in zip(headers, values):
+        if pd.notna(h) and str(h).strip():
+            records.append({
+                "indicador": str(h).replace("\n", " ").strip(),
+                "valor": str(v).replace("\n", " ").strip() if pd.notna(v) else ""
+            })
+    return pd.DataFrame(records).dropna(subset=["indicador"]).reset_index(drop=True)
+
+
+def extract_dashboard_estaciones(xl: pd.ExcelFile) -> pd.DataFrame:
+    """Extrae la tabla de estaciones del sheet Dashboard.
+    Fila 11 = headers de tabla, filas 12+ = datos."""
+    df = xl.parse("📊 Dashboard", header=11)
+    df = df.iloc[:, 1:].copy()  # quitar Unnamed: 0
+    cols = list(df.columns)
+    if len(cols) >= 10:
+        df.columns = ["nf_estacion", "nf_descripcion", "nf_ct_seg", "nf_pct_takt", "nf_estado",
+                      "sm_estacion", "sm_descripcion", "sm_ct_seg", "sm_pct_takt", "sm_estado"]
+    elif len(cols) >= 5:
+        df.columns = ["nf_estacion", "nf_descripcion", "nf_ct_seg", "nf_pct_takt", "nf_estado"]
+    # Filtrar fila de headers repetidos si existe
+    df = df[df["nf_estacion"] != "Estación"].copy()
+    return df.dropna(subset=["nf_estacion"]).reset_index(drop=True)
 
 
 def main() -> int:
@@ -191,6 +223,7 @@ def main() -> int:
         ("estaciones_nf.csv", extract_estaciones_nf),
         ("estaciones_sanmina.csv", extract_estaciones_sanmina),
         ("dashboard_resumen.csv", extract_dashboard_resumen),
+        ("dashboard_estaciones.csv", extract_dashboard_estaciones),
     ]:
         try:
             save_csv(extractor(xl), name)

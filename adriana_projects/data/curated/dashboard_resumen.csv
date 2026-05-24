@@ -1,22 +1,11 @@
-Unnamed: 0,"Generado: 24 de May 2026   |   Planta: Saltillo, Coahuila   |   Turno efectivo: 10 hr (600 min)",Unnamed: 2,Unnamed: 3,Unnamed: 4,Unnamed: 5,Unnamed: 6,Unnamed: 7,Unnamed: 8,Unnamed: 9,Unnamed: 10
-,"NORTHFACE
-Takt Time","NORTHFACE
-Prod. Diaria","NORTHFACE
-Eficiencia","NORTHFACE
-Pzas/Op/Hr","SANMINA
-CT Total","SANMINA
-Takt Time","SANMINA
-Bottleneck","AFL
-Demanda Sem.","KANTISHNA
-Etapas",META OEE
-,47.0 min/pza,13 pzas/turno,109.2%,0.87 pz,77.5 min,36.9 min,"Gaskets
-900 seg",125 pzas,6 subensambles,≥ 85%
-,NORTHFACE — Tiempos por Estación (seg) vs Takt 2821seg,,,,,SANMINA — Tiempos por Estación (seg) vs Takt 2217seg,,,,
-,Estación,Descripción,CT (seg),% Takt,Estado,Estación,Descripción,CT (seg),% Takt,Estado
-,Est 1,Fab. subensamble,2065,73.2%,✔ Holgura,Est 1,Cables (3 ops),86,3.9%,✔ Holgura
-,Est 2,Fab. caja,1685,59.7%,✔ Holgura,Est 2,Tapa/Etiquetas,494,22.3%,✔ Holgura
-,Est 3,Fab. tapa/cercha,2978,105.6%,✘ Cuello,Est 3,Base/Etiquetas,50,2.3%,✔ Holgura
-,Est 4,Subensamble H,1188,42.1%,✔ Holgura,Est 4,Gaskets base,900,40.6%,✔ Holgura
-,Est 5,H – tapa,769,27.3%,✔ Holgura,Est 5,Gaskets tapa,84,3.8%,✔ Holgura
-,Est 6,Ensamble completo,4290,152.1%,✘ Cuello,Est 6,Ruteo+Final,2820,127.2%,✘ Cuello
-,Est 7,Integración final,2068,73.3%,✔ Holgura,Est 7,Empaque,300,13.5%,✔ Holgura
+indicador,valor
+NORTHFACE Takt Time,47.0 min/pza
+NORTHFACE Prod. Diaria,13 pzas/turno
+NORTHFACE Eficiencia,109.2%
+NORTHFACE Pzas/Op/Hr,0.87 pz
+SANMINA CT Total,77.5 min
+SANMINA Takt Time,36.9 min
+SANMINA Bottleneck,Gaskets 900 seg
+AFL Demanda Sem.,125 pzas
+KANTISHNA Etapas,6 subensambles
+META OEE,≥ 85%

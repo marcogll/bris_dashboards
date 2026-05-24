@@ -50,6 +50,72 @@
   </div>
 </div>
 
+<!-- ===== RESUMEN EJECUTIVO (KPIs del Excel Maestro) ===== -->
+{% if dashboard_resumen %}
+<div class="card" style="margin-bottom:20px">
+  <div class="card-head"><h3>Resumen Ejecutivo — KPIs Líneas</h3></div>
+  <div class="card-body">
+    <div class="kpi-row" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
+      {% for kpi in dashboard_resumen %}
+      <div class="mini-kpi" style="text-align:center;padding:12px;border-radius:12px;background:var(--bg-secondary)">
+        <div class="label" style="font-size:9px">{{ kpi.indicador }}</div>
+        <div class="value" style="font-size:18px">{{ kpi.valor }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- ===== ESTADO DE LÍNEAS — NF vs SM ===== -->
+{% if dashboard_estaciones %}
+<div class="card" style="margin-bottom:20px">
+  <div class="card-head"><h3>Estado de Líneas — Northface vs Sanmina</h3></div>
+  <div class="card-body">
+    <div class="two-col">
+      <div>
+        <h4 style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--accent-blue)">NORTHFACE</h4>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Est</th><th>Descripción</th><th class="num">CT (s)</th><th class="num">%Takt</th><th>Estado</th></tr></thead>
+            <tbody>
+              {% for e in dashboard_estaciones %}
+              <tr>
+                <td>{{ e.nf_estacion }}</td>
+                <td>{{ e.nf_descripcion }}</td>
+                <td class="num">{{ e.nf_ct_seg }}</td>
+                <td class="num">{{ e.nf_pct_takt }}</td>
+                <td><span class="status-dot" style="background:{{ '#10b981' if 'Holgura' in e.nf_estado else '#ef4444' }}"></span>{{ e.nf_estado }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--accent-orange)">SANMINA</h4>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Est</th><th>Descripción</th><th class="num">CT (s)</th><th class="num">%Takt</th><th>Estado</th></tr></thead>
+            <tbody>
+              {% for e in dashboard_estaciones %}
+              <tr>
+                <td>{{ e.sm_estacion }}</td>
+                <td>{{ e.sm_descripcion }}</td>
+                <td class="num">{{ e.sm_ct_seg }}</td>
+                <td class="num">{{ e.sm_pct_takt }}</td>
+                <td><span class="status-dot" style="background:{{ '#10b981' if 'Holgura' in e.sm_estado else '#ef4444' }}"></span>{{ e.sm_estado }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <!-- ===== PRODUCCION + DESPERDICIOS ===== -->
 <div class="two-col" style="margin-bottom:20px">
   <div class="card">
@@ -81,6 +147,47 @@
     </div>
   </div>
 </div>
+
+<!-- ===== FLUJO DE PROCESO ===== -->
+{% if flujo_proceso %}
+<div class="card" style="margin-bottom:20px">
+  <div class="card-head"><h3>Flujo de Proceso — Líneas de Producción</h3></div>
+  <div class="card-body">
+    <div class="three-col" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+      <div>
+        <h4 style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--accent-blue)">NORTHFACE</h4>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          {% for f in flujo_proceso %}
+          {% if f.northface %}
+          <div style="padding:8px 10px;border-radius:8px;background:var(--bg-secondary);font-size:11px;line-height:1.4">{{ f.northface|replace('\n', '<br>')|safe }}</div>
+          {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+      <div>
+        <h4 style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--accent-orange)">SANMINA</h4>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          {% for f in flujo_proceso %}
+          {% if f.sanmina %}
+          <div style="padding:8px 10px;border-radius:8px;background:var(--bg-secondary);font-size:11px;line-height:1.4">{{ f.sanmina|replace('\n', '<br>')|safe }}</div>
+          {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+      <div>
+        <h4 style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--accent-purple)">KANTISHNA</h4>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          {% for f in flujo_proceso %}
+          {% if f.kantishna %}
+          <div style="padding:8px 10px;border-radius:8px;background:var(--bg-secondary);font-size:11px;line-height:1.4">{{ f.kantishna|replace('\n', '<br>')|safe }}</div>
+          {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
 
 <!-- ===== PLAN DE ACCION + CADREX ===== -->
 <div class="two-col" style="margin-bottom:20px">
