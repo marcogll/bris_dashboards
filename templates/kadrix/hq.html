@@ -6,7 +6,7 @@
 {% block content %}
 <div class="page-header">
   <h1>{{ title }}</h1>
-  <p class="subtitle">Dashboard de gestión de proyectos y mantenimiento de fixtures — Kadrix</p>
+  <p class="subtitle">Dashboard de gestión de proyectos y mantenimiento de fixtures — Cadrex</p>
 </div>
 
 <!-- KPIs -->
@@ -40,22 +40,22 @@
 
 <!-- Grid de módulos -->
 <div class="card-grid" style="margin-bottom: 28px;">
-  <a class="card" href="{% if board %}{{ url_for('kadrix.kadrix_board', board_id=board.id) }}{% else %}{{ url_for('kadrix.kadrix_hq') }}{% endif %}">
+  <a class="card" href="{% if board %}{{ url_for('cadrex.kadrix_board', board_id=board.id) }}{% else %}{{ url_for('cadrex.kadrix_hq') }}{% endif %}">
     <div class="icon">📋</div>
     <h3>Tableros Kanban</h3>
     <p>Gestiona tareas y flujos de trabajo del equipo.</p>
   </a>
-  <a class="card" href="{{ url_for('kadrix.kadrix_fixtures') }}">
+  <a class="card" href="{{ url_for('cadrex.kadrix_fixtures') }}">
     <div class="icon">🔧</div>
     <h3>Catálogo de Fixtures</h3>
     <p>Consulta estado, línea y historial de cada fixture.</p>
   </a>
-  <a class="card" href="{{ url_for('kadrix.kadrix_projects') }}">
+  <a class="card" href="{{ url_for('cadrex.kadrix_projects') }}">
     <div class="icon">🚀</div>
     <h3>Proyectos de Mejora</h3>
     <p>Seguimiento de iniciativas y su progreso.</p>
   </a>
-  <a class="card" href="{{ url_for('kadrix.kadrix_activity') }}">
+  <a class="card" href="{{ url_for('cadrex.kadrix_activity') }}">
     <div class="icon">📝</div>
     <h3>Registro de Actividades</h3>
     <p>Registra y consulta actividades de mantenimiento.</p>
@@ -67,7 +67,7 @@
   <div class="card-head">
     <h3>⚠️ Tareas Atrasadas</h3>
     {% if board %}
-    <a href="{{ url_for('kadrix.kadrix_board', board_id=board.id) }}" style="font-size:13px;color:var(--accent-blue);text-decoration:none;font-weight:600;">Ver tablero →</a>
+    <a href="{{ url_for('cadrex.kadrix_board', board_id=board.id) }}" style="font-size:13px;color:var(--accent-blue);text-decoration:none;font-weight:600;">Ver tablero →</a>
     {% endif %}
   </div>
   <div class="card-body" style="padding:0;">

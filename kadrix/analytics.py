@@ -1,4 +1,4 @@
-"""Kadrix — Analytics & ROI Justification Engine."""
+"""Cadrex — Analytics & ROI Justification Engine."""
 from flask import jsonify, render_template
 from . import kadrix_bp
 from .db import query
@@ -131,8 +131,8 @@ def analytics():
 
     return render_template(
         "kadrix/analytics.html",
-        title="Kadrix — Analitica & Justificacion ROI",
-        nav_active="kadrix",
+        title="Cadrex — Analitica & Justificacion ROI",
+        nav_active="cadrex",
         lines=lines,
         line_summaries=line_summaries,
         improvements=improvements,

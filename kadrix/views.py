@@ -1,4 +1,4 @@
-"""Kadrix — Flask views/routes."""
+"""Cadrex — Flask views/routes."""
 from datetime import date, datetime, timedelta
 
 from flask import (
@@ -22,7 +22,7 @@ def _ensure_default_board():
         return boards[0]["id"]
     bid = execute(
         "INSERT INTO kadrix_boards (name, description) VALUES (%s, %s)",
-        ("Produccion y Mantenimiento", "Tablero principal de tareas Kadrix"),
+        ("Produccion y Mantenimiento", "Tablero principal de tareas Cadrex"),
     )
     if not bid:
         return 1  # fallback cuando DB no está disponible
@@ -137,8 +137,8 @@ def kadrix_hq():
 
     return render_template(
         "kadrix/hq.html",
-        title="Kadrix — Centro de Control",
-        nav_active="kadrix",
+        title="Cadrex — Centro de Control",
+        nav_active="cadrex",
         board=board_data.get("board"),
         total_tasks=total_tasks,
         active_tasks=active_tasks,
@@ -163,8 +163,8 @@ def kadrix_board(board_id: int):
     users = query("SELECT id, name FROM kadrix_users WHERE active = 1")
     return render_template(
         "kadrix/board.html",
-        title=f"Kadrix — {data['board']['name']}",
-        nav_active="kadrix",
+        title=f"Cadrex — {data['board']['name']}",
+        nav_active="cadrex",
         board=data["board"],
         columns=data["columns"],
         tasks=data["tasks"],
@@ -227,8 +227,8 @@ def kadrix_fixtures():
     stats = _fixtures_stats()
     return render_template(
         "kadrix/fixtures.html",
-        title="Kadrix — Catalogo de Fixtures",
-        nav_active="kadrix",
+        title="Cadrex — Catalogo de Fixtures",
+        nav_active="cadrex",
         fixtures=fixtures,
         lines=lines,
         stats=stats,
@@ -305,8 +305,8 @@ def kadrix_projects():
         p["progress"] = round(completed_linked / total_linked * 100, 1) if total_linked else 0
     return render_template(
         "kadrix/projects.html",
-        title="Kadrix — Proyectos de Mejora",
-        nav_active="kadrix",
+        title="Cadrex — Proyectos de Mejora",
+        nav_active="cadrex",
         projects=projects,
     )
 
@@ -364,8 +364,8 @@ def kadrix_activity():
     fixtures = query("SELECT id, code, name FROM kadrix_fixtures ORDER BY code")
     return render_template(
         "kadrix/activity.html",
-        title="Kadrix — Registro de Actividades",
-        nav_active="kadrix",
+        title="Cadrex — Registro de Actividades",
+        nav_active="cadrex",
         activities=activities,
         today_activities=today_activities,
         hours_by_type=hours_by_type,

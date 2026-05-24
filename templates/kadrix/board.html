@@ -74,7 +74,7 @@
 <div class="modal-overlay" id="taskModal">
   <div class="modal">
     <h3>➕ Nueva Tarea</h3>
-    <form id="createTaskForm" method="post" action="{{ url_for('kadrix.create_task', board_id=board.id) }}">
+    <form id="createTaskForm" method="post" action="{{ url_for('cadrex.create_task', board_id=board.id) }}">
       <input type="hidden" name="column_id" id="modalColumnId">
       <label for="taskTitle">Título</label>
       <input type="text" name="title" id="taskTitle" required>
@@ -135,7 +135,7 @@
       if (!dragged) return;
       const taskId = dragged.dataset.taskId;
       const columnId = col.dataset.columnId;
-      fetch(`{{ url_for('kadrix.move_task', task_id=0) }}`.replace('/0/', `/${taskId}/`), {
+      fetch(`{{ url_for('cadrex.move_task', task_id=0) }}`.replace('/0/', `/${taskId}/`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ column_id: parseInt(columnId) })

@@ -1,4 +1,4 @@
-"""Kadrix — MySQL connection helper."""
+"""Cadrex — MySQL connection helper."""
 import logging
 import os
 from typing import Any
@@ -33,7 +33,7 @@ def get_conn():
     try:
         return mysql.connector.connect(**MYSQL_CONFIG)  # type: ignore
     except Exception as exc:
-        raise RuntimeError(f"Kadrix DB error: {exc}") from exc
+        raise RuntimeError(f"Cadrex DB error: {exc}") from exc
 
 
 def query(sql: str, params: tuple | None = None) -> list[dict[str, Any]]:
@@ -46,7 +46,7 @@ def query(sql: str, params: tuple | None = None) -> list[dict[str, Any]]:
         conn.close()
         return rows
     except RuntimeError as exc:
-        logger.warning("Kadrix query skipped (DB unavailable): %s", exc)
+        logger.warning("Cadrex query skipped (DB unavailable): %s", exc)
         return []
 
 
@@ -61,5 +61,5 @@ def execute(sql: str, params: tuple | None = None) -> int:
         conn.close()
         return last_id
     except RuntimeError as exc:
-        logger.warning("Kadrix execute skipped (DB unavailable): %s", exc)
+        logger.warning("Cadrex execute skipped (DB unavailable): %s", exc)
         return 0

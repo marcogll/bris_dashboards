@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Plan de Accion — Cadrex — Kadrix</title>
+  <link rel="stylesheet" href="/static/css/dashboard.css">
+  
+</head>
+<body>
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">S</div>
+      <div class="logo-text">Cadrex</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Principal</div>
+      <a class="nav-item " href="/kadrix/">
+        <span class="nav-icon">◆</span> Kadrix HQ
+      </a>
+      <a class="nav-item " href="/produccion">
+        <span class="nav-icon">▣</span> Produccion
+      </a>
+      <a class="nav-item " href="/kadrix/analytics">
+        <span class="nav-icon">◈</span> Analytics
+      </a>
+      <a class="nav-item active" href="/plan">
+        <span class="nav-icon">▩</span> Plan de Accion
+      </a>
+
+      <div class="nav-section-title">Operaciones</div>
+      <a class="nav-item " href="/partes">
+        <span class="nav-icon">▦</span> Partes
+      </a>
+      <a class="nav-item " href="/kanban">
+        <span class="nav-icon">▧</span> Kanban
+      </a>
+
+      <div class="sidebar-art"></div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="avatar">
+          A
+          <span class="badge-count">6</span>
+        </div>
+        <div class="user-info">
+          <div class="name">Adriana Ramos</div>
+          <div class="role">Cadrex Ops</div>
+        </div>
+      </div>
+      <div class="sidebar-actions">
+        <button class="icon-btn" title="Salir">⎋</button>
+        <button class="icon-btn" title="Más">⋯</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Header -->
+    <header class="header">
+      <h1 class="header-title">Plan de Accion</h1>
+
+      <div class="header-search">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Search...">
+      </div>
+
+      <button class="btn btn-primary">+ New Project</button>
+
+      <div class="header-actions">
+        <button class="icon-btn-lg">⛶</button>
+        <button class="icon-btn-lg">
+          🔔
+          <span class="badge-count">6</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="content">
+      
+        
+      
+      
+  <div class="page-header">
+    <h1>Plan de Accion</h1>
+    <p class="subtitle">20 acciones de mejora para lineas de produccion</p>
+  </div>
+
+  <div class="kpi-row" style="margin-bottom:20px">
+    <div class="kpi">
+      <div class="label">Prioridad Alta</div>
+      <div class="value" style="color:var(--accent-red)">6</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Prioridad Media</div>
+      <div class="value" style="color:var(--accent-yellow)">6</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Prioridad Baja</div>
+      <div class="value" style="color:var(--accent-green)">8</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Lineas</div>
+      <div class="value">3</div>
+      <div class="note">NORTHFACE, SANMINA, TODAS</div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <label style="font-size:13px;color:var(--text-secondary);font-weight:500">Filtrar prioridad:</label>
+    <select onchange="filterPriority(this.value)">
+      <option value="all">Todas</option>
+      <option value="ALTA">ALTA</option>
+      <option value="MEDIA">MEDIA</option>
+      <option value="BAJA">BAJA</option>
+    </select>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="num">#</th><th>Accion</th><th>Linea</th><th>Area</th><th>Prioridad</th><th>Inicio</th><th>Fin</th><th>Responsable</th><th>KPI</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+            <tr data-priority="ALTA">
+              <td class="num">1</td>
+              <td>Fixture para gaskets base (Est.4)</td>
+              <td>SANMINA</td>
+              <td>Ing.</td>
+              <td><span class="badge badge-alta">ALTA</span></td>
+              <td>24/05/2026</td>
+              <td>14/06/2026</td>
+              <td>Ing. Procesos</td>
+              <td style="font-size:12px">CT Est4: -650s</td>
+              <td>
+                <button class="status-btn progreso" onclick="toggleStatus(1, this)" data-num="1">progreso</button>
+              </td>
+            </tr>
+            
+            <tr data-priority="ALTA">
+              <td class="num">2</td>
+              <td>WI visual — ruteo de cables Est.6</td>
+              <td>SANMINA</td>
+              <td>IE/QA</td>
+              <td><span class="badge badge-alta">ALTA</span></td>
+              <td>24/05/2026</td>
+              <td>07/06/2026</td>
+              <td>IE + QA</td>
+              <td style="font-size:12px">FPY Est6</td>
+              <td>
+                <button class="status-btn pendiente" onclick="toggleStatus(2, this)" data-num="2">pendiente</button>
+              </td>
+            </tr>
+            
+            <tr data-priority="ALTA">
+              <td class="num">3</td>
+              <td>Operador adicional Est.6 Sanmina</td>
+              <td>SANMINA</td>
+              <td>Prod.</td>
+              <td><span class="badge badge-alta">ALTA</span></td>
+              <td>31/05/2026</td>
+              <td>07/06/2026</td>
+              <td>Supervisor</td>
+              <td style="font-size:12px">CT: 2820→940</td>
+              <td>
+                <button class="status-btn pendiente" onclick="toggleStatus(3, this)" data-num="3">pendiente</button>
+              </td>
+            </tr>
+            
+            <tr data-priority="ALTA">
+              <td class="num">4</td>
+              <td>Shadow boards Est.4 NorthFace</td>
+              <td>NORTHFACE</td>
+              <td>5S</td>
+              <td><span class="badge badge-alta">ALTA</span></td>
+              <td>24/05/2026</td>
+              <td>14/06/2026</td>
+              <td>Supervisor</td>
+              <td style="font-size:12px">Caminatas -416s</td>
+              <td>
+                <button class="status-btn pendiente" onclick="toggleStatus(4, this)" data-num="4">pendiente</button>
+              </td>
+            </tr>
+            
+            <tr data-priority="ALTA">
+              <td class="num">5</td>
+              <td>QA dedicado — línea NorthFace</td>
+              <td>NORTHFACE</td>
+              <td>Calidad</td>
+              <td><span class="badge badge-alta">ALTA</span></td>
+              <td>24/05/2026</td>
+              <td>31/05/2026</td>
+              <td>Ger. Calidad</td>
+              <td style="font-size:12px">Espera QA -633s</td>
+              <td>
+                <button class="status-btn pendiente" onclick="toggleStatus(5, this)" data-num="5">pendiente</button>
+              </td>
+            </tr>
+            
+            <tr data-priority="ALTA">
+              <td class="num">6</td>
+              <td>PM preventivo remachadoras (sem.)</td>
+              <td>NORTHFACE</td>
+              <td>Mant.</td>
+              <td><span class="badge badge-alta">ALTA</span></td>
+              <td>31/05/2026</td>
+              <td>07/06/2026</td>
+              <td>Mant.</td>
+              <td style="font-size:12px">Avería -1906s</td>
+              <td>
+                <button class="status-btn pendiente" onclick="toggleStatus(6, this)" data-num="6">pendiente</button>
+              </td>
+            </tr>
+            
+            <tr data-priority="MEDIA">
+              <td class="num">7</td>
+              <td>Fixture anti-retrabajo remaches</td>
+              <td>NORTHFACE</td>
+              <td>Ing.</td>
+              <td><span class="badge badge-media">MEDIA</span></td>
+              <td>07/06/2026</td>
+              <td>05/07/2026</td>
+              <td>Ing. Procesos</td>
+              <td style="font-size:12px">Retrabajo -293s</td>
+              <td>
+                <button class="status-btn pendiente" onclick="toggleStatus(7, this)" data-num="7">pendiente</button>
+              </td>
+            </tr>
+            
+            <tr data-priority="MEDIA">
+              <td class="num">8</td>
+              <td>Kanban Bin1/Bin2 todas las líneas</td>
+              <td>TODAS</td>
+              <td>Material</td>
+              <td><span class="badge badge-media">MEDIA</span></td>
+              <td>31/05/2026</td>
+              <td>21/06/2026</td>
+              <td>Materialista</td>
+              <td style="font-size:12px">WIP / FIFO</td>
+              <td>
+                <button class="status-btn pendiente" onclick="toggleStatus(8, this)" data-num="8">pendiente</button>
+              </td>
+            </tr>
+            
+            <tr data-priority="MEDIA">
+              <td class="num">9</td>
+              <td>Etiquetas visuales por color — bins</td>
+              <td>TODAS</td>
+              <td>5S</td>
+              <td><span class="badge badge-media">MEDIA</span></td>
+              <td>31/05/2026</td>
+              <td>14/06/2026</td>
+              <td>5S coord.</td>
+              <td style="font-size:12px">Control visual</td>
+              <td>
+                <button class="status-btn pendiente" onclick="toggleStatus(9, this)" data-num="9">pendiente</button>
+              </td>
+            </tr>
+            
+            <tr data-priority="MEDIA">
+              <td class="num">10</td>
+              <td>QC inline por estación</td>
+              <td>TODAS</td>
+              <td>Calidad</td>
+              <td><span class="badge badge-media">MEDIA</span></td>
+              <td>14/06/2026</td>
+              <td>19/07/2026</td>
+              <td>QA + IE</td>
+              <td style="font-size:12px">FPY: →≥95%</td>
+              <td>
+                <button class="status-btn pendiente" onclick="toggleStatus(10, this)" data-num="10">pendiente</button>
+              </td>
+            </tr>
+            
+            <tr data-priority="MEDIA">
+              <td class="num">11</td>
+              <td>Layout optimizado + supermercado</td>
+              <td>TODAS</td>
+              <td>IE</td>
+              <td><span class="badge badge-media">MEDIA</span></td>
+              <td>07/06/2026</td>
+              <td>05/07/2026</td>
+              <td>IE</td>
+              <td style="font-size:12px">Caminatas -30%</td>
+              <td>
+                <button class="status-btn pendiente" onclick="toggleStatus(11, this)" data-num="11">pendiente</button>
+              </td>
+            </tr>
+            
+            <tr data-priority="MEDIA">
+              <td class="num">12</td>
+              <td>Dashboard digital KPIs en tiempo real</td>
+              <td>TODAS</td>
+              <td>IT/IE</td>
+              <td><span class="badge badge-media">MEDIA</span></td>
+              <td>21/06/2026</td>
+              <td>02/08/2026</td>
+              <td>IT + IE</td>
+              <td style="font-size:12px">OEE, FPY, Scrap</td>
+              <td>
+                <button class="status-btn pendiente" onclick="toggleStatus(12, this)" data-num="12">pendiente</button>
+              </td>
+            </tr>
+            
+            <tr data-priority="BAJA">
+              <td class="num">13</td>
+              <td>Instrucciones de trabajo por estación</td>
+              <td>TODAS</td>
+              <td>IE</td>
+              <td><span class="badge badge-baja">BAJA</span></td>
+              <td>14/06/2026</td>
+              <td>19/07/2026</td>
+              <td>IE</td>
+              <td style="font-size:12px">Variación oper.</td>
+              <td>
+                <button class="status-btn pendiente" onclick="toggleStatus(13, this)" data-num="13">pendiente</button>
+              </td>
+            </tr>
+            
+            <tr data-priority="BAJA">
+              <td class="num">14</td>
+              <td>Área roja scrap + QR + trazabilidad</td>
+              <td>TODAS</td>
+              <td>Calidad</td>
+              <td><span class="badge badge-baja">BAJA</span></td>
+              <td>07/06/2026</td>
+              <td>28/06/2026</td>
+              <td>QA</td>
+              <td style="font-size:12px">Scrap &lt;2%</td>
+              <td>
+                <button class="status-btn pendiente" onclick="toggleStatus(14, this)" data-num="14">pendiente</button>
+              </td>
+            </tr>
+            
+            <tr data-priority="BAJA">
+              <td class="num">15</td>
+              <td>5S completas + auditoría mensual</td>
+              <td>TODAS</td>
+              <td>5S</td>
+              <td><span class="badge badge-baja">BAJA</span></td>
+              <td>21/06/2026</td>
+              <td>16/08/2026</td>
+              <td>5S coord.</td>
+              <td style="font-size:12px">OEE</td>
+              <td>
+                <button class="status-btn pendiente" onclick="toggleStatus(15, this)" data-num="15">pendiente</button>
+              </td>
+            </tr>
+            
+            <tr data-priority="BAJA">
+              <td class="num">16</td>
+              <td>Lift assist / conveyor gabinetes</td>
+              <td>NORTHFACE</td>
+              <td>Ergonomía</td>
+              <td><span class="badge badge-baja">BAJA</span></td>
+              <td>05/07/2026</td>
+              <td>13/09/2026</td>
+              <td>Ing. Ind.</td>
+              <td style="font-size:12px">Seguridad</td>
+              <td>
+                <button class="status-btn pendiente" onclick="toggleStatus(16, this)" data-num="16">pendiente</button>
+              </td>
+            </tr>
+            
+            <tr data-priority="BAJA">
+              <td class="num">17</td>
+              <td>Fixture alineación PCA Est.7</td>
+              <td>NORTHFACE</td>
+              <td>Ing.</td>
+              <td><span class="badge badge-baja">BAJA</span></td>
+              <td>21/06/2026</td>
+              <td>02/08/2026</td>
+              <td>Ing. Proc.</td>
+              <td style="font-size:12px">FPY Est7</td>
+              <td>
+                <button class="status-btn pendiente" onclick="toggleStatus(17, this)" data-num="17">pendiente</button>
+              </td>
+            </tr>
+            
+            <tr data-priority="BAJA">
+              <td class="num">18</td>
+              <td>Torque audit — todas las estaciones</td>
+              <td>TODAS</td>
+              <td>Calidad</td>
+              <td><span class="badge badge-baja">BAJA</span></td>
+              <td>07/06/2026</td>
+              <td>21/06/2026</td>
+              <td>QA + IE</td>
+              <td style="font-size:12px">Scrap tornillos</td>
+              <td>
+                <button class="status-btn pendiente" onclick="toggleStatus(18, this)" data-num="18">pendiente</button>
+              </td>
+            </tr>
+            
+            <tr data-priority="BAJA">
+              <td class="num">19</td>
+              <td>Acuerdo calidad proveedor — material</td>
+              <td>SANMINA</td>
+              <td>Compras</td>
+              <td><span class="badge badge-baja">BAJA</span></td>
+              <td>21/06/2026</td>
+              <td>16/08/2026</td>
+              <td>Compras + QA</td>
+              <td style="font-size:12px">Rechazos ↓</td>
+              <td>
+                <button class="status-btn pendiente" onclick="toggleStatus(19, this)" data-num="19">pendiente</button>
+              </td>
+            </tr>
+            
+            <tr data-priority="BAJA">
+              <td class="num">20</td>
+              <td>Capacitación Lean / Cadrex</td>
+              <td>TODAS</td>
+              <td>RRHH</td>
+              <td><span class="badge badge-baja">BAJA</span></td>
+              <td>19/07/2026</td>
+              <td>13/09/2026</td>
+              <td>Gerencia</td>
+              <td style="font-size:12px">Cultura mejora</td>
+              <td>
+                <button class="status-btn pendiente" onclick="toggleStatus(20, this)" data-num="20">pendiente</button>
+              </td>
+            </tr>
+            
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+function filterPriority(val) {
+  document.querySelectorAll('tbody tr').forEach(tr => {
+    tr.style.display = (val === 'all' || tr.dataset.priority === val) ? '' : 'none';
+  });
+}
+function toggleStatus(num, btn) {
+  const originalText = btn.textContent.trim();
+  const next = originalText === 'pendiente' ? 'completado' : 'pendiente';
+  btn.disabled = true;
+  btn.textContent = '...';
+  fetch('/plan/' + num + '/status', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({status: next})
+  }).then(r => r.json()).then(data => {
+    if (data.ok) {
+      btn.textContent = next;
+      btn.className = 'status-btn ' + next;
+    } else {
+      btn.textContent = originalText;
+      alert('Error al actualizar: ' + (data.error || 'desconocido'));
+    }
+    btn.disabled = false;
+  }).catch(err => {
+    btn.textContent = originalText;
+    btn.disabled = false;
+    alert('Error de red: ' + err.message);
+  });
+}
+</script>
+
+</body>
+</html>

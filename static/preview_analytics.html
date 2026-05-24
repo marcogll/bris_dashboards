@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kadrix — Analitica &amp; Justificacion ROI</title>
+  <link rel="stylesheet" href="/static/css/dashboard.css">
+  
+<style>
+.roi-card {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  color: #fff; border-radius: var(--radius-lg); padding: 24px;
+  box-shadow: var(--shadow-medium);
+}
+.roi-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; margin-bottom: 8px; }
+.roi-card .value { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; }
+.roi-card .sub { font-size: 13px; color: #cbd5e1; margin-top: 6px; }
+.roi-green .value { color: #4ade80; }
+.roi-amber .value { color: #fbbf24; }
+.roi-blue .value { color: #60a5fa; }
+.roi-red .value { color: #f87171; }
+.ct-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.ct-label { width: 140px; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.ct-track { flex: 1; height: 24px; background: var(--bg); border-radius: var(--radius-sm); overflow: hidden; position: relative; box-shadow: var(--shadow-inset); }
+.ct-fill { height: 100%; border-radius: var(--radius-sm); display: flex; align-items: center; padding-left: 8px; font-size: 10px; font-weight: 700; color: #fff; }
+.ct-fill.crit { background: linear-gradient(90deg, #ef4444, #f97316); }
+.ct-fill.warn { background: linear-gradient(90deg, #f59e0b, #f97316); }
+.ct-fill.ok { background: var(--gradient-green); }
+.ct-takt { position: absolute; top: 0; bottom: 0; width: 3px; background: #6366f1; z-index: 2; border-radius: 3px; }
+.ct-val { width: 70px; font-size: 12px; font-weight: 700; text-align: right; }
+</style>
+
+</head>
+<body>
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">S</div>
+      <div class="logo-text">Cadrex</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Principal</div>
+      <a class="nav-item active" href="/kadrix/">
+        <span class="nav-icon">◆</span> Kadrix HQ
+      </a>
+      <a class="nav-item " href="/produccion">
+        <span class="nav-icon">▣</span> Produccion
+      </a>
+      <a class="nav-item " href="/kadrix/analytics">
+        <span class="nav-icon">◈</span> Analytics
+      </a>
+      <a class="nav-item " href="/plan">
+        <span class="nav-icon">▩</span> Plan de Accion
+      </a>
+
+      <div class="nav-section-title">Operaciones</div>
+      <a class="nav-item " href="/partes">
+        <span class="nav-icon">▦</span> Partes
+      </a>
+      <a class="nav-item " href="/kanban">
+        <span class="nav-icon">▧</span> Kanban
+      </a>
+
+      <div class="sidebar-art"></div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="avatar">
+          A
+          <span class="badge-count">6</span>
+        </div>
+        <div class="user-info">
+          <div class="name">Adriana Ramos</div>
+          <div class="role">Cadrex Ops</div>
+        </div>
+      </div>
+      <div class="sidebar-actions">
+        <button class="icon-btn" title="Salir">⎋</button>
+        <button class="icon-btn" title="Más">⋯</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Header -->
+    <header class="header">
+      <h1 class="header-title">Analytics</h1>
+
+      <div class="header-search">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Search...">
+      </div>
+
+      <button class="btn btn-primary">+ New Project</button>
+
+      <div class="header-actions">
+        <button class="icon-btn-lg">⛶</button>
+        <button class="icon-btn-lg">
+          🔔
+          <span class="badge-count">6</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="content">
+      
+        
+      
+      
+<div class="page-header">
+  <h1>Analitica & Justificacion ROI</h1>
+  <p class="subtitle">Justificacion de inversion $15K USD en mejoras de lineas — Datos reales Northface / Sanmina</p>
+</div>
+
+<!-- Budget / ROI KPIs -->
+<div class="kpi-row" style="margin-bottom:28px">
+  <div class="roi-card roi-blue">
+    <div class="label">Presupuesto Total</div>
+    <div class="value">$15,000</div>
+    <div class="sub">Inversion aprobada</div>
+  </div>
+  <div class="roi-card roi-amber">
+    <div class="label">Comprometido</div>
+    <div class="value">$0</div>
+    <div class="sub">0% del budget</div>
+  </div>
+  <div class="roi-card roi-green">
+    <div class="label">Ahorro Anual Proyectado</div>
+    <div class="value">$0</div>
+    <div class="sub">0% ROI</div>
+  </div>
+  <div class="roi-card roi-blue">
+    <div class="label">Payback</div>
+    <div class="value">0.0 meses</div>
+    <div class="sub">Recuperacion de inversion</div>
+  </div>
+  <div class="roi-card roi-red">
+    <div class="label">Presupuesto Restante</div>
+    <div class="value">$15,000</div>
+    <div class="sub">0 proyectos propuestos</div>
+  </div>
+</div>
+
+<!-- Progress bar del budget -->
+<div class="card" style="margin-bottom:28px">
+  <div class="card-body">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 style="font-size:15px;font-weight:700;">Uso del Presupuesto $15K</h3>
+      <span style="font-size:13px;color:var(--text-secondary);font-weight:600">$0 / $15,000</span>
+    </div>
+    <div class="progress-bar">
+      <div class="fill" style="width:0.0%"></div>
+    </div>
+    <div class="legend" style="margin-top:12px">
+      <span class="legend-item"><span class="legend-dot" style="background:var(--accent-blue)"></span> Comprometido</span>
+      <span class="legend-item"><span class="legend-dot" style="background:var(--border)"></span> Disponible</span>
+    </div>
+  </div>
+</div>
+
+<!-- Resumen por linea -->
+
+
+<!-- Tabla de mejoras con ROI -->
+<div class="card" style="margin-bottom:20px">
+  <div class="card-head"><h3>Proyectos de Mejora — Detalle de Inversion y Retorno</h3></div>
+  <div class="card-body">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Proyecto</th><th>Linea</th><th>Categoria</th><th class="num">Inversion USD</th><th class="num">Ahorro Anual</th><th class="num">ROI</th><th class="num">Ahorro Tiempo</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Top 5 mejoras por impacto -->
+<div class="card">
+  <div class="card-head"><h3>Top 5 Mejoras por Impacto Economico</h3></div>
+  <div class="card-body">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th class="num">#</th><th>Mejora</th><th class="num">Ahorro Anual</th><th class="num">Costo</th><th>Justificacion</th></tr>
+        </thead>
+        <tbody>
+          
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+    </main>
+  </div>
+</div>
+
+</body>
+</html>
