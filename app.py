@@ -484,24 +484,12 @@ def logout():
 
 
 # ──────────────────────────────────────────────
-#  Routes — main dashboard
+#  Routes — main dashboard (now Kadrix HQ)
 # ──────────────────────────────────────────────
 @app.route("/")
 @login_required
 def dashboard() -> str:
-    stations = read_stations()
-    metrics = build_metrics(stations)
-    summary = read_summary()
-    return render_template(
-        "dashboard.html",
-        title=APP_TITLE,
-        data_file=DATA_FILE,
-        available_seconds=AVAILABLE_SECONDS,
-        takt_seconds=TAKT_SECONDS,
-        metrics=metrics,
-        summary=summary,
-        nav_active="dashboard",
-    )
+    return redirect(url_for("kadrix.kadrix_hq"))
 
 
 @app.route("/data.csv")
