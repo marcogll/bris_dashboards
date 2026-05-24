@@ -22,6 +22,7 @@ from flask import (
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from kadrix import kadrix_bp
+from kadrix.db import query as db_query
 
 # ──────────────────────────────────────────────
 #  Logging
