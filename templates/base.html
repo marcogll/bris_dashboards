@@ -101,6 +101,7 @@
       <a class="nav-link {% if nav_active == 'plan' %}active{% endif %}" href="{{ url_for('plan') }}">Plan de Accion</a>
       <a class="nav-link {% if nav_active == 'partes' %}active{% endif %}" href="{{ url_for('partes') }}">Partes</a>
       <a class="nav-link {% if nav_active == 'kanban' %}active{% endif %}" href="{{ url_for('kanban') }}">Kanban</a>
+      <a class="nav-link {% if nav_active == 'kadrix' %}active{% endif %}" href="{{ url_for('kadrix.kadrix_hq') }}">Kadrix</a>
     </div>
     {% if current_user.is_authenticated %}
     <span class="nav-user">{{ current_user.username }}</span>

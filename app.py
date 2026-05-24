@@ -30,6 +30,8 @@ from flask_login import (
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from kadrix import kadrix_bp
+
 # ──────────────────────────────────────────────
 #  Logging
 # ──────────────────────────────────────────────
@@ -64,6 +66,7 @@ if not SECRET_KEY and FLASK_ENV != "development":
         "Establece la variable de entorno SECRET_KEY."
     )
 app.secret_key = SECRET_KEY or "local-dev-change-me"
+app.register_blueprint(kadrix_bp)
 
 # ──────────────────────────────────────────────
 #  Security headers
