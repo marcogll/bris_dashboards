@@ -1,0 +1,95 @@
+num,actividad,op,bec_s,work_s,caminata_s,espera_s,total_s,herramental_pn
+1,Preparar material,1.0,,113.0,,,113.0,Rack material
+2,Elaborar sub MTL-02356-04 (1/4),1.0,346.0,,,,346.0,SK41H / MTL-02356-04
+3,Elaborar sub MTL-02356-04 (2/4),1.0,338.0,,,,338.0,SK41H
+4,Elaborar sub MTL-02356-04 (3/4),1.0,350.0,,,,350.0,SK41H
+5,Elaborar sub MTL-02356-04 (4/4),1.0,375.0,,,,375.0,SK41H
+6,Elaborar sub ASY-05275-01 (1/6),1.0,96.0,,,,96.0,SK41H / ASY-05275-01
+7,Elaborar sub ASY-05275-01 (2/6),1.0,115.0,,,,115.0,SK41H
+8,Elaborar sub ASY-05275-01 (3/6),1.0,118.0,,,,118.0,SK41H
+9,Elaborar sub ASY-05275-01 (4/6),1.0,109.0,,,,109.0,SK41H
+10,Elaborar sub ASY-05275-01 (5/6),1.0,97.0,,,,97.0,SK41H
+11,Elaborar sub ASY-05275-01 (6/6),1.0,121.0,,,,121.0,SK41H
+SUBTOTAL,Productivo:2178s | Caminata:0s | Espera:0s,,,,,,2178.0,
+1,Elaborar armado de caja,2.0,200.0,,,,200.0,Remachadora / carcasa
+2,Instalar remaches,2.0,108.0,,,,108.0,SK41H
+3,Colocar pieza en fixture,2.0,,84.0,,,84.0,Fixture caja
+4,Instalar remaches fixture,2.0,151.0,,,,151.0,SK41H
+5,Quitar fixture y voltear carcasa,2.0,,19.0,,,19.0,Fixture
+6,Instalar solapas (6/6),2.0,1123.0,,,,1123.0,SK41H
+SUBTOTAL,Productivo:1685s | Caminata:0s | Espera:0s,,,,,,1685.0,
+1,Colocar cinta en solapas,3.0,,75.0,,,75.0,Manual
+2,Colocar tapa carcasa — alinear holes,3.0,,125.0,,,125.0,Pinzas
+3,Instalar flecos/remaches tapa 41H,3.0,106.0,,,,106.0,SK41H
+4,Instalar flecos/remaches 3030PT,3.0,835.0,,,,835.0,SK3030PT
+5,Instalar cercha,3.0,627.0,,,,627.0,SK41H
+6,Trasladar/corregir retrabajo,3.0,,,148.0,,148.0,—
+7,Instalar remaches 41,3.0,72.0,,,,72.0,SK41H
+8,Instalar MTL-02215-02 + remaches,3.0,300.0,,,,300.0,SK41H / MTL-02215-02
+9,Instalar resortes,3.0,207.0,,,,207.0,Manual
+10,Verificar ensambles,3.0,,52.0,,,52.0,Visual
+11,Instalar tapa MTL-02352-04,3.0,135.0,,,,135.0,SK41H / MTL-02352-04
+12,Instalar remaches internos,3.0,159.0,,,,159.0,SK41H
+SUBTOTAL,Productivo:2693s | Caminata:148s | Espera:0s,,,,,,2841.0,
+1,Elaborar sub MTL-02237-04 + remaches 391 + frames,4.0,203.0,,,,203.0,SK41H / MTL-02237-04
+2,Trasladar remachadora (avería),4.0,,,416.0,,416.0,⚠ TIEMPO MUERTO
+3,Trasladar por avería taladro,4.0,,,443.0,,443.0,⚠ TIEMPO MUERTO
+4,Instalar ASY-03135-03 rem. 41H,4.0,187.0,,,,187.0,SK41H / ASY-03135-03
+5,Instalar ASY-03139-03 rem. 41H,4.0,118.0,,,,118.0,SK41H / ASY-03139-03
+6,Instalar CBL-00408-05 rem. 41H,4.0,50.0,,,,50.0,SK41H / CBL-00408-05
+7,Instalar MTL-02202-03 rem. 41H,4.0,200.0,,,,200.0,SK41H / MTL-02202-03
+8,Instalar MTL-03697-01,4.0,76.0,,,,76.0,Atornillador / MTL-03697-01
+9,Instalar ASY-03229-27 + tornillos,4.0,73.0,,,,73.0,Torque 15 in/lb
+10,Caminar a buscar torque,4.0,,,188.0,,188.0,⚠ TIEMPO MUERTO
+11,Apretar tornillos torque 15 in/lb,4.0,150.0,,,,150.0,Torque 15 in/lb
+12,Apretar 10 tornillos para fijar pieza,4.0,107.0,,,,107.0,Atornillador
+SUBTOTAL,Productivo:1164s | Caminata:1047s | Espera:0s,,,,,,2211.0,
+1,Elaborar sub MTL-02239-01 + MTL-02237-01,5.0,151.0,,,,151.0,SK41H / MTL-02239-01
+2,Elaborar sub MTL-02237-04 rem. 41H,5.0,326.0,,,,326.0,SK41H
+3,Instalar GSKT-00352,5.0,26.0,,,,26.0,Manual / GSKT-00352
+4,Elaborar sub MECH-01754-03,5.0,134.0,,,,134.0,Manual / MECH-01754-03
+5,Instalar subensamble en tapa,5.0,23.0,,,,23.0,SK41H
+6,Verificar,5.0,,8.0,,,8.0,Visual
+7,Preparar material tapa-est6,5.0,,50.0,,,50.0,Rack
+8,Elaborar sub MTL-02226-02 rem. 41H,5.0,158.0,,,,158.0,SK41H / MTL-02226-02
+SUBTOTAL,Productivo:876s | Caminata:0s | Espera:0s,,,,,,876.0,
+1,Preparar material / ir por pieza fab.,6.0,,56.0,,,56.0,Carro
+2,Verificar pieza fabricación,6.0,,338.0,,,338.0,Visual / CTQ
+3,Preparar material / ir por pieza H,6.0,,45.0,,,45.0,Carro
+4,Verificar pieza H,6.0,,120.0,,,120.0,Visual
+5,Elaborar sub Fab+H,6.0,81.0,,,,81.0,SK41H
+6,Instalar subensamble rem. 41H,6.0,396.0,,,,396.0,SK41H
+7,Instalar ASY-05271-01,6.0,128.0,,,,128.0,Atornillador / ASY-05271-01
+8,Instalar ASY-03152-06 rem. 41H,6.0,116.0,,,,116.0,SK41H / ASY-03152-06
+9,Instalar ASY-04756-04 rem. 41H+42H,6.0,252.0,,,,252.0,SK41H+SK42H
+10,Instalar ASY-03136-03 rem. 41H,6.0,121.0,,,,121.0,SK41H
+11,Instalar ASY-03136+37 rem. 41H,6.0,333.0,,,,333.0,SK41H / ASY-03137-03
+12,Instalar MTL-02213-05,6.0,304.0,,,,304.0,SK41H x44 / MTL-02213-05
+13,Instalar MTL-02218-01 rem. 41H,6.0,224.0,,,,224.0,SK41H / FAS-05905 6in/lb
+14,Instalar MECH-01754-04 (8x),6.0,179.0,,,,179.0,Atornillador 15in/lb
+15,Instalar MECH-01253-01,6.0,49.0,,,,49.0,Manual / MECH-01253-01
+16,Instalar ASY-03153-04 rem. 41H,6.0,405.0,,,,405.0,SK41H x99 / ASY-03153-04
+17,Instalar ASY-04757-03 rem. 41H,6.0,276.0,,,,276.0,SK41H / ASY-04757-03
+18,Instalar MTL-02247-03 rem. 41H,6.0,1115.0,,,,1115.0,SK41H / MTL-02247-03
+19,Instalar MTL-02322-03 3030PT+41H,6.0,128.0,,,,128.0,SK3030PT / MTL-02322-03
+20,Esperar a Calidad,6.0,,,633.0,,633.0,⚠ ESPERA CALIDAD
+21,Inspeccionar auditoría calidad,6.0,,181.0,,,181.0,CTQ checklist
+SUBTOTAL,Productivo:4847s | Caminata:633s | Espera:0s,,,,,,5480.0,
+1,Tomar sub ASY-03131-08 del rack,7.0,,96.0,,,96.0,Rack / ASY-03131-08
+2,Verificar sub ASY-03131-08,7.0,,124.0,,,124.0,Visual
+3,Conectar busbar ASY-03230-06,7.0,63.0,,,,63.0,Torque / ASY-03230-06
+4,Instalar ASY-03131-08 a ensamble,7.0,36.0,,,,36.0,Atornillador
+5,Conectar cables,7.0,39.0,,,,39.0,Manual
+6,Apretar tornillos de placas,7.0,61.0,,,,61.0,Torque 15 in/lb
+7,Firmar CTQ's list,7.0,,54.0,,,54.0,Lista CTQ
+8,Apretar sub ASY-03131-08,7.0,196.0,,,,196.0,Torque
+9,Instalar PCA + busbar,7.0,62.0,,,,62.0,Torque
+10,Apretar busbar + ASY-04184-02,7.0,169.0,,,,169.0,Punta larga / ASY-04184-02
+11,Esperar inspector calidad,7.0,,,234.0,,234.0,⚠ ESPERA QA
+12,Apretar 35 tornillos ASY-03131-08,7.0,253.0,,,,253.0,Atornillador
+13,Instalar etiquetas frontal,7.0,306.0,,,,306.0,Plantilla etiquetas
+14,Instalar etiquetas posterior,7.0,162.0,,,,162.0,Plantilla etiquetas
+15,Verificar + llenar CTQ's,7.0,,182.0,,,182.0,Lista CTQ
+16,Verificar lider + inspector QA,7.0,,754.0,,,754.0,CTQ / Firma
+17,Trasladar a test room,7.0,,,137.0,,137.0,Carro / AGV
+SUBTOTAL,Productivo:2557s | Caminata:371s | Espera:0s,,,,,,2928.0,

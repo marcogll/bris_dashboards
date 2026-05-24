@@ -1,7 +1,44 @@
 [
-  {"categoria": "Trabajo productivo",          "tiempo_seg": "2068", "pct": "46.1"},
-  {"categoria": "Verificaciones / CTQ",        "tiempo_seg": "1037", "pct": "23.1"},
-  {"categoria": "Esperas (QA / material)",     "tiempo_seg": "599",  "pct": "13.3"},
-  {"categoria": "Retrabajo remaches",          "tiempo_seg": "399",  "pct": "8.9"},
-  {"categoria": "Caminatas innecesarias",      "tiempo_seg": "382",  "pct": "8.6"}
+  {
+    "categoria": "Trabajo productivo",
+    "tiempo_seg": 2068,
+    "pct": 46.1,
+    "causa_raiz": "Actividades de valor",
+    "accion": "Mantener y proteger"
+  },
+  {
+    "categoria": "Verificaciones / CTQ / firma",
+    "tiempo_seg": 1037,
+    "pct": 23.1,
+    "causa_raiz": "Sin QC inline",
+    "accion": "Checklist digital tablet"
+  },
+  {
+    "categoria": "Esperas a inspector QA",
+    "tiempo_seg": 577,
+    "pct": 12.9,
+    "causa_raiz": "Inspector no dedicado",
+    "accion": "QA dedicado a línea"
+  },
+  {
+    "categoria": "Caminatas (herr/material)",
+    "tiempo_seg": 373,
+    "pct": 8.3,
+    "causa_raiz": "Shadow board ausente",
+    "accion": "Shadow board Est.4+7"
+  },
+  {
+    "categoria": "Retrabajo remaches",
+    "tiempo_seg": 293,
+    "pct": 6.5,
+    "causa_raiz": "Sin fixture guía",
+    "accion": "Fixture anti-error"
+  },
+  {
+    "categoria": "Traslado a test room",
+    "tiempo_seg": 137,
+    "pct": 3.1,
+    "causa_raiz": "Sin carro dedicado",
+    "accion": "AGV/carro permanente"
+  }
 ]

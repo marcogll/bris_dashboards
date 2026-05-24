@@ -1,0 +1,61 @@
+tipo_bin,nombre,contenido,ubicacion,material
+BIN AZUL,Material Bin1 — pequeño,"Componentes pequeños (tornillos, remaches, gaskets)",Estación 1-3,Aluminio + acero
+BIN ROJO,SCRAP / Rechazos,Material no conforme — cuarentena,Área roja,No conforme
+BIN VERDE,Material Bin1 — componentes,"Chapas, brackets, paneles metálicos",Supermercado,Metálicos
+BIN AMARILLO,QA HOLD,Material en espera de disposición calidad,Cuarentena,Pendiente QA
+BIN NEGRO,Scrap definitivo,Material para disposición final,Área roja,Scrap
+BIN NARANJA,Bin2 — componentes grandes,Sub-ensambles grandes / frames,Supermercado,ASY / MTL grande
+CATÁLOGO DE BINS — NORTHFACE (ASY-03128-24;A0) — Plan for every Part,,,,
+#,Número de Parte,Descripción proceso,Op,Estación
+1,MTL-02321-01;A0,LSR-BRK,1,1
+2,ASY-05258-01;A0,TURR-BRK-PEM,1,1
+3,GSKT-00352,BUY,1,1
+4,GSKT-00353,BUY,1,1
+5,MTL-02217-01;A0,TURR-BRK,1,1
+6,ASY-05257-01;A0,TURR-BRK-PEM,1,1
+7,ASY-05277-02;A0,TURR-BRK-PEM,1,2
+8,MTL-02324-02;A0,TURR-BRK,1,2
+9,MTL-02214-01;A1,LSR-BRK-OSP,1,2
+10,MTL-02216-03;A0,LSR-BRK,1,1
+11,ASY-05299-02;A0,TURR-BRK-PEM,1,1
+12,H FAS-00525,BUY,1,2
+13,MTL-02215-02;A1,LSR-BRK-OSP,2,3
+14,MECH-02707-01;B0,BUY,2,3
+15,A MECH-02688-02,BUY,2,3
+16,A MECH-02687-02,BUY,2,3
+17,ASY-03668-01;A0,TURR-BRK-PEM,2,3
+18,MTL-02352-04;A0,TURR-BRK,2,3
+19,ASY-04181-02;A0,TURR-BRK-PEM,2,3
+20,ASY-03157-02;A0,TURR-BRK-PEM,2,3
+21,MTL-02239-01;A0,TURR-BRK,3,5
+22,ASY-03145-02;A0,TURR-BRK-PEM,3,5
+23,MTL-02237-04;A0,TURR-BRK,3,5
+24,B ASY-05269-03;B0 (FRAME),BUY,3,6
+25,MTL-02434-01;A0,LSR-BRK,3,5
+26,MTL-02236-04;A0,TURR-BRK,3,5
+27,ASY-03135-03;A0,TURR-BRK-PEM,3,6
+28,MTL-02220-03;A0,TURR-BRK,3,5
+29,ASY-03139-03;A0,TURR-BRK-PEM,3,5
+30,ASY-04756-04;A0,TURR-BRK-PEM,4,8
+31,ASY-03156-03;A0,TURR-BRK-PEM,4,8
+32,ASY-03136-03;A0,TURR-BRK-PEM,4,8
+33,ASY-03137-03;A0,TURR-BRK-PEM,4,8
+34,ASY-03152-06;A0,TURR-BRK-PEM,4,8
+35,MTL-02218-01;B0,TURR-OSP,5,9
+36,ASY-03153-05;A0,TURR-BRK-PEM,5,9
+CATÁLOGO DE BINS — SANMINA (ASY-20063-05;B0),,,,
+Est,Número de Parte,Descripción,Tipo Bin,Color Bin
+Est 1,ASY-20038-02;A0,Sub-ensamble base cables,BIN 2,Naranja
+Est 1,ASY-20062-02;A0,Cable sub-ensamble tipo 62,BIN 2,Naranja
+Est 1,ASY-20061-02;A0,Cable sub-ensamble tipo 61,BIN 2,Naranja
+Est 1,H FAS-01436,Tuerca hex,BIN 1,Azul
+Est 1,H FAS-01358,Tornillo,BIN 1,Azul
+Est 2,ASY-09039-05;A0,Tapa,BIN 2,Naranja
+Est 2,H FAS-00458,Tornillo estrella 6LB,BIN 1,Azul
+Est 2,H MECH-05450-01,Bracket (×29 por pza),BIN 1,Azul
+Est 3,ASY-09037-05;A0,Base,BIN 2,Naranja
+Est 4,LBL-02042-01,Gasket base,BIN 1,Azul
+Est 5,LBL-02045-01,Gasket tapa,BIN 1,Azul
+Est 6,A CBL-00902-01,Cable ruteo,BIN 1,Azul
+Todas,—,Scrap / rechazos,BIN ROJO,Rojo
+Todas,—,QA Hold,BIN AMARILLO,Amarillo

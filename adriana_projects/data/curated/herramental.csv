@@ -1,0 +1,30 @@
+linea,estacion,herramienta,especificacion,uso,torque_config,cantidad,tipo,observaciones
+NORTHFACE,Est 1,Remachadora SK41H,Huck SK41H,"Remachar MTL-02356, ASY-05275",,1,Neumática,Verificar presión diaria
+NORTHFACE,Est 2,Remachadora SK41H,Huck SK41H,Remachar carcasa,,1,Neumática,
+NORTHFACE,Est 2,Fixture caja,Custom,Sujetar carcasa,,1,Mecánico,Diseñar si no existe
+NORTHFACE,Est 3,Remachadora SK3030PT,Huck 3030PT,Remachar cercha/tapa,,1,Neumática,Verificar mandril
+NORTHFACE,Est 3,Remachadora SK41H,Huck SK41H,Remaches 41H tapa,,1,Neumática,
+NORTHFACE,Est 4,Remachadora SK41H,Huck SK41H,Remachar MTL-02237,,1,Neumática,⚠ Falla frecuente — PM urgente
+NORTHFACE,Est 4,Atornillador torque,Neumático,Tornillos ASY-03229,15 in/lb,1,Neumático,Calibrar semanalmente
+NORTHFACE,Est 4,Taladro,Eléctrico,Avellanado,,1,Eléctrico,⚠ Avería registrada — backup urgente
+NORTHFACE,Est 5,Remachadora SK41H,Huck SK41H,Remachar MTL-02239,,1,Neumática,
+NORTHFACE,Est 6,Remachadora SK41H,Huck SK41H,Múltiples PNs,,1,Neumática,
+NORTHFACE,Est 6,Remachadora SK42H,Huck SK42H,ASY-04756,,1,Neumática,Verificar disponibilidad
+NORTHFACE,Est 6,Atornillador 15 in/lb,Neumático,MECH-01754-04 ×8,15 in/lb FAS-00532,1,Neumático,
+NORTHFACE,Est 6,Atornillador 6 in/lb,Neumático,MTL-02218-01,6 in/lb FAS-05905,1,Neumático,
+NORTHFACE,Est 6,Mesa ergonómica,Ajustable,Bajar/subir para acceso,,1,Mesa,Verificar mecanismo
+NORTHFACE,Est 7,Atornillador punta larga,Neumático,Busbar ASY-04184-02,15 in/lb,1,Neumático,Punta larga dedicada
+NORTHFACE,Est 7,Plantilla etiquetas frontal,Custom,Etiquetas frontales,,1,Plantilla,Control visual
+NORTHFACE,Est 7,Plantilla etiquetas posterior,Custom,Etiquetas posteriores,,1,Plantilla,
+NORTHFACE,Est 7,Carro de traslado,AGV/manual,Mover a test room,,1,Carro,Evaluar AGV
+SANMINA,Est 1,Fixture SG-2973,Custom Sanmina,Sujetar ASY-20038,,1,Mecánico,⚠ Optimizar retiro de pieza
+SANMINA,Est 1,Torque 68 in/lb,Atornillador,Tornillos cables,68 in/lb ±7 Hex 5/32,1,Torque,Verificar punta
+SANMINA,Est 2,Desarmador estrella,Phillips #2,H FAS-00458,6 LB,1,Manual,
+SANMINA,Est 2,Torque 6 LB,Torquímetro,Apriete final brackets,6 LB,1,Torquímetro,Calibrar mensual
+SANMINA,Est 3,Pistola calor,Industrial,Adhesión gasket,Temp. controlada,1,Calor,EPI: guantes térmicos
+SANMINA,Est 4,Pistola calor,Industrial,Adhesión LBL-02042-01,Temp. controlada,3,Calor,⚠ FIXTURE PENDIENTE — diseñar
+SANMINA,Est 4,Fixture guía calor,PENDIENTE,Guiar gasket base,,1,Mecánico,URGENTE — reducir CT
+SANMINA,Est 5,Fixture gasket tapa,Diseñado,Posicionar gasket,,1,Mecánico,Implementar
+SANMINA,Est 6,Atornillador torque,Neumático,Cierre tapa,Spec en WI,2,Torque,Verificar spec
+SANMINA,Est 6,Plantilla ruteo cables,WI visual,Guía cables,,1,Plantilla,⚠ CREAR — color code cables
+SANMINA,Est 7,Carro elevador,Hidráulico,Mover caja exterior,,1,Carro,Ergonomía — altura

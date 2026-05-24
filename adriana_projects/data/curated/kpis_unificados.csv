@@ -1,0 +1,22 @@
+kpi,northface_actual,northface_meta,sanmina_actual,sanmina_meta,afl_actual,afl_meta,status,accion
+Tiempo de Ciclo (min/pza),50.9,≤47.0,77.5,≤36.9,—,—,⚠,Reducir cuellos
+Eficiencia (%),109%,≥95%,67%,≥95%,—,≥95%,⚠,Balancear Sanmina
+Producción Diaria (pzas),13,≥14,~8,≥18,—,—,⚠,Plan de mejora
+Pzas / Op / Hr,0.87,≥1.0,0.77,≥1.0,—,≥1.0,⚠,Reducir esperas
+OEE (%),—,≥85%,—,≥85%,—,≥85%,—,Implementar medición
+FPY (%),—,≥95%,—,≥95%,—,≥95%,—,Implementar medición
+Scrap (%),—,≤2%,—,≤2%,—,≤2%,—,Control visual
+Downtime (min/turno),—,≤30,—,≤30,—,≤30,—,Registrar causas
+WIP en piso,—,≤3 pzas,—,≤3 pzas,—,≤3 pzas,—,Sistema Kanban
+TIEMPOS MUERTOS Y DESPERDICIOS IDENTIFICADOS,,,,,,,,
+Línea,Estación,Tipo desperdicio,Tiempo (seg),Causa raíz,Impacto,Acción propuesta,,
+NORTHFACE,Est 6,Espera calidad,633,Inspector no disponible,Alto,Asignar inspector dedicado,,
+NORTHFACE,Est 7,Retrabajo remaches,293,Falta fixture guía,Alto,Diseñar fixture anti-error,,
+NORTHFACE,Est 4,Traslado herramienta,859,Shadow board ausente,Medio,Implementar shadow board,,
+NORTHFACE,Est 7,Espera inspector,142,Proceso no balanceado,Alto,QC inline cada estación,,
+NORTHFACE,Est 4,Traslado por avería,443,Mantenimiento reactivo,Alto,PM preventivo semanal,,
+SANMINA,Est 4,Tiempo ciclo alto,900,Sin fixture gaskets,Alto,Diseñar fixture calor,,
+SANMINA,Est 5,Pegado manual,84,Proceso artesanal,Medio,Fixture + guía térmica,,
+SANMINA,Est 6,Ruteo cables,2820,Sin plantilla visual,Alto,Crear WI visual cables,,
+SANMINA,Est 2,Dificultad brackets,494,Secuencia incorrecta,Medio,Dividir en 2 estaciones,,
+SANMINA,Est 3,Rechazo material,50+,Proveedor no controlado,Medio,Acuerdo calidad entrada,,

@@ -282,6 +282,10 @@ def read_balanceo() -> dict[str, list[dict]]:
     rows = read_csv_safe(CURATED_DIR / "balanceo_lineas.csv")
     result: dict[str, list[dict]] = {}
     for row in rows:
+        est = str(row.get("estacion", "")).strip()
+        # Filtrar filas de header repetido o vacías
+        if not est or "estaci" in est.lower() or est.startswith("Est1-") or est.startswith("Est2-") or est.startswith("Est3-") or est.startswith("Est4-") or est.startswith("Est5-") or est.startswith("Est6-") or est.startswith("Est7-"):
+            continue
         linea = row.get("linea", "OTRO")
         result.setdefault(linea, []).append(row)
     return result
