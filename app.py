@@ -495,6 +495,8 @@ def dashboard() -> str:
     throughput = read_throughput()
     demanda = read_demanda()
     plan = read_plan_accion()
+    inversion = read_csv_safe(CURATED_DIR / "inversion_15k.csv")
+    roi = read_csv_safe(CURATED_DIR / "roi_summary.csv")
 
     # Plan summary
     plan_summary = {
@@ -551,6 +553,8 @@ def dashboard() -> str:
         kanban_warn=kanban_warn,
         available_seconds=AVAILABLE_SECONDS,
         takt_seconds=TAKT_SECONDS,
+        inversion=inversion,
+        roi=roi,
     )
 
 

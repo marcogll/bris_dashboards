@@ -149,6 +149,71 @@
   </div>
 </div>
 
+<!-- ===== REPORTE EJECUTIVO $15K ===== -->
+<div class="card" style="margin-bottom:20px">
+  <div class="card-head"><h3>Reporte Ejecutivo — Inversión $15K USD</h3></div>
+  <div class="card-body">
+    <div class="kpi-row" style="margin-bottom:20px">
+      {% for r in roi %}
+      {% if r.concepto in ['Beneficio total ano 1', 'ROI Ano 1', 'Periodo de Payback'] %}
+      <div class="kpi hero">
+        <div class="label">{{ r.concepto }}</div>
+        <div class="value">{% if r.concepto == 'ROI Ano 1' %}{{ r.valor }}%{% elif r.concepto == 'Periodo de Payback' %}{{ r.valor }} meses{% else %}${{ r.valor|num(0) }}{% endif %}</div>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+
+    <h4 style="font-size:13px;font-weight:700;margin-bottom:12px">Desglose de inversión</h4>
+    <div class="bars">
+      {% for inv in inversion %}
+      <div class="bar">
+        <div class="bar-label">{{ inv.categoria }}</div>
+        <div class="bar-track">
+          <div class="bar-fill hero" style="width:{{ (inv.monto|float / 15000 * 100)|round }}%">${{ inv.monto|num(0) }}</div>
+        </div>
+        <div class="bar-val">{{ (inv.monto|float / 15000 * 100)|round }}%</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="two-col" style="margin-top:20px">
+      <div>
+        <h4 style="font-size:13px;font-weight:700;margin-bottom:10px">Throughput — Antes vs Después</h4>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Etapa</th><th class="num">Pzas/turno</th></tr></thead>
+            <tbody>
+              {% for tp in throughput %}
+              <tr>
+                <td>{{ tp.etapa }}</td>
+                <td class="num"><strong>{{ tp.pzas_hr|float|num(1) }}</strong></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-size:13px;font-weight:700;margin-bottom:10px">Retorno de inversión</h4>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Concepto</th><th class="num">Valor</th></tr></thead>
+            <tbody>
+              {% for r in roi %}
+              <tr>
+                <td>{{ r.concepto }}</td>
+                <td class="num">{% if r.concepto == 'ROI Ano 1' %}<strong style="color:var(--accent-blue)">{{ r.valor }}%</strong>{% elif r.concepto == 'Periodo de Payback' %}<strong style="color:var(--accent-green)">{{ r.valor }} meses</strong>{% elif r.concepto in ['Inversion requerida', 'Valor marginal por unidad'] %}${{ r.valor|num(0) }}{% else %}<strong>${{ r.valor|num(0) }}</strong>{% endif %}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ===== DETALLE ESTACIONES ===== -->
 <div class="card">
   <div class="card-head"><h3>Detalle de Estaciones — Capacidad</h3></div>
