@@ -33,24 +33,37 @@ El objetivo es que la informacion de proyectos, materiales, BOM, PFEP, work cent
 
 ```text
 .
-├── app.py
-├── docker-compose.yml
+├── app.py                          # App principal Flask + Kadrix
+├── docker-compose.yml              # Stack produccion (Flask + MySQL)
+├── docker-compose.vanity.yml       # Integracion con ecosistema Vanity
 ├── Dockerfile
+├── streamlit_app.py                # Dashboard interactivo Streamlit
+├── requirements.txt
 ├── data/
-│   └── stations.csv
-├── templates/
-│   └── dashboard.html
-├── adriana_projects/
-│   ├── data/
-│   │   ├── raw_csv/
-│   │   ├── curated/
-│   │   └── summary.json
-│   ├── mysql/
-│   │   └── init/01_schema.sql
-│   └── scripts/
-│       ├── build_adriana_dataset.py
-│       └── load_mysql.py
-└── *.xlsx / *.xlsm
+│   ├── stations.csv                # Datos de estaciones (ensamble)
+│   ├── fallbacks/                  # JSON de respaldo cuando no hay CSV
+│   └── raw/                        # Excel originales (fuentes)
+├── templates/                      # Templates Jinja2
+│   ├── base.html
+│   ├── dashboard.html
+│   ├── kadrix/                     # Kadrix HQ, Kanban, Fixtures, Analytics
+│   └── errors/
+├── kadrix/                         # Modulo multiagente Kadrix
+│   ├── __init__.py
+│   ├── db.py
+│   ├── views.py
+│   └── analytics.py
+├── scripts/                        # Scripts auxiliares
+│   └── extract_opus_data.py
+└── adriana_projects/               # Pipeline de datos Adriana
+    ├── data/
+    │   ├── curated/                # CSVs normalizados
+    │   └── summary.json
+    ├── mysql/
+    │   └── init/                   # Schemas SQL
+    └── scripts/
+        ├── build_adriana_dataset.py
+        └── load_mysql.py
 ```
 
 ## Dashboard de ensamble
