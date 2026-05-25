@@ -1091,7 +1091,7 @@ def favicon():
 
 @app.route("/service-worker.js")
 def service_worker():
-    return Response("/* noop */", mimetype="application/javascript")
+    return send_file(BASE_DIR / "templates" / "service-worker.js", mimetype="application/javascript")
 
 
 # ──────────────────────────────────────────────

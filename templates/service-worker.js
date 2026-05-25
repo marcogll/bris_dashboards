@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vanity-pwa-cache-v1';
+const CACHE_NAME = 'vanity-pwa-cache-v2-cadrex-hq';
 const ASSETS_TO_CACHE = [
   './',
   '/static/css/dashboard.css',
