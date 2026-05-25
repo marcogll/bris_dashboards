@@ -1,9 +1,11 @@
-metrica,valor,meta,unidad
-OEE NF,68,85,%
-OEE SAN,72,85,%
-OEE KAN,74,85,%
-OEE AFL,71,85,%
-Takt NF,47.0,47.0,min/pza
-Takt SAN,36.9,36.9,min/pza
-Prod. Diaria NF,13,14,pzas
-Prod. Diaria SAN,8,18,pzas
+indicador,valor
+NORTHFACE Takt Time,47.0 min/pza
+NORTHFACE Prod. Diaria,13 pzas/turno
+NORTHFACE Eficiencia,109.2%
+NORTHFACE Pzas/Op/Hr,0.87 pz
+SANMINA CT Total,77.5 min
+SANMINA Takt Time,36.9 min
+SANMINA Bottleneck,Gaskets 900 seg
+AFL Demanda Sem.,125 pzas
+KANTISHNA Etapas,6 subensambles
+META OEE,≥ 85%

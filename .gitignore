@@ -12,6 +12,7 @@ venv/
 .env.*
 !.env.example
 !.env.coolify.example
+!.env.coolify
 
 # OS
 .DS_Store
@@ -43,9 +44,7 @@ vanity_actas/instance/
 vanity_empreq/instance/
 
 # Data files
-**/data/
 **/*.csv
-data/users.json
 *.backup.csv
 
 # Office files
@@ -75,4 +74,4 @@ supabase/.branches/
 node_modules/
 
 # Session files
-session-*.mdclaude/
+session-*.md

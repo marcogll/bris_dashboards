@@ -1,7 +1,7 @@
-categoria,tiempo_seg,pct,notas
-Trabajo productivo,2068,46.1,Actividades de valor | Mantener y proteger
-Verificaciones / CTQ / firma,1037,23.1,Sin QC inline | Checklist digital tablet
-Esperas a inspector QA,577,12.9,Inspector no dedicado | QA dedicado a línea
-Caminatas (herr/material),373,8.3,Shadow board ausente | Shadow board Est.4+7
-Retrabajo remaches,293,6.5,Sin fixture guía | Fixture anti-error
-Traslado a test room,137,3.1,Sin carro dedicado | AGV/carro permanente
+categoria,tiempo_seg,pct,causa_raiz,accion
+Trabajo productivo,2068,46.1,Actividades de valor,Mantener y proteger
+Verificaciones / CTQ / firma,1037,23.1,Sin QC inline,Checklist digital tablet
+Esperas a inspector QA,577,12.9,Inspector no dedicado,QA dedicado a línea
+Caminatas (herr/material),373,8.3,Shadow board ausente,Shadow board Est.4+7
+Retrabajo remaches,293,6.5,Sin fixture guía,Fixture anti-error
+Traslado a test room,137,3.1,Sin carro dedicado,AGV/carro permanente

@@ -1,15 +1,8 @@
-estacion,linea,ct_actual,ct_objetivo,estado
-Est 1 Fab Sub,NORTHFACE,2065,2065.0,ok
-Est 2 Fab Caja,NORTHFACE,1685,1685.0,ok
-Est 3 Fab Tapa,NORTHFACE,2978,2821.0,critical
-Est 4 Sub H,NORTHFACE,2047,1821.0,ok
-Est 5 Sub H Tapa,NORTHFACE,876,876.0,ok
-Est 6 Ensamble,NORTHFACE,4923,2821.0,critical
-Est 7 Integración,NORTHFACE,2595,1821.0,warning
-Est 1 Cables,SANMINA,29.0,29.0,ok
-Est 2 Tapa,SANMINA,494.0,494.0,ok
-Est 3 Base,SANMINA,50.0,50.0,ok
-Est 4 Gaskets,SANMINA,300.0,300.0,ok
-Est 5 Gskt Tapa,SANMINA,84.0,84.0,ok
-Est 6 Ruteo,SANMINA,1410.0,1410.0,ok
-Est 7 Empaque,SANMINA,150.0,150.0,ok
+nf_estacion,nf_descripcion,nf_ct_seg,nf_pct_takt,nf_estado,sm_estacion,sm_descripcion,sm_ct_seg,sm_pct_takt,sm_estado
+Est 1,Fab. subensamble,2065,73.2%,✔ Holgura,Est 1,Cables (3 ops),86,3.9%,✔ Holgura
+Est 2,Fab. caja,1685,59.7%,✔ Holgura,Est 2,Tapa/Etiquetas,494,22.3%,✔ Holgura
+Est 3,Fab. tapa/cercha,2978,105.6%,✘ Cuello,Est 3,Base/Etiquetas,50,2.3%,✔ Holgura
+Est 4,Subensamble H,1188,42.1%,✔ Holgura,Est 4,Gaskets base,900,40.6%,✔ Holgura
+Est 5,H – tapa,769,27.3%,✔ Holgura,Est 5,Gaskets tapa,84,3.8%,✔ Holgura
+Est 6,Ensamble completo,4290,152.1%,✘ Cuello,Est 6,Ruteo+Final,2820,127.2%,✘ Cuello
+Est 7,Integración final,2068,73.3%,✔ Holgura,Est 7,Empaque,300,13.5%,✔ Holgura

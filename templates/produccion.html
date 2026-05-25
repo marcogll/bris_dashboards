@@ -25,8 +25,8 @@
   padding-left: 8px;
   font-size: 10px; font-weight: 700; color: #fff;
 }
-.bar-prod .bar-fill.act.over { background: linear-gradient(90deg, #ef4444, #f97316); }
-.bar-prod .bar-fill.act.warn { background: linear-gradient(90deg, #f59e0b, #f97316); }
+.bar-prod .bar-fill.act.over { background: linear-gradient(90deg, #ef4444, #f59e0b); }
+.bar-prod .bar-fill.act.warn { background: linear-gradient(90deg, #f59e0b, #f59e0b); }
 .bar-prod .bar-fill.act.ok { background: var(--gradient-green); }
 .bar-prod .bar-fill.meta { background: var(--gradient-blue); }
 .bar-prod .bar-ahorro { font-size: 11px; font-weight: 700; color: var(--accent-green); text-align: right; }
@@ -58,25 +58,25 @@
       <div class="card-body">
         {% set nf_max = 5000 %}
         {% for r in nf_rows %}
-        {% set ct_act = r.ct_actual|float %}
-        {% set ct_met = r.ct_meta|float %}
-        {% set takt = r.takt|float %}
+        {% set ct_act = r.get('ct_actual', 0)|float %}
+        {% set ct_met = r.get('ct_meta', 0)|float %}
+        {% set takt = r.get('takt', 0)|float %}
         {% set pct_act = (ct_act / nf_max * 100)|round %}
         {% set pct_met = (ct_met / nf_max * 100)|round %}
         {% set takt_pct = (takt / nf_max * 100)|round %}
         {% set s_class = 'over' if ct_act > takt else ('warn' if ct_act > takt * 0.95 else 'ok') %}
         <div class="bars-prod">
           <div class="bar-prod">
-            <div class="bar-label">{{ r.estacion }}</div>
+            <div class="bar-label">{{ r.get('estacion', '—') }}</div>
             <div class="bar-track">
               <div class="takt-line" style="left:{{ takt_pct }}%"></div>
-              <div class="bar-fill act {{ s_class }}" style="width:{{ pct_act }}%">{{ r.ct_actual|float|num(0) }}s</div>
+              <div class="bar-fill act {{ s_class }}" style="width:{{ pct_act }}%">{{ r.get('ct_actual', 0)|float|num(0) }}s</div>
             </div>
             <div class="bar-track">
               <div class="takt-line" style="left:{{ takt_pct }}%"></div>
-              <div class="bar-fill meta" style="width:{{ pct_met }}%">{{ r.ct_meta|float|num(0) }}s</div>
+              <div class="bar-fill meta" style="width:{{ pct_met }}%">{{ r.get('ct_meta', 0)|float|num(0) }}s</div>
             </div>
-            <div class="bar-ahorro">{% if r.ahorro_seg|float > 0 %}-{{ r.ahorro_seg|float|num(0) }}s{% else %}—{% endif %}</div>
+            <div class="bar-ahorro">{% set aho = r.get('ahorro_seg', 0)|float %}{% if aho > 0 %}-{{ aho|num(0) }}s{% else %}—{% endif %}</div>
             <div class="bar-status"><span class="badge {{ 'badge-crit' if s_class == 'over' else ('badge-warn' if s_class == 'warn' else 'badge-ok') }}">{{ 'CUELLO' if s_class == 'over' else ('~Takt' if s_class == 'warn' else 'OK') }}</span></div>
           </div>
         </div>
@@ -99,15 +99,15 @@
             </thead>
             <tbody>
               {% for r in sm_rows %}
-              {% set ct_act = r.ct_actual|float %}
-              {% set ct_met = r.ct_meta|float %}
-              {% set takt = r.takt|float %}
+              {% set ct_act = r.get('ct_actual', 0)|float %}
+              {% set ct_met = r.get('ct_meta', 0)|float %}
+              {% set takt = r.get('takt', 0)|float %}
               {% set s_class = 'badge-crit' if ct_act > takt else 'badge-ok' %}
               <tr>
-                <td><strong>{{ r.estacion }}</strong></td>
+                <td><strong>{{ r.get('estacion', '—') }}</strong></td>
                 <td class="num">{{ ct_act|num(0) }}s</td>
                 <td class="num">{{ ct_met|num(0) }}s</td>
-                <td class="num" style="color:var(--accent-green)">{% if r.ahorro_seg|float > 0 %}-{{ r.ahorro_seg|float|num(0) }}s{% else %}—{% endif %}</td>
+                <td class="num" style="color:var(--accent-green)">{% set aho = r.get('ahorro_seg', 0)|float %}{% if aho > 0 %}-{{ aho|num(0) }}s{% else %}—{% endif %}</td>
                 <td><span class="badge {{ s_class }}">{{ 'CUELLO' if ct_act > takt else 'OK' }}</span></td>
               </tr>
               {% endfor %}

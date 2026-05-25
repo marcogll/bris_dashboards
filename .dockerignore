@@ -13,22 +13,9 @@ venv/
 *.xls
 *.csv
 !data/stations.csv
+!adriana_projects/data/curated/*.csv
 *.backup.csv
 .DS_Store
 node_modules/
 .pytest_cache/
 .mypy_cache/
-
-# Environment files with secrets
-.env.production
-.env.prod.generated
-.env.vps
-.env.coolify
-
-# Logs
-*.log
-
-# Dev/CI directories
-.codegraph/
-.opencode/
-.antigravitycli/

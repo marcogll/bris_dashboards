@@ -20,8 +20,8 @@
 .ct-label { width: 140px; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
 .ct-track { flex: 1; height: 24px; background: var(--bg); border-radius: var(--radius-sm); overflow: hidden; position: relative; box-shadow: var(--shadow-inset); }
 .ct-fill { height: 100%; border-radius: var(--radius-sm); display: flex; align-items: center; padding-left: 8px; font-size: 10px; font-weight: 700; color: #fff; }
-.ct-fill.crit { background: linear-gradient(90deg, #ef4444, #f97316); }
-.ct-fill.warn { background: linear-gradient(90deg, #f59e0b, #f97316); }
+.ct-fill.crit { background: linear-gradient(90deg, #ef4444, #f59e0b); }
+.ct-fill.warn { background: linear-gradient(90deg, #f59e0b, #f59e0b); }
 .ct-fill.ok { background: var(--gradient-green); }
 .ct-takt { position: absolute; top: 0; bottom: 0; width: 3px; background: #6366f1; z-index: 2; border-radius: 3px; }
 .ct-val { width: 70px; font-size: 12px; font-weight: 700; text-align: right; }
@@ -95,7 +95,7 @@
       </div>
       <div class="kpi">
         <div class="label">Gap vs takt</div>
-        <div class="value" style="color:{{ '#ef4444' if ls.summary.gap_sec > 0 else '#10b981' }}">{{ ls.summary.gap_sec|num(0) }}s</div>
+        <div class="value" style="color:{{ '#ef4444' if ls.summary.gap_sec > 0 else '#22c55e' }}">{{ ls.summary.gap_sec|num(0) }}s</div>
       </div>
       <div class="kpi">
         <div class="label">Cuello de botella</div>
@@ -123,7 +123,7 @@
         <div class="ct-takt" style="left:{{ (ls.line.takt_seconds / max_ct * 100)|round }}%"></div>
         <div class="ct-fill {{ 'crit' if b.station_name == ls.summary.bottleneck_station else ('warn' if over_takt else 'ok') }}" style="width:{{ pct }}%">{{ b.value|int }}s</div>
       </div>
-      <div class="ct-val" style="color:{{ '#ef4444' if over_takt else '#10b981' }}">{{ '+' if over_takt }}{{ (b.value - ls.line.takt_seconds)|int }}s</div>
+      <div class="ct-val" style="color:{{ '#ef4444' if over_takt else '#22c55e' }}">{{ '+' if over_takt }}{{ (b.value - ls.line.takt_seconds)|int }}s</div>
     </div>
     {% endfor %}
   </div>
@@ -151,7 +151,7 @@
             <td>{{ imp.category }}</td>
             <td class="num">${{ total_cost|num(0) }}</td>
             <td class="num" style="color:var(--accent-green);font-weight:700">${{ (imp.expected_savings_usd_annual or 0)|num(0) }}</td>
-            <td class="num" style="color:{{ '#10b981' if roi > 200 else ('#f59e0b' if roi > 100 else '#ef4444') }};font-weight:700">{{ roi|num(0) }}%</td>
+            <td class="num" style="color:{{ '#22c55e' if roi > 200 else ('#f59e0b' if roi > 100 else '#ef4444') }};font-weight:700">{{ roi|num(0) }}%</td>
             <td class="num">{{ (imp.expected_time_saved_sec or 0)|int }}s</td>
             <td><span class="badge {{ 'badge-ok' if imp.status == 'implemented' else ('badge-warn' if imp.status == 'in_progress' else 'badge-pendiente') }}">{{ imp.status }}</span></td>
           </tr>

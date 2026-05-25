@@ -27,13 +27,18 @@
     </div>
   </div>
 
-  <div class="filters">
-    <label style="font-size:13px;color:var(--text-secondary);font-weight:500">Filtrar prioridad:</label>
-    <select onchange="filterPriority(this.value)">
-      <option value="all">Todas</option>
-      <option value="ALTA">ALTA</option>
-      <option value="MEDIA">MEDIA</option>
-      <option value="BAJA">BAJA</option>
+  <div class="filters" style="margin-bottom:20px;">
+    <label>Prioridad</label>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="active" onclick="filterPriority('all', this)">Todas</button>
+      <button onclick="filterPriority('ALTA', this)" style="--btn-accent:var(--accent-red)">ALTA</button>
+      <button onclick="filterPriority('MEDIA', this)" style="--btn-accent:var(--accent-yellow)">MEDIA</button>
+      <button onclick="filterPriority('BAJA', this)" style="--btn-accent:var(--accent-green)">BAJA</button>
+    </div>
+    <label style="margin-left:16px;">Línea</label>
+    <select onchange="filterLine(this.value)">
+      <option value="all">Todas las líneas</option>
+      {% for l in lineas %}<option value="{{ l }}">{{ l }}</option>{% endfor %}
     </select>
   </div>
 
@@ -48,7 +53,7 @@
           </thead>
           <tbody>
             {% for a in acciones %}
-            <tr data-priority="{{ a.prioridad }}">
+            <tr data-priority="{{ a.prioridad }}" data-line="{{ a.linea }}">
               <td class="num">{{ a.num }}</td>
               <td>{{ a.accion }}</td>
               <td>{{ a.linea }}</td>
@@ -71,10 +76,26 @@
 {% endblock %}
 {% block extra_js %}
 <script>
-function filterPriority(val) {
+let _filterPriority = 'all', _filterLine = 'all';
+
+function applyFilters() {
   document.querySelectorAll('tbody tr').forEach(tr => {
-    tr.style.display = (val === 'all' || tr.dataset.priority === val) ? '' : 'none';
+    const okP = _filterPriority === 'all' || tr.dataset.priority === _filterPriority;
+    const okL = _filterLine === 'all' || tr.dataset.line === _filterLine;
+    tr.style.display = (okP && okL) ? '' : 'none';
   });
+}
+
+function filterPriority(val, btn) {
+  _filterPriority = val;
+  document.querySelectorAll('.filters button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  applyFilters();
+}
+
+function filterLine(val) {
+  _filterLine = val;
+  applyFilters();
 }
 function toggleStatus(num, btn) {
   const originalText = btn.textContent.trim();

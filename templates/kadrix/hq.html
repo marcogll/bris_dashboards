@@ -41,22 +41,22 @@
 <!-- Grid de módulos -->
 <div class="card-grid" style="margin-bottom: 28px;">
   <a class="card" href="{% if board %}{{ url_for('cadrex.kadrix_board', board_id=board.id) }}{% else %}{{ url_for('cadrex.kadrix_hq') }}{% endif %}">
-    <div class="icon">📋</div>
+    <div class="icon"><span class="material-symbols-outlined" style="font-size:22px">dashboard</span></div>
     <h3>Tableros Kanban</h3>
     <p>Gestiona tareas y flujos de trabajo del equipo.</p>
   </a>
   <a class="card" href="{{ url_for('cadrex.kadrix_fixtures') }}">
-    <div class="icon">🔧</div>
+    <div class="icon"><span class="material-symbols-outlined" style="font-size:22px">build</span></div>
     <h3>Catálogo de Fixtures</h3>
     <p>Consulta estado, línea y historial de cada fixture.</p>
   </a>
   <a class="card" href="{{ url_for('cadrex.kadrix_projects') }}">
-    <div class="icon">🚀</div>
+    <div class="icon"><span class="material-symbols-outlined" style="font-size:22px">rocket_launch</span></div>
     <h3>Proyectos de Mejora</h3>
     <p>Seguimiento de iniciativas y su progreso.</p>
   </a>
   <a class="card" href="{{ url_for('cadrex.kadrix_activity') }}">
-    <div class="icon">📝</div>
+    <div class="icon"><span class="material-symbols-outlined" style="font-size:22px">edit_note</span></div>
     <h3>Registro de Actividades</h3>
     <p>Registra y consulta actividades de mantenimiento.</p>
   </a>
@@ -65,7 +65,7 @@
 <!-- Tareas atrasadas destacadas -->
 <div class="card">
   <div class="card-head">
-    <h3>⚠️ Tareas Atrasadas</h3>
+    <h3><span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle">warning</span> Tareas Atrasadas</h3>
     {% if board %}
     <a href="{{ url_for('cadrex.kadrix_board', board_id=board.id) }}" style="font-size:13px;color:var(--accent-blue);text-decoration:none;font-weight:600;">Ver tablero →</a>
     {% endif %}

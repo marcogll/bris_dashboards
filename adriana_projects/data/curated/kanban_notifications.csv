@@ -1,3 +1,3 @@
-part_number,item,ubicacion,days_left,owner,status,source_file
-SK41H,Remachadora SK41H — Falla frecuente,Est4 NF,1,Mantenimiento,critico,Gap Analysis
-SG-2973,Fixture SG-2973 — Optimizar retiro,Est1 SAN,5,Ingenieria,warning,Gap Analysis
+source_file,sheet_name,part_number,days_left,owner
+Kanban - AFL Ascend.xlsm,Notificacion,A FM003939,1.6326530612244898,Warehouse
+Kanban - AFL Ascend.xlsm,Notificacion,A FM003940,4.081632653061225,Warehouse

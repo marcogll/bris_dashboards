@@ -1,8 +1,31 @@
-paso,tiempo_seg,acumulado_seg
-Cantado PN×PN,120,120
-Pre-Subensamble,600,720
-Subensamble Est1-3,1800,2520
-Ensamble Est4-5,2400,4920
-Est6 + Flex Op,300,5220
-First Article Inspection,300,5520
-Empaque / Shipping,400,5920
+northface,sanmina,kantishna
+Recepción / Kitting,Recepción / Kitting,Recepción / Kitting
+"Est 1 — Fabricación subensamble
+(Op 1 | BEC ~2065 seg)","Est 1 — Cables
+(3 ops | 86 seg BEC)","Subensambles H
+(ASY-05601-06 | 19+ componentes)"
+"Est 2 — Fabricación caja
+(Op 2 | ~1685 seg)","Est 2 — Tapa / Etiquetas
+(1 op | 494 seg)","Fabricards
+(ASY-05664-06 | 15+ componentes)"
+"Est 3 — Fabricación tapa/cercha
+(Op 3 | ~2978 seg)","Est 3 — Base / Etiquetas
+(1 op | 50 seg | ⚠ rechazos material)","Unión (Union)
+(ASY-05380-07 | 12+ componentes)"
+"Est 4 — Subensamble H
+(Op 4 | ⚠ averías: -859 seg perdidos)","Est 4 — Gaskets base
+(3 ops | 900 seg | ⚠ CUELLO — fixture pend.)","Ensamble PSU
+(ASY-05497-05 | 16+ componentes)"
+"Est 5 — Subensamble H tapa
+(Op 5 | ~876 seg)","Est 5 — Gaskets tapa
+(1 op | 84 seg)","Sub-PSU (3 variants)
+(ASY-05493/94/95)"
+"Est 6 — Ensamble completo
+(Op 6 | ~4290 seg | ⚠ ESPERA QA 633s)","Est 6 — Ruteo cables + cierre
+(2 ops | 2820 seg | ⚠ CUELLO CT > Takt)","Integración Final
+(ASY-05672-10 | 25+ PNs | etiquetas)"
+"Est 7 — Integración + Etiquetas + QA
+(Op 7 | ~2068+ seg | ⚠ retrabajo)","Est 7 — Empaque
+(2 ops | 300 seg)",QA / Liberación
+Test Room,QA / Liberación,Entrega
+Empaque / Salida,Salida,

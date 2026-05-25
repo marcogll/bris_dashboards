@@ -1,10 +1,10 @@
 {
   "name": "Cadrex Dashboard",
   "short_name": "Cadrex",
-  "description": "Dashboard de produccion y operaciones Cadrex",
+  "description": "Cadrex Production Dashboard",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f0f2f5",
+  "background_color": "#0d0f14",
   "theme_color": "#3b82f6",
   "icons": [
     {

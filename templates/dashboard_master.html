@@ -4,20 +4,67 @@
 
 {% block extra_css %}
 <style>
-.chart-container { position: relative; height: 260px; width: 100%; }
+/* Chart containers */
+.chart-container    { position: relative; height: 260px; width: 100%; }
 .chart-container-lg { position: relative; height: 320px; width: 100%; }
+
+/* Mini KPI (small inline stats) */
 .mini-kpi { display: flex; flex-direction: column; gap: 4px; }
-.mini-kpi .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
-.mini-kpi .value { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
-.section-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.02em; }
+.mini-kpi .label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-secondary);
+}
+.mini-kpi .value { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: var(--text); }
+
+/* Status dot */
 .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+
+/* Mini KPI grid */
+.mini-kpi-grid {
+  display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+.mini-kpi-card {
+  text-align: center; padding: 16px 12px; border-radius: 12px;
+  background: var(--surface-elevated); border: 1px solid var(--border-light);
+}
+.mini-kpi-card .label { font-size: 10px; color: var(--text-secondary); }
+.mini-kpi-card .value { font-size: 20px; color: var(--text); }
+
+/* Status badges */
+.status-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+}
+.status-badge.ok   { background: var(--badge-ok-bg);   color: var(--badge-ok-color); }
+.status-badge.crit { background: var(--badge-crit-bg); color: var(--badge-crit-color); }
+.status-badge.warn { background: var(--badge-warn-bg); color: var(--badge-warn-color); }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- ===== HERO KPIs ===== -->
-<div class="kpi-row" style="margin-bottom:28px">
+<!-- ===== FILTRADO POR GRUPO / LÍNEA ===== -->
+<div class="filters" style="margin-bottom:24px;">
+  <label>Línea de producción</label>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <button onclick="setGroup('todos', this)" class="{{ 'active' if grupo_activo == 'todos' else '' }}">Todas</button>
+    <button onclick="setGroup('northface', this)" class="{{ 'active' if grupo_activo == 'northface' else '' }}">NORTHFACE</button>
+    <button onclick="setGroup('sanmina', this)" class="{{ 'active' if grupo_activo == 'sanmina' else '' }}">SANMINA</button>
+  </div>
+  <span style="margin-left:auto;font-size:12px;color:var(--text-muted);font-weight:500">
+    {{ metrics.stations|length }} estaciones · takt {{ takt_seconds|num(0) }}s
+  </span>
+</div>
+
+<!-- ===== KPIs POR SECCIÓN ===== -->
+
+<!-- Sección: Producción -->
+<div style="margin-bottom:8px;display:flex;align-items:center;gap:10px;">
+  <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-secondary)">Producción</span>
+  <div style="flex:1;height:1px;background:var(--border)"></div>
+</div>
+<div class="kpi-row" style="margin-bottom:24px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">
   <div class="kpi hero">
     <div class="label">Capacidad actual</div>
     <div class="value">{{ metrics.actual_units|num(1) }}<span style="font-size:14px;font-weight:500;opacity:.8"> pzs</span></div>
@@ -25,28 +72,69 @@
   </div>
   <div class="kpi">
     <div class="label">Gap vs meta</div>
-    <div class="value" style="color:{{ '#ef4444' if metrics.gap_units > 0 else '#10b981' }}">{{ metrics.gap_units|num(1) }}<span style="font-size:14px;font-weight:500;color:var(--text-muted)"> pzs</span></div>
+    <div class="value" style="color:{{ '#ef4444' if metrics.gap_units > 0 else '#22c55e' }}">{{ metrics.gap_units|num(1) }}<span style="font-size:14px;font-weight:500;color:var(--text-muted)"> pzs</span></div>
     <div class="note">Meta: {{ metrics.target_units|num(1) }} pzs/turno</div>
   </div>
   <div class="kpi">
-    <div class="label">Estaciones / Cuellos de botella</div>
-    <div class="value" style="color:var(--accent-blue)">{{ metrics.stations|length }}<span style="font-size:14px;font-weight:500;color:var(--text-muted)"> / </span>{{ (nf_cuellos + sm_cuellos)|num(0) }}</div>
-    <div class="note">NF: {{ nf_cuellos|num(0) }} | SM: {{ sm_cuellos|num(0) }}</div>
-  </div>
-  <div class="kpi">
-    <div class="label">Demanda total AFL</div>
-    <div class="value" style="color:var(--accent-purple)">{{ demanda_total|num(0) }}<span style="font-size:14px;font-weight:500;color:var(--text-muted)"> u</span></div>
-    <div class="note">Pico May-25: {{ demanda_pico|num(0) }} u</div>
+    <div class="label">Estaciones / Cuellos</div>
+    <div class="value" style="color:var(--accent-blue)"><span id="val-estaciones">{{ metrics.stations|length }}</span><span style="font-size:14px;font-weight:500;color:var(--text-muted)"> / </span><span id="val-cuellos">{{ (nf_cuellos + sm_cuellos)|num(0) }}</span></div>
+    <div class="note">NF: <span id="val-nf-cuellos">{{ nf_cuellos|num(0) }}</span> · SM: <span id="val-sm-cuellos">{{ sm_cuellos|num(0) }}</span></div>
   </div>
   <div class="kpi">
     <div class="label">Trabajo productivo</div>
     <div class="value" style="color:var(--accent-green)">{{ prod_pct|num(1) }}%</div>
     <div class="note">de tiempo total estación</div>
   </div>
+</div>
+
+<!-- Sección: Demanda & Material -->
+<div style="margin-bottom:8px;display:flex;align-items:center;gap:10px;">
+  <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-secondary)">Demanda & Material</span>
+  <div style="flex:1;height:1px;background:var(--border)"></div>
+</div>
+<div class="kpi-row" style="margin-bottom:24px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">
+  <div class="kpi">
+    <div class="label">Demanda total AFL</div>
+    <div class="value" style="color:var(--accent-purple)">{{ demanda_total|num(0) }}<span style="font-size:14px;font-weight:500;color:var(--text-muted)"> u</span></div>
+    <div class="note">Pico May-25: {{ demanda_pico|num(0) }} u</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Alertas Kanban críticas</div>
+    <div class="value" style="color:{% if kanban_crit > 0 %}var(--accent-red){% else %}var(--accent-green){% endif %}">{{ kanban_crit|num(0) }}</div>
+    <div class="note">{{ kanban_warn|num(0) }} advertencia{{ 's' if kanban_warn != 1 }}</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Herramental crítico</div>
+    <div class="value" style="color:{% if herramientas_criticas|length > 0 %}var(--accent-orange){% else %}var(--accent-green){% endif %}">{{ herramientas_criticas|length|num(0) }}</div>
+    <div class="note">requieren atención</div>
+  </div>
+</div>
+
+<!-- Sección: Gestión & Finanzas -->
+<div style="margin-bottom:8px;display:flex;align-items:center;gap:10px;">
+  <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-secondary)">Gestión & Finanzas</span>
+  <div style="flex:1;height:1px;background:var(--border)"></div>
+</div>
+<div class="kpi-row" style="margin-bottom:28px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">
   <div class="kpi">
     <div class="label">Presupuesto $15K</div>
-    <div class="value" style="color:var(--accent-orange)">--</div>
-    <div class="note">Sin datos</div>
+    <div class="value" style="color:var(--accent-orange)">{{ cadrex.budget.pct|num(1) }}%</div>
+    <div class="note">${{ cadrex.budget.spent|num(0) }} / ${{ cadrex.budget.total|num(0) }}</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Acciones plan ALTA</div>
+    <div class="value" style="color:var(--accent-red)">{{ plan_summary.alta|num(0) }}</div>
+    <div class="note">{{ plan_summary.total|num(0) }} total · {{ plan_summary.completado|num(0) }} completadas</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Fixtures activos</div>
+    <div class="value" style="color:var(--accent-green)">{{ cadrex.fixtures_active|num(0) }}</div>
+    <div class="note">{{ cadrex.fixtures_maintenance|num(0) }} en mantenimiento</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Proyectos / Tareas</div>
+    <div class="value" style="color:var(--accent-blue)">{{ cadrex.projects_active|num(0) }}<span style="font-size:14px;font-weight:500;color:var(--text-muted)"> / </span>{{ cadrex.tasks_total|num(0) }}</div>
+    <div class="note">{{ cadrex.tasks_overdue|num(0) }} tarea{{ 's' if cadrex.tasks_overdue != 1 }} vencida{{ 's' if cadrex.tasks_overdue != 1 }}</div>
   </div>
 </div>
 
@@ -85,7 +173,7 @@
                 <td>{{ e.nf_descripcion }}</td>
                 <td class="num">{{ e.nf_ct_seg }}</td>
                 <td class="num">{{ e.nf_pct_takt }}</td>
-                <td><span class="status-dot" style="background:{{ '#10b981' if 'Holgura' in e.nf_estado else '#ef4444' }}"></span>{{ e.nf_estado }}</td>
+                <td><span class="status-dot" style="background:{{ '#22c55e' if e.nf_estado and 'Holgura' in e.nf_estado else '#ef4444' }}"></span>{{ e.nf_estado or '' }}</td>
               </tr>
               {% endfor %}
             </tbody>
@@ -104,7 +192,7 @@
                 <td>{{ e.sm_descripcion }}</td>
                 <td class="num">{{ e.sm_ct_seg }}</td>
                 <td class="num">{{ e.sm_pct_takt }}</td>
-                <td><span class="status-dot" style="background:{{ '#10b981' if 'Holgura' in e.sm_estado else '#ef4444' }}"></span>{{ e.sm_estado }}</td>
+                <td><span class="status-dot" style="background:{{ '#22c55e' if e.sm_estado and 'Holgura' in e.sm_estado else '#ef4444' }}"></span>{{ e.sm_estado or '' }}</td>
               </tr>
               {% endfor %}
             </tbody>
@@ -204,14 +292,18 @@
     </div>
   </div>
   <div class="card">
-    <div class="card-head"><h3>Operaciones</h3></div>
+    <div class="card-head"><h3>Cadrex — Operaciones</h3></div>
     <div class="card-body">
       <div class="kpi-row" style="margin-bottom:16px; grid-template-columns: repeat(3, 1fr);">
-        <div class="mini-kpi"><div class="label">Fixtures OK</div><div class="value" style="color:var(--accent-green)">--</div></div>
-        <div class="mini-kpi"><div class="label">Proyectos activos</div><div class="value" style="color:var(--accent-blue)">--</div></div>
-        <div class="mini-kpi"><div class="label">Tareas activas</div><div class="value" style="color:var(--accent-purple)">--</div></div>
+        <div class="mini-kpi"><div class="label">Fixtures OK</div><div class="value" style="color:var(--accent-green)">{{ cadrex.fixtures_active|num(0) }}</div></div>
+        <div class="mini-kpi"><div class="label">Proyectos activos</div><div class="value" style="color:var(--accent-blue)">{{ cadrex.projects_active|num(0) }}</div></div>
+        <div class="mini-kpi"><div class="label">Tareas activas</div><div class="value" style="color:var(--accent-purple)">{{ cadrex.tasks_total|num(0) }}</div></div>
       </div>
-      <div style="text-align:center;color:var(--text-muted);padding:20px">Datos de operaciones disponibles próximamente</div>
+      {% if cadrex.activities_week %}
+      <div class="chart-container"><canvas id="chartActivities"></canvas></div>
+      {% else %}
+      <div style="text-align:center;color:var(--text-muted);padding:20px">Sin datos de actividades (DB no conectada)</div>
+      {% endif %}
     </div>
   </div>
 </div>
@@ -223,10 +315,21 @@
     <div class="card-body">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <span style="font-size:13px;color:var(--text-secondary)">Comprometido</span>
-        <span style="font-size:13px;font-weight:700">-- / --</span>
+        <span style="font-size:13px;font-weight:700">${{ cadrex.budget.spent|num(0) }} / ${{ cadrex.budget.total|num(0) }}</span>
       </div>
-      <div class="progress-bar" style="margin-bottom:16px"><div class="fill" style="width:0%"></div></div>
+      <div class="progress-bar" style="margin-bottom:16px"><div class="fill" style="width:{{ cadrex.budget.pct }}%"></div></div>
       <div class="chart-container"><canvas id="chartRoi"></canvas></div>
+      {% if cadrex.improvements %}
+      <div style="margin-top:14px">
+        <div class="label" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:8px">Top Mejoras</div>
+        {% for imp in cadrex.improvements %}
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border-light);font-size:12px">
+          <span>{{ imp.title }}</span>
+          <span style="font-weight:700;color:var(--accent-green)">${{ (imp.expected_savings_usd_annual or 0)|num(0) }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
     </div>
   </div>
   <div class="card">
@@ -317,7 +420,7 @@
         <div class="bar-track">
           <div class="bar-fill {{ 'crit' if s.status == 'critical' else ('warn' if s.status == 'warning' else 'ok') }}" style="width:{{ s.bar_width }}%">{{ s.raw.capacity_per_hour|num(1) }} pzs/h</div>
         </div>
-        <div class="bar-val" style="color:{{ '#ef4444' if s.takt_gap > 0 else '#10b981' }}">{{ '+' if s.takt_gap > 0 }}{{ s.takt_gap|num(0) }}s</div>
+        <div class="bar-val" style="color:{{ '#ef4444' if s.takt_gap > 0 else '#22c55e' }}">{{ '+' if s.takt_gap > 0 }}{{ s.takt_gap|num(0) }}s</div>
       </div>
       {% endfor %}
     </div>
@@ -328,153 +431,408 @@
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+/* Chart modal */
+.chart-modal {
+  display: none; position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+  align-items: center; justify-content: center;
+}
+.chart-modal.active { display: flex; }
+.chart-modal-content {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 24px; width: 90vw; max-width: 800px;
+  max-height: 85vh; position: relative; box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+}
+.chart-modal-close {
+  position: absolute; top: 12px; right: 12px; width: 36px; height: 36px;
+  border-radius: 50%; border: 1px solid var(--border); background: var(--surface-elevated);
+  color: var(--text); font-size: 18px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center; transition: all 0.2s;
+}
+.chart-modal-close:hover { background: var(--accent-red); color: #fff; border-color: var(--accent-red); }
+.chart-modal-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+.chart-modal-body { position: relative; height: 400px; }
+.chart-modal-table { margin-top: 16px; max-height: 200px; overflow-y: auto; }
+.chart-modal-table table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.chart-modal-table th { padding: 8px 12px; text-align: left; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); }
+.chart-modal-table td { padding: 6px 12px; border-bottom: 1px solid var(--border-light); color: var(--text); }
+.chart-modal-table tr:hover td { background: var(--surface-elevated); }
+
+/* Clickable chart cards */
+.chart-card { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+.chart-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-medium); }
+.chart-card .card-head { display: flex; justify-content: space-between; align-items: center; }
+.expand-icon {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 600; color: var(--text-muted);
+  padding: 4px 10px; border-radius: var(--radius-xl);
+  border: 1px solid var(--border); background: var(--bg);
+  cursor: pointer; transition: var(--transition); user-select: none;
+}
+.expand-icon:hover, .chart-card:hover .expand-icon {
+  color: var(--accent-purple); border-color: var(--accent-purple);
+  background: var(--badge-info-bg);
+}
+</style>
+
+<!-- Chart Modal -->
+<div class="chart-modal" id="chartModal" onclick="if(event.target===this)closeChartModal()">
+  <div class="chart-modal-content">
+    <button class="chart-modal-close" onclick="closeChartModal()">✕</button>
+    <div class="chart-modal-title" id="chartModalTitle"></div>
+    <div class="chart-modal-body"><canvas id="chartModalCanvas"></canvas></div>
+    <div class="chart-modal-table" id="chartModalTable"></div>
+  </div>
+</div>
+
 <script>
-Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
-Chart.defaults.color = '#64748b';
-Chart.defaults.scale.grid.color = '#f1f5f9';
+function initCharts() {
+  if (typeof Chart === 'undefined') {
+    console.warn('Chart.js not loaded — CSP or network issue');
+    return;
+  }
 
-const colors = {
-  orange: '#f97316',
-  pink: '#ec4899',
-  blue: '#3b82f6',
-  green: '#10b981',
-  red: '#ef4444',
-  yellow: '#f59e0b',
-  purple: '#8b5cf6',
-  teal: '#14b8a6',
-  slate: '#94a3b8'
-};
+  const isDark = document.documentElement.getAttribute('data-theme') === 'mocha';
 
-// 1. CT por estacion (bar chart)
-{% if metrics.stations %}
-new Chart(document.getElementById('chartCt'), {
-  type: 'bar',
-  data: {
-    labels: [{% for s in metrics.stations %}'{{ s.raw.station_name }}'{% if not loop.last %},{% endif %}{% endfor %}],
-    datasets: [
-      {
-        label: 'CT Actual (s)',
-        data: [{% for s in metrics.stations %}{{ s.raw.time_seconds }}{% if not loop.last %},{% endif %}{% endfor %}],
-        backgroundColor: [{% for s in metrics.stations %}'{{ '#ef4444' if s.status == 'critical' else ('#f59e0b' if s.status == 'warning' else '#3b82f6') }}'{% if not loop.last %},{% endif %}{% endfor %}],
-        borderRadius: 6,
+  /* Catppuccin palette for charts */
+  const c = isDark ? {
+    peach:'#fab387', pink:'#f5c2e7', blue:'#89b4fa', lavender:'#b4befe',
+    green:'#a6e3a1', teal:'#94e2d5', sky:'#89dceb', sapphire:'#74c7ec',
+    red:'#f38ba8',  maroon:'#eba0ac', yellow:'#f9e2af', mauve:'#cba6f7',
+    flamingo:'#f2cdcd', rosewater:'#f5e0dc',
+    overlay0:'#6c7086', subtext0:'#a6adc8', surface0:'#313244', surface1:'#45475a',
+    base:'#1e1e2e', mantle:'#181825',
+  } : {
+    peach:'#fe640b', pink:'#ea76cb', blue:'#1e66f5', lavender:'#7287fd',
+    green:'#40a02b', teal:'#179299', sky:'#04a5e5', sapphire:'#209fb5',
+    red:'#d20f39',  maroon:'#e64553', yellow:'#df8e1d', mauve:'#8839ef',
+    flamingo:'#dd7878', rosewater:'#dc8a78',
+    overlay0:'#9ca0b0', subtext0:'#6c6f85', surface0:'#ccd0da', surface1:'#bcc0cc',
+    base:'#eff1f5', mantle:'#e6e9ef',
+  };
+
+  const gridColor   = c.surface0;
+  const tickColor   = c.subtext0;
+  const tooltipBg   = isDark ? c.surface1 : c.base;
+  const tooltipText = isDark ? '#cdd6f4'  : '#4c4f69';
+  const borderClr   = isDark ? 'rgba(205,214,244,0.1)' : 'rgba(76,79,105,0.1)';
+
+  /* Shared chart defaults */
+  Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+  Chart.defaults.color = tickColor;
+
+  const defaultTooltip = {
+    backgroundColor: tooltipBg,
+    titleColor: tooltipText, bodyColor: tooltipText,
+    borderColor: borderClr, borderWidth: 1,
+    cornerRadius: 12, padding: 12,
+    titleFont: { size: 13, weight: '700' }, bodyFont: { size: 12 },
+    displayColors: true, boxPadding: 4,
+  };
+
+  const defaultInteraction = { mode: 'index', intersect: false };
+
+  const defaultScales = {
+    x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 } } },
+    y: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 } }, beginAtZero: true },
+  };
+
+  /* Modal */
+  let modalChart = null;
+  window.openChartModal = function(chartId, title, chartConfig, tableData) {
+    const modal = document.getElementById('chartModal');
+    document.getElementById('chartModalTitle').textContent = title;
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    if (modalChart) { modalChart.destroy(); modalChart = null; }
+    modalChart = new Chart(document.getElementById('chartModalCanvas'), {
+      ...chartConfig,
+      options: { ...chartConfig.options, responsive: true, maintainAspectRatio: false }
+    });
+    if (tableData && tableData.length) {
+      let html = '<table><thead><tr>';
+      Object.keys(tableData[0]).forEach(k => { html += `<th>${k}</th>`; });
+      html += '</tr></thead><tbody>';
+      tableData.forEach(row => {
+        html += '<tr>'; Object.values(row).forEach(v => { html += `<td>${v}</td>`; }); html += '</tr>';
+      });
+      html += '</tbody></table>';
+      document.getElementById('chartModalTable').innerHTML = html;
+    } else {
+      document.getElementById('chartModalTable').innerHTML = '';
+    }
+  };
+
+  window.closeChartModal = function() {
+    document.getElementById('chartModal').classList.remove('active');
+    document.body.style.overflow = '';
+    if (modalChart) { modalChart.destroy(); modalChart = null; }
+  };
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeChartModal(); });
+
+  /* Make a card + canvas clickable and inject expand button */
+  function makeClickable(canvasId, title, getConfig, getTableData) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const card = canvas.closest('.card');
+    if (!card) return;
+    card.classList.add('chart-card');
+    const head = card.querySelector('.card-head');
+    if (head && !head.querySelector('.expand-icon')) {
+      const btn = document.createElement('span');
+      btn.className = 'expand-icon';
+      btn.innerHTML = '⛶&nbsp;Expandir';
+      btn.onclick = (e) => { e.stopPropagation(); openChartModal(canvasId, title, getConfig(), getTableData()); };
+      head.appendChild(btn);
+    }
+    canvas.addEventListener('click', () => openChartModal(canvasId, title, getConfig(), getTableData()));
+  }
+
+  /* ── 1. CT por estación ───────────────────────────────── */
+  {% if metrics.stations %}
+  const ctLabels  = [{% for s in metrics.stations %}'{{ s.raw.station_name }}'{% if not loop.last %},{% endif %}{% endfor %}];
+  const ctData    = [{% for s in metrics.stations %}{{ s.raw.time_seconds }}{% if not loop.last %},{% endif %}{% endfor %}];
+  const ctStatus  = [{% for s in metrics.stations %}'{{ s.status }}'{% if not loop.last %},{% endif %}{% endfor %}];
+  const ctColors  = ctStatus.map(s => s === 'critical' ? c.red : s === 'warning' ? c.yellow : c.blue);
+  const ctTakt    = {{ takt_seconds }};
+
+  const ctConfig = {
+    type: 'bar',
+    data: {
+      labels: ctLabels,
+      datasets: [
+        { label: 'CT Actual (s)', data: ctData, backgroundColor: ctColors, borderRadius: 8, borderSkipped: false },
+        { label: 'Takt', data: Array(ctLabels.length).fill(ctTakt), type: 'line',
+          borderColor: c.mauve, borderWidth: 2, borderDash: [6,4], pointRadius: 0, fill: false }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: defaultInteraction,
+      plugins: {
+        legend: { display: true, labels: { boxWidth: 10, font: { size: 11 }, color: tickColor } },
+        tooltip: defaultTooltip
       },
-      {
-        label: 'Takt (s)',
-        data: [{% for s in metrics.stations %}{{ takt_seconds }}{% if not loop.last %},{% endif %}{% endfor %}],
-        type: 'line',
-        borderColor: colors.purple,
-        borderWidth: 2,
-        pointRadius: 0,
-        fill: false,
+      scales: defaultScales
+    }
+  };
+  new Chart(document.getElementById('chartCt'), ctConfig);
+  makeClickable('chartCt', 'Cycle Time por Estación', () => ctConfig, () =>
+    ctLabels.map((l, i) => ({ 'Estación': l, 'CT (s)': ctData[i], 'Takt (s)': ctTakt, 'Gap (s)': (ctData[i]-ctTakt).toFixed(0), 'Status': ctStatus[i] }))
+  );
+  {% endif %}
+
+  /* ── 2. Desperdicios ──────────────────────────────────── */
+  {% if desperdicios %}
+  const wasteLabels = [{% for d in desperdicios %}'{{ d.categoria }}'{% if not loop.last %},{% endif %}{% endfor %}];
+  const wasteData   = [{% for d in desperdicios %}{{ d.pct }}{% if not loop.last %},{% endif %}{% endfor %}];
+  const wastePalette = [c.peach, c.blue, c.red, c.yellow, c.mauve, c.teal, c.flamingo, c.sky];
+
+  const wasteConfig = {
+    type: 'doughnut',
+    data: {
+      labels: wasteLabels,
+      datasets: [{ data: wasteData, backgroundColor: wastePalette.slice(0, wasteLabels.length),
+        borderWidth: 2, borderColor: isDark ? '#313244' : '#eff1f5', hoverOffset: 14 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '65%',
+      plugins: {
+        legend: { position: 'right', labels: { boxWidth: 10, font: { size: 11 }, color: tickColor } },
+        tooltip: { ...defaultTooltip, callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}%` } }
       }
-    ]
-  },
-  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true } }, scales: { y: { beginAtZero: true } } }
-});
-{% endif %}
+    }
+  };
+  new Chart(document.getElementById('chartWaste'), wasteConfig);
+  makeClickable('chartWaste', 'Composición del Tiempo', () => wasteConfig, () =>
+    wasteLabels.map((l, i) => ({ 'Categoría': l, 'Porcentaje': wasteData[i] + '%' }))
+  );
+  {% endif %}
 
-// 2. Desperdicios (doughnut)
-{% if desperdicios %}
-new Chart(document.getElementById('chartWaste'), {
-  type: 'doughnut',
-  data: {
-    labels: [{% for d in desperdicios %}'{{ d.categoria }}'{% if not loop.last %},{% endif %}{% endfor %}],
-    datasets: [{
-      data: [{% for d in desperdicios %}{{ d.pct }}{% if not loop.last %},{% endif %}{% endfor %}],
-      backgroundColor: [colors.orange, colors.blue, colors.red, colors.yellow, colors.purple, colors.teal],
-      borderWidth: 0,
-      hoverOffset: 8
-    }]
-  },
-  options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 11 } } } } }
-});
-{% endif %}
+  /* ── 3. Demanda mensual ───────────────────────────────── */
+  {% if demanda %}
+  const demandLabels  = ['Dic', 'Ene', 'Feb', 'Mar', 'Abr', 'May'];
+  const demandPalette = [c.peach, c.blue, c.green, c.mauve, c.red, c.yellow];
 
-// 3. Demanda mensual (line chart)
-{% if demanda %}
-new Chart(document.getElementById('chartDemand'), {
-  type: 'line',
-  data: {
-    labels: ['Dic', 'Ene', 'Feb', 'Mar', 'Abr', 'May'],
-    datasets: [
-      {% for d in demanda %}
-      {
-        label: '{{ d.programa }}',
-        data: [{{ d.dic or 0 }}, {{ d.ene or 0 }}, {{ d.feb or 0 }}, {{ d.mar or 0 }}, {{ d.abr or 0 }}, {{ d.may or 0 }}],
-        borderColor: '{{ ['#f97316','#3b82f6','#10b981','#8b5cf6','#ef4444','#f59e0b'][loop.index0 % 6] }}',
-        backgroundColor: '{{ ['#f97316','#3b82f6','#10b981','#8b5cf6','#ef4444','#f59e0b'][loop.index0 % 6] }}20',
-        fill: true,
-        tension: 0.4,
-        pointRadius: 4,
-      }{% if not loop.last %},{% endif %}
-      {% endfor %}
-    ]
-  },
-  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true } }, scales: { y: { beginAtZero: true } } }
-});
-{% endif %}
+  const demandConfig = {
+    type: 'line',
+    data: {
+      labels: demandLabels,
+      datasets: [
+        {% for d in demanda %}
+        {
+          label: '{{ d.programa }}',
+          data: [{{ d.dic or 0 }}, {{ d.ene or 0 }}, {{ d.feb or 0 }}, {{ d.mar or 0 }}, {{ d.abr or 0 }}, {{ d.may or 0 }}],
+          borderColor: demandPalette[{{ loop.index0 }} % demandPalette.length],
+          backgroundColor: demandPalette[{{ loop.index0 }} % demandPalette.length] + '28',
+          fill: true, tension: 0.4, pointRadius: 5, pointHoverRadius: 8, borderWidth: 2.5,
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: defaultInteraction,
+      plugins: {
+        legend: { display: true, labels: { boxWidth: 10, font: { size: 11 }, color: tickColor } },
+        tooltip: defaultTooltip
+      },
+      scales: defaultScales
+    }
+  };
+  new Chart(document.getElementById('chartDemand'), demandConfig);
+  makeClickable('chartDemand', 'Demanda AFL Mensual', () => demandConfig, () => {
+    const rows = [];
+    {% for d in demanda %}
+    ['Dic','Ene','Feb','Mar','Abr','May'].forEach((m, i) => {
+      const vals = [{{ d.dic or 0 }}, {{ d.ene or 0 }}, {{ d.feb or 0 }}, {{ d.mar or 0 }}, {{ d.abr or 0 }}, {{ d.may or 0 }}];
+      rows.push({ 'Programa': '{{ d.programa }}', 'Mes': m, 'Demanda': vals[i] });
+    });
+    {% endfor %}
+    return rows;
+  });
+  {% endif %}
 
-// 4. Throughput (bar chart)
-{% if throughput %}
-new Chart(document.getElementById('chartThroughput'), {
-  type: 'bar',
-  data: {
-    labels: [{% for t in throughput %}'{{ t.etapa }}'{% if not loop.last %},{% endif %}{% endfor %}],
-    datasets: [{
-      label: 'Pzas/turno',
-      data: [{% for t in throughput %}{{ t.pzas_hr }}{% if not loop.last %},{% endif %}{% endfor %}],
-      backgroundColor: [{% for t in throughput %}'{{ '#f97316' if loop.last else '#3b82f6' }}'{% if not loop.last %},{% endif %}{% endfor %}],
-      borderRadius: 6,
-    }]
-  },
-  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
-});
-{% endif %}
+  /* ── 4. Throughput ────────────────────────────────────── */
+  {% if throughput %}
+  const tpLabels = [{% for t in throughput %}'{{ t.etapa }}'{% if not loop.last %},{% endif %}{% endfor %}];
+  const tpData   = [{% for t in throughput %}{{ t.pzas_hr }}{% if not loop.last %},{% endif %}{% endfor %}];
+  const tpColors = tpData.map((_, i) => i === tpData.length - 1 ? c.green : c.blue);
 
-// 5. Plan de accion (stacked bar)
-new Chart(document.getElementById('chartPlan'), {
-  type: 'bar',
-  data: {
-    labels: ['ALTA', 'MEDIA', 'BAJA'],
-    datasets: [
-      { label: 'Pendiente', data: [{{ plan_summary.alta }}, {{ plan_summary.media }}, {{ plan_summary.baja }}], backgroundColor: colors.slate, borderRadius: 4 },
-      { label: 'Completado', data: [0, 0, 0], backgroundColor: colors.green, borderRadius: 4 }
-    ]
-  },
-  options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: true } }, scales: { x: { stacked: true }, y: { stacked: true } } }
-});
+  const tpConfig = {
+    type: 'bar',
+    data: {
+      labels: tpLabels,
+      datasets: [{ label: 'Pzas/turno', data: tpData, backgroundColor: tpColors, borderRadius: 8, borderSkipped: false, barPercentage: 0.6 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: defaultTooltip },
+      scales: defaultScales
+    }
+  };
+  new Chart(document.getElementById('chartThroughput'), tpConfig);
+  makeClickable('chartThroughput', 'Throughput — Impacto de Mejoras', () => tpConfig, () =>
+    tpLabels.map((l, i) => ({ 'Etapa': l, 'Pzas/turno': tpData[i] }))
+  );
+  {% endif %}
 
-// 6. Activities placeholder
-document.getElementById('chartActivities')?.parentElement && (document.getElementById('chartActivities').style.display = 'none');
+  /* ── 5. Plan de acción ────────────────────────────────── */
+  const planConfig = {
+    type: 'bar',
+    data: {
+      labels: ['ALTA', 'MEDIA', 'BAJA'],
+      datasets: [
+        { label: 'Pendiente',  data: [{{ plan_summary.alta }}, {{ plan_summary.media }}, {{ plan_summary.baja }}], backgroundColor: c.overlay0, borderRadius: 6 },
+        { label: 'Completado', data: [{{ plan_summary.completado }}, {{ plan_summary.completado }}, {{ plan_summary.completado }}], backgroundColor: c.green, borderRadius: 6 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: {
+        legend: { display: true, labels: { boxWidth: 10, font: { size: 11 }, color: tickColor } },
+        tooltip: defaultTooltip
+      },
+      scales: {
+        x: { stacked: true, grid: { color: gridColor }, ticks: { color: tickColor } },
+        y: { stacked: true, grid: { display: false }, ticks: { color: tickColor } }
+      }
+    }
+  };
+  new Chart(document.getElementById('chartPlan'), planConfig);
+  makeClickable('chartPlan', 'Plan de Acción — Resumen', () => planConfig, () => [
+    { 'Prioridad': 'ALTA',  'Pendiente': {{ plan_summary.alta }},  'Completado': {{ plan_summary.completado }} },
+    { 'Prioridad': 'MEDIA', 'Pendiente': {{ plan_summary.media }}, 'Completado': {{ plan_summary.completado }} },
+    { 'Prioridad': 'BAJA',  'Pendiente': {{ plan_summary.baja }},  'Completado': {{ plan_summary.completado }} },
+  ]);
 
-// 7. ROI (bar chart — placeholder)
-new Chart(document.getElementById('chartRoi'), {
-  type: 'bar',
-  data: {
-    labels: ['Pendiente'],
-    datasets: [{
-      label: 'Ahorro Anual ($)',
-      data: [0],
-      backgroundColor: colors.green,
-      borderRadius: 6,
-    }]
-  },
-  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
-});
+  /* ── 6. Actividades ───────────────────────────────────── */
+  {% if cadrex.activities_week %}
+  const actLabels = [{% for a in cadrex.activities_week %}'{{ a.activity_type }}'{% if not loop.last %},{% endif %}{% endfor %}];
+  const actData   = [{% for a in cadrex.activities_week %}{{ a.total_min }}{% if not loop.last %},{% endif %}{% endfor %}];
+  const actPalette = [c.peach, c.blue, c.green, c.mauve, c.red, c.teal];
 
-// 8. Kanban (gauge-like bar)
-new Chart(document.getElementById('chartKanban'), {
-  type: 'bar',
-  data: {
-    labels: ['Criticas', 'Advertencia', 'OK'],
-    datasets: [{
-      label: 'Alertas',
-      data: [{{ kanban_crit }}, {{ kanban_warn }}, {{ 0 if kanban_crit == 0 and kanban_warn == 0 else 1 }}],
-      backgroundColor: [colors.red, colors.yellow, colors.green],
-      borderRadius: 6,
-    }]
-  },
-  options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
-});
+  const actConfig = {
+    type: 'doughnut',
+    data: {
+      labels: actLabels,
+      datasets: [{ data: actData, backgroundColor: actPalette.slice(0, actLabels.length),
+        borderWidth: 2, borderColor: isDark ? '#313244' : '#eff1f5', hoverOffset: 14 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '60%',
+      plugins: {
+        legend: { position: 'right', labels: { boxWidth: 10, font: { size: 11 }, color: tickColor } },
+        tooltip: { ...defaultTooltip, callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed} min` } }
+      }
+    }
+  };
+  new Chart(document.getElementById('chartActivities'), actConfig);
+  makeClickable('chartActivities', 'Actividades — Última Semana', () => actConfig, () =>
+    actLabels.map((l, i) => ({ 'Actividad': l, 'Duración (min)': actData[i] }))
+  );
+  {% endif %}
+
+  /* ── 7. ROI ───────────────────────────────────────────── */
+  {% if cadrex.improvements %}
+  const roiLabels = [{% for imp in cadrex.improvements %}'{{ imp.title[:15] }}'{% if not loop.last %},{% endif %}{% endfor %}];
+  const roiData   = [{% for imp in cadrex.improvements %}{{ imp.expected_savings_usd_annual or 0 }}{% if not loop.last %},{% endif %}{% endfor %}];
+
+  const roiConfig = {
+    type: 'bar',
+    data: {
+      labels: roiLabels,
+      datasets: [{ label: 'Ahorro Anual ($)', data: roiData, backgroundColor: c.green, borderRadius: 8, barPercentage: 0.6, borderSkipped: false }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...defaultTooltip, callbacks: { label: ctx => ` $${ctx.parsed.y.toLocaleString()}` } } },
+      scales: defaultScales
+    }
+  };
+  new Chart(document.getElementById('chartRoi'), roiConfig);
+  makeClickable('chartRoi', 'ROI — Ahorro por Mejora', () => roiConfig, () =>
+    roiLabels.map((l, i) => ({ 'Mejora': l, 'Ahorro Anual': '$' + roiData[i].toLocaleString() }))
+  );
+  {% endif %}
+
+  /* ── 8. Kanban ────────────────────────────────────────── */
+  const kanbanConfig = {
+    type: 'bar',
+    data: {
+      labels: ['Críticas ≤3d', 'Advertencia ≤7d', 'OK'],
+      datasets: [{ label: 'Alertas',
+        data: [{{ kanban_crit }}, {{ kanban_warn }}, {{ 1 if kanban_crit == 0 and kanban_warn == 0 else 0 }}],
+        backgroundColor: [c.red, c.yellow, c.green],
+        borderRadius: 8, borderSkipped: false, barPercentage: 0.5
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: { legend: { display: false }, tooltip: defaultTooltip },
+      scales: {
+        x: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: tickColor } },
+        y: { grid: { display: false }, ticks: { color: tickColor } }
+      }
+    }
+  };
+  new Chart(document.getElementById('chartKanban'), kanbanConfig);
+  makeClickable('chartKanban', 'Alertas Kanban', () => kanbanConfig, () => [
+    { 'Tipo': 'Críticas (≤3 días)',    'Cantidad': {{ kanban_crit }} },
+    { 'Tipo': 'Advertencia (≤7 días)', 'Cantidad': {{ kanban_warn }} },
+  ]);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initCharts);
+} else {
+  initCharts();
+}
+
+function setGroup(group, btn) {
+  window.location.href = `/?grupo=${group}`;
+}
 </script>
 {% endblock %}
