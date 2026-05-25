@@ -382,7 +382,7 @@ services:
       hq-wrapper:
         condition: service_healthy
       dashboard:
-        condition: service_healthy
+        condition: service_started
       payroll:
         condition: service_healthy
       hrmgr-web:
