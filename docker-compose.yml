@@ -322,6 +322,54 @@ services:
       timeout: 10s
       retries: 3
 
+  # Cadrex / BRIS Dashboard
+  cadrex:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cadrex-dashboard
+    ports:
+      - "5016:8743"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cadrex.rule=Host(`cadrex.soul23.cloud`) || PathPrefix(`/cadrex`)"
+      - "traefik.http.routers.cadrex.entrypoints=https"
+      - "traefik.http.routers.cadrex.tls=true"
+      - "traefik.http.routers.cadrex.tls.certresolver=letsencrypt"
+      - "traefik.http.services.cadrex.loadbalancer.server.port=8743"
+    volumes:
+      - cadrex_data:/app/instance
+      - ./data:/app/data
+    environment:
+      - PORT=8743
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY:?required}
+      - MYSQL_HOST=${MYSQL_HOST:-mysql}
+      - MYSQL_PORT=${MYSQL_PORT:-3306}
+      - MYSQL_USER=${MYSQL_USER:-bris_user}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:?required}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-bris_adriana}
+      - UPLOAD_SECRET=${UPLOAD_SECRET:-}
+      - APP_TITLE=${APP_TITLE:-Cadrex | Adriana Ramos}
+      - AVAILABLE_SECONDS=${AVAILABLE_SECONDS:-39900}
+      - TAKT_SECONDS=${TAKT_SECONDS:-2216.666667}
+      - DATA_FILE=${DATA_FILE:-/app/data/stations.csv}
+      - LOGIN_REQUIRED=${LOGIN_REQUIRED:-false}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - OPENROUTER_MODEL=${OPENROUTER_MODEL:-anthropic/claude-3-haiku}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_WEBHOOK_URL=${TELEGRAM_WEBHOOK_URL:-}
+      - FIZZY_API_KEY=${FIZZY_API_KEY:-}
+      - FIZZY_BASE_URL=${FIZZY_BASE_URL:-https://fizzy-br.soul23.cloud}
+    restart: unless-stopped
+    networks:
+      - vanity-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8743/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   # Nginx (local reverse proxy)
   nginx:
     image: nginx:alpine
@@ -360,3 +408,4 @@ volumes:
   actas_data:
   empreq_data:
   redis_data:
+  cadrex_data:
