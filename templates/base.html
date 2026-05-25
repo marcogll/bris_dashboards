@@ -52,8 +52,19 @@
       <a class="nav-item {% if nav_active == 'datos' %}active{% endif %}" href="{{ url_for('datos') }}">
         <span class="nav-icon material-symbols-outlined">dataset</span> Datos
       </a>
+      <a class="nav-item {% if nav_active == 'cadrex' %}active{% endif %}" href="{{ url_for('cadrex.kadrix_hq') }}">
+        <span class="nav-icon material-symbols-outlined">hub</span> Cadrex HQ
+      </a>
 
-      <div class="sidebar-art" id="sidebarArt"></div>
+      <div class="sidebar-art" id="sidebarArt">
+        <div class="sidebar-line-card">
+          <div class="sidebar-line-head">
+            <span class="sidebar-line-name">BRIS Data</span>
+            <span class="sidebar-line-badge" style="background:rgba(137,180,250,.18);color:#89b4fa">sync</span>
+          </div>
+          <div class="sidebar-art-copy">Cargando estado de lineas, cuellos y alertas.</div>
+        </div>
+      </div>
     </nav>
 
     <div class="sidebar-footer">
@@ -159,6 +170,10 @@
     <a class="bottom-nav-item {% if nav_active == 'datos' %}active{% endif %}" href="{{ url_for('datos') }}">
       <span class="bn-icon material-symbols-outlined">dataset</span>
       <span>Datos</span>
+    </a>
+    <a class="bottom-nav-item {% if nav_active == 'cadrex' %}active{% endif %}" href="{{ url_for('cadrex.kadrix_hq') }}">
+      <span class="bn-icon material-symbols-outlined">hub</span>
+      <span>HQ</span>
     </a>
     <button class="bottom-nav-item" id="moreBtn" onclick="toggleMoreMenu()" aria-label="Más">
       <span class="bn-icon material-symbols-outlined">more_horiz</span>
@@ -362,7 +377,16 @@
         .then(function(r) { return r.json(); })
         .then(function(data) {
           var sc = { critical: '#f38ba8', warning: '#f9e2af', ok: '#a6e3a1' };
-          art.innerHTML = Object.entries(data).map(function(entry) {
+          var entries = Object.entries(data || {});
+          if (!entries.length) {
+            art.innerHTML = '<div class="sidebar-line-card">'
+              + '<div class="sidebar-line-head"><span class="sidebar-line-name">BRIS Data</span>'
+              + '<span class="sidebar-line-badge" style="background:rgba(249,226,175,.18);color:#f9e2af">sin datos</span></div>'
+              + '<div class="sidebar-art-copy">Conecta balanceo, demanda, kanban y plan de accion para activar el resumen.</div>'
+              + '</div>';
+            return;
+          }
+          art.innerHTML = entries.map(function(entry) {
             var linea = entry[0], info = entry[1];
             var badge = info.cuellos > 0
               ? info.cuellos + ' cuello' + (info.cuellos > 1 ? 's' : '')
@@ -381,7 +405,13 @@
               + '</div>';
           }).join('');
         })
-        .catch(function() {});
+        .catch(function() {
+          art.innerHTML = '<div class="sidebar-line-card">'
+            + '<div class="sidebar-line-head"><span class="sidebar-line-name">BRIS Data</span>'
+            + '<span class="sidebar-line-badge" style="background:rgba(243,139,168,.18);color:#f38ba8">offline</span></div>'
+            + '<div class="sidebar-art-copy">No se pudo cargar el panel. Revisa sesion o API /api/lineas-status.</div>'
+            + '</div>';
+        });
     }
   });
 })();
@@ -445,20 +475,30 @@
   let _notifLoaded = false;
 
   function toggleSidebar() {
-    document.querySelector('.sidebar').classList.toggle('open');
-    document.getElementById('sidebarOverlay').classList.toggle('open');
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const open = !sidebar.classList.contains('open');
+    sidebar.classList.toggle('open', open);
+    overlay.classList.toggle('open', open);
+    document.body.classList.toggle('sidebar-open', open);
+    if (open) {
+      const morePanel = document.getElementById('morePanel');
+      if (morePanel) morePanel.classList.remove('open');
+    }
   }
   window.toggleSidebar = toggleSidebar;
 
   function closeSidebar() {
     document.querySelector('.sidebar').classList.remove('open');
     document.getElementById('sidebarOverlay').classList.remove('open');
+    document.body.classList.remove('sidebar-open');
   }
   window.closeSidebar = closeSidebar;
 
   function toggleMoreMenu() {
     const panel = document.getElementById('morePanel');
-    panel.classList.toggle('open');
+    const open = panel.classList.toggle('open');
+    if (open) closeSidebar();
   }
   window.toggleMoreMenu = toggleMoreMenu;
 
@@ -515,6 +555,10 @@
     if (morePanel && moreBtn && !moreBtn.contains(e.target) && !morePanel.contains(e.target)) {
       morePanel.classList.remove('open');
     }
+  });
+
+  document.querySelectorAll('.sidebar .nav-item').forEach(link => {
+    link.addEventListener('click', closeSidebar);
   });
 
   document.addEventListener('DOMContentLoaded', () => {

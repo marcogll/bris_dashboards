@@ -174,6 +174,18 @@ OPENROUTER_API_KEY=sk-or-v1-...
 OPENROUTER_MODEL=anthropic/claude-3-haiku
 ```
 
+### Telegram + Bri Commands
+
+El contrato de comandos para consultar dashboard, enviar datos de turno tarde y preguntar a Bri esta documentado en [`docs/TELEGRAM_BRI_COMMANDS.md`](docs/TELEGRAM_BRI_COMMANDS.md).
+
+La app tambien expone:
+
+```bash
+curl http://127.0.0.1:8743/api/telegram/commands
+```
+
+Ese endpoint devuelve los comandos estructurados y el formato listo para BotFather.
+
 Ver [docs/SECURITY.md](docs/SECURITY.md) para recomendaciones de secrets.
 
 ---

@@ -6,7 +6,7 @@
 {% block content %}
 <div class="page-header">
   <h1>{{ title }}</h1>
-  <p class="subtitle">Dashboard de gestión de proyectos y mantenimiento de fixtures — Cadrex</p>
+  <p class="subtitle">Dashboard de gestion de proyectos, fixtures, datos y agente IA Bri para Cadrex</p>
 </div>
 
 <!-- KPIs -->
@@ -14,27 +14,118 @@
   <div class="kpi">
     <div class="label">Tareas activas</div>
     <div class="value" style="color:var(--accent-blue)">{{ active_tasks|num(0) }}</div>
-    <div class="note">de {{ total_tasks|num(0) }} totales</div>
+    <div class="note">{{ active_tasks_pct|num(1) }}% del tablero · {{ done_tasks|num(0) }} cerradas</div>
+    <div class="kpi-detail">
+      <span class="kpi-index">Total {{ total_tasks|num(0) }}</span>
+      <span class="kpi-index">Done {{ done_tasks_pct|num(1) }}%</span>
+    </div>
   </div>
   <div class="kpi">
     <div class="label">Fixtures operativos</div>
     <div class="value" style="color:var(--accent-green)">{{ fixtures_ok|num(0) }}</div>
-    <div class="note">de {{ total_fixtures|num(0) }} totales</div>
+    <div class="note">{{ fixtures_ok_pct|num(1) }}% disponibles de {{ total_fixtures|num(0) }}</div>
+    <div class="kpi-detail">
+      <span class="kpi-index">Mant. {{ fixtures_maintenance_pct|num(1) }}%</span>
+      <span class="kpi-index">Inact. {{ fixtures_damaged_pct|num(1) }}%</span>
+    </div>
   </div>
   <div class="kpi">
     <div class="label">Fixtures en mantenimiento</div>
     <div class="value" style="color:var(--accent-yellow)">{{ fixtures_maintenance|num(0) }}</div>
-    <div class="note">{% if fixtures_maintenance %}Requieren atención{% else %}Todo en orden{% endif %}</div>
+    <div class="note">{% if fixtures_maintenance %}{{ fixtures_maintenance_pct|num(1) }}% requieren atencion{% else %}0.0% en mantenimiento{% endif %}</div>
+    <div class="kpi-detail">
+      <span class="kpi-index">Riesgo {{ (fixtures_maintenance + fixtures_damaged)|num(0) }}</span>
+    </div>
   </div>
   <div class="kpi">
     <div class="label">Proyectos activos</div>
     <div class="value" style="color:var(--accent-purple)">{{ project_active|num(0) }}</div>
-    <div class="note">de {{ project_total|num(0) }} totales</div>
+    <div class="note">{{ project_active_pct|num(1) }}% del portafolio abierto</div>
+    <div class="kpi-detail">
+      <span class="kpi-index">Total {{ project_total|num(0) }}</span>
+    </div>
   </div>
   <div class="kpi hero">
     <div class="label">Tareas atrasadas</div>
     <div class="value">{{ overdue|length|num(0) }}</div>
-    <div class="note">{% if overdue %}Requieren atención inmediata{% else %}Sin tareas atrasadas{% endif %}</div>
+    <div class="note">{% if overdue %}{{ overdue_pct|num(1) }}% del tablero requiere atencion{% else %}0.0% vencidas{% endif %}</div>
+    <div class="kpi-detail">
+      <span class="kpi-index">Indice atraso {{ overdue_pct|num(1) }}%</span>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:28px;">
+  <div class="card-head">
+    <h3><span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle">monitoring</span> Dashboard Actual</h3>
+    <a href="{{ url_for('dashboard') }}" style="font-size:13px;color:var(--accent-blue);text-decoration:none;font-weight:600;">Abrir dashboard →</a>
+  </div>
+  <div class="card-body">
+    <div class="kpi-row" style="margin-bottom:16px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">
+      <div class="kpi" style="padding:16px">
+        <div class="label">Capacidad</div>
+        <div class="value" style="font-size:24px;color:var(--accent-blue)">{{ ops.actual_units|num(1) }}</div>
+        <div class="note">pzas/turno actual</div>
+      </div>
+      <div class="kpi" style="padding:16px">
+        <div class="label">Meta takt</div>
+        <div class="value" style="font-size:24px;color:var(--accent-green)">{{ ops.target_units|num(1) }}</div>
+        <div class="note">pzas/turno objetivo</div>
+      </div>
+      <div class="kpi" style="padding:16px">
+        <div class="label">Gap</div>
+        <div class="value" style="font-size:24px;color:{% if ops.gap_units > 0 %}var(--accent-red){% else %}var(--accent-green){% endif %}">{{ ops.gap_units|num(1) }}</div>
+        <div class="note">{{ ops.utilization|num(1) }}% utilizacion takt</div>
+      </div>
+      <div class="kpi" style="padding:16px">
+        <div class="label">Cuellos</div>
+        <div class="value" style="font-size:24px;color:var(--accent-orange)">{{ ops.cuellos|num(0) }}</div>
+        <div class="note">{{ ops.bottleneck }}</div>
+      </div>
+    </div>
+    <div class="mind-list" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-top:0">
+      <div class="mind-chip"><strong>Demanda</strong><span>{{ ops.demanda_total|num(0) }} u · pico {{ ops.demanda_pico|num(0) }}</span></div>
+      <div class="mind-chip"><strong>Kanban</strong><span>{{ ops.kanban_crit|num(0) }} crit · {{ ops.kanban_warn|num(0) }} warn</span></div>
+      <div class="mind-chip"><strong>Turno tarde</strong><span>{{ ops.tarde_events|num(0) }} evento{{ 's' if ops.tarde_events != 1 }}</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:28px;">
+  <div class="card-head">
+    <h3><span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle">account_tree</span> Mapa mental Cadrex HQ</h3>
+    <span style="font-size:12px;color:var(--text-muted);font-weight:700;">Bri · OpenRouter · {{ bri_model }}</span>
+  </div>
+  <div class="card-body">
+    <div class="mind-map">
+      <div class="mind-node">
+        <h4><span class="material-symbols-outlined" style="font-size:18px">database</span> Data existente</h4>
+        <p>Balanceo, demanda, kanban, desperdicios, throughput, plan de accion, fixtures, proyectos y actividades.</p>
+        <div class="mind-list">
+          <div class="mind-chip"><strong>Operaciones</strong><span>CT, takt, cuellos</span></div>
+          <div class="mind-chip"><strong>Inventario</strong><span>alertas kanban</span></div>
+          <div class="mind-chip"><strong>Mejora</strong><span>ROI, tareas</span></div>
+        </div>
+      </div>
+      <div class="mind-node primary">
+        <h4><span class="material-symbols-outlined" style="font-size:18px">auto_awesome</span> Bri AI</h4>
+        <p>Agente endurecido contra prompt injection que busca patrones, responde dudas y conecta ideas usando solo el contexto disponible del dashboard.</p>
+        <div class="mind-list">
+          <div class="mind-chip"><strong>Guardrails</strong><span>contexto cerrado</span></div>
+          <div class="mind-chip"><strong>Modelo actual</strong><span>{{ bri_model }}</span></div>
+          <div class="mind-chip"><strong>Proveedor</strong><span>OpenRouter</span></div>
+        </div>
+      </div>
+      <div class="mind-node">
+        <h4><span class="material-symbols-outlined" style="font-size:18px">hub</span> Queries e ideas</h4>
+        <p>Las preguntas se cruzan con KPIs, historiales y señales de riesgo para convertir datos sueltos en decisiones accionables.</p>
+        <div class="mind-list">
+          <div class="mind-chip"><strong>Patrones</strong><span>cuellos, scrap, atraso</span></div>
+          <div class="mind-chip"><strong>Acciones</strong><span>prioridad y responsable</span></div>
+          <div class="mind-chip"><strong>Modelo futuro</strong><span>DeepSeek opcional</span></div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 

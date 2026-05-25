@@ -529,6 +529,25 @@ input, textarea, [contenteditable] {
 .kpi .trend.up { background: var(--badge-ok-bg); color: var(--badge-ok-color); }
 .kpi .trend.down { background: var(--badge-crit-bg); color: var(--badge-crit-color); }
 
+.kpi-detail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.kpi-index {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
 .kpi.hero {
   background: var(--gradient-hero); color: #fff; border: none;
   box-shadow: 0 8px 24px rgba(250,179,135,0.25);
@@ -537,7 +556,66 @@ input, textarea, [contenteditable] {
 .kpi.hero .label { color: rgba(255,255,255,0.95); }
 .kpi.hero .note  { color: rgba(255,255,255,0.95); }
 .kpi.hero .trend { background: rgba(0,0,0,0.18); color: #fff; }
+.kpi.hero .kpi-index { background: rgba(0,0,0,0.16); color: rgba(255,255,255,0.96); }
 .kpi.hero::before { display: none; }
+
+.mind-map {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr 1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.mind-node {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.mind-node.primary {
+  background: var(--gradient-hero-light);
+  border-color: rgba(136,57,239,0.22);
+}
+
+.mind-node h4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.mind-node p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.mind-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.mind-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.mind-chip strong {
+  color: var(--text);
+  font-size: 12px;
+}
 
 /* ============================================================
    TABLES
@@ -823,6 +901,11 @@ input:focus, select:focus, textarea:focus {
   transition: opacity 0.15s, transform 0.15s; cursor: default;
 }
 .sidebar-dot:hover { opacity: 1; transform: scale(1.4); }
+.sidebar-art-copy {
+  color: rgba(205,214,244,0.62);
+  font-size: 11px;
+  line-height: 1.35;
+}
 
 /* ============================================================
    EASTER EGG — soul23.mx dev logo
@@ -1157,9 +1240,21 @@ html, body { overflow-x: hidden; }
   /* ── Layout helpers ────────────────────────────────────── */
   .two-col, .three-col { grid-template-columns: 1fr; gap: 8px; }
   .theme-toggle { display: none; }
-  .mobile-menu-btn { display: none; }
-  .sidebar { display: none; }
-  .sidebar-overlay { display: none !important; }
+  .mobile-menu-btn { display: flex; }
+  .sidebar {
+    display: flex;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: min(82vw, var(--sidebar-width));
+    max-width: 320px;
+    transform: translateX(-100%);
+    z-index: 260;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay { z-index: 240; }
+  body.sidebar-open { overflow: hidden; }
 
   /* ── Bottom Navigation (app-like, scrollable) ──────────── */
   .bottom-nav {
@@ -1182,7 +1277,7 @@ html, body { overflow-x: hidden; }
   .bottom-nav::-webkit-scrollbar { display: none; }
   .bottom-nav-item {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 2px; flex: 0 0 auto; width: 64px; height: 100%;
+    gap: 2px; flex: 0 0 auto; width: 58px; height: 100%;
     color: var(--text-muted); text-decoration: none;
     font-size: 9px; font-weight: 500;
     transition: color 0.15s;
@@ -1244,6 +1339,12 @@ html, body { overflow-x: hidden; }
   .more-item:active { background: var(--bg); }
   .more-icon { font-size: 18px; width: 24px; text-align: center; }
   .more-divider { height: 1px; background: var(--border-light); margin: 6px 12px; }
+
+  .mind-map { grid-template-columns: 1fr; gap: 8px; }
+  .mind-node { padding: 12px; border-radius: 12px; }
+  .mind-chip { padding: 7px 9px; font-size: 11px; }
+  .kpi-detail { margin-top: 8px; gap: 4px; }
+  .kpi-index { font-size: 10px; padding: 2px 6px; }
 
   /* Tables horizontal scroll on mobile */
   .card-body table,

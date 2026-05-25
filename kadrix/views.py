@@ -1,5 +1,9 @@
 """Cadrex — Flask views/routes."""
+import csv
+import json
+import os
 from datetime import date, datetime, timedelta
+from pathlib import Path
 
 from flask import (
     jsonify,
@@ -10,6 +14,14 @@ from flask import (
 )
 from . import kadrix_bp
 from .db import execute, query
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+CURATED_DIR = BASE_DIR / "adriana_projects" / "data" / "curated"
+FALLBACKS_DIR = BASE_DIR / "data" / "fallbacks"
+TELEGRAM_EVENTS_FILE = BASE_DIR / "data" / "telegram_events.jsonl"
+AVAILABLE_SECONDS = float(os.getenv("AVAILABLE_SECONDS", "39900"))
+TAKT_SECONDS = float(os.getenv("TAKT_SECONDS", "2216.666667"))
 
 
 # ──────────────────────────────────────────────
@@ -27,10 +39,11 @@ def _ensure_default_board():
     if not bid:
         return 1  # fallback cuando DB no está disponible
     cols = [
-        ("Backlog", 0, "#64748b"),
-        ("In Progress", 1, "#2563eb"),
-        ("Testing", 2, "#d97706"),
-        ("Done", 3, "#16a34a"),
+        ("Propuesto", 0, "#64748b"),
+        ("Asignado", 1, "#2563eb"),
+        ("In Process", 2, "#d97706"),
+        ("Bloqueado", 3, "#dc2626"),
+        ("Done", 4, "#16a34a"),
     ]
     for name, pos, color in cols:
         execute(
@@ -116,6 +129,119 @@ def _overdue_tasks() -> list:
     )
 
 
+def _pct(part: float, total: float) -> float:
+    if not total:
+        return 0
+    return round((part / total) * 100, 1)
+
+
+def _as_float(value, default: float = 0) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _read_csv_safe(path: Path) -> list[dict]:
+    if not path.exists():
+        return []
+    with path.open(newline="", encoding="utf-8-sig") as fh:
+        return list(csv.DictReader(fh))
+
+
+def _load_json_safe(path: Path) -> list[dict]:
+    if not path.exists():
+        return []
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return data if isinstance(data, list) else []
+    except Exception:
+        return []
+
+
+def _read_balanceo() -> dict[str, list[dict]]:
+    rows = _read_csv_safe(CURATED_DIR / "balanceo_lineas.csv")
+    if not rows:
+        fallback = _load_json_safe(FALLBACKS_DIR / "balanceo_lineas.json")
+        rows = fallback if fallback else []
+    grouped: dict[str, list[dict]] = {}
+    for row in rows:
+        linea = (row.get("linea") or row.get("line") or "GENERAL").strip().upper()
+        grouped.setdefault(linea, []).append(row)
+    return grouped
+
+
+def _read_demanda() -> list[dict]:
+    return _read_csv_safe(CURATED_DIR / "demanda_afl.csv") or _load_json_safe(FALLBACKS_DIR / "demanda.json")
+
+
+def _read_kanban() -> list[dict]:
+    rows = _read_csv_safe(CURATED_DIR / "kanban_notifications.csv")
+    for row in rows:
+        try:
+            days = float(row.get("days_left", "") or 999)
+        except ValueError:
+            days = 999
+        row["_urgency"] = "critical" if days <= 3 else ("warning" if days <= 7 else "ok")
+    return rows
+
+
+def _telegram_tarde_count() -> int:
+    if not TELEGRAM_EVENTS_FILE.exists():
+        return 0
+    count = 0
+    try:
+        for line in TELEGRAM_EVENTS_FILE.read_text(encoding="utf-8").splitlines():
+            if '"turno": "tarde"' in line or '"tag": "tarde"' in line:
+                count += 1
+    except Exception:
+        return 0
+    return count
+
+
+def _operations_summary() -> dict:
+    balanceo = _read_balanceo()
+    stations = []
+    cuellos = []
+    for line_name, rows in balanceo.items():
+        for row in rows:
+            ct = _as_float(row.get("ct_actual", 0), 0)
+            takt = _as_float(row.get("takt", TAKT_SECONDS), TAKT_SECONDS)
+            station = row.get("estacion", "")
+            if ct > 0:
+                capacity = 3600 / ct
+                stations.append({
+                    "line": line_name,
+                    "station": station,
+                    "ct": ct,
+                    "takt": takt,
+                    "capacity": capacity,
+                })
+            if takt and ct > takt:
+                cuellos.append({"line": line_name, "station": station, "gap": ct - takt, "ct": ct, "takt": takt})
+    bottleneck = min(stations, key=lambda s: s["capacity"]) if stations else None
+    actual_units = (bottleneck["capacity"] * AVAILABLE_SECONDS / 3600) if bottleneck else 0
+    target_units = AVAILABLE_SECONDS / TAKT_SECONDS if TAKT_SECONDS else 0
+    demanda = _read_demanda()
+    demanda_total = sum(int(float(d.get("total", 0) or 0)) for d in demanda)
+    demanda_pico = max((int(float(d.get("may", 0) or 0)) for d in demanda), default=0)
+    kanban = _read_kanban()
+    return {
+        "stations": len(stations),
+        "actual_units": round(actual_units, 1),
+        "target_units": round(target_units, 1),
+        "gap_units": round(target_units - actual_units, 1),
+        "utilization": round((actual_units / target_units * 100), 1) if target_units else 0,
+        "cuellos": len(cuellos),
+        "bottleneck": f"{bottleneck['line']} {bottleneck['station']}" if bottleneck else "N/A",
+        "demanda_total": demanda_total,
+        "demanda_pico": demanda_pico,
+        "kanban_crit": len([k for k in kanban if k.get("_urgency") == "critical"]),
+        "kanban_warn": len([k for k in kanban if k.get("_urgency") == "warning"]),
+        "tarde_events": _telegram_tarde_count(),
+    }
+
+
 # ──────────────────────────────────────────────
 #  HQ Dashboard
 # ──────────────────────────────────────────────
@@ -126,14 +252,18 @@ def kadrix_hq():
     fixture_stats = _fixtures_stats()
     project_stats = _projects_stats()
     overdue = _overdue_tasks()
+    ops = _operations_summary()
 
     # KPI counts
     total_tasks = len(board_data.get("tasks", []))
     active_tasks = len(
         [t for t in board_data.get("tasks", []) if t.get("column_name") != "Done"]
     )
+    done_tasks = max(total_tasks - active_tasks, 0)
     total_fixtures = fixture_stats.get("total", 0)
     fixtures_ok = total_fixtures - fixture_stats.get("in_maintenance", 0) - fixture_stats.get("damaged", 0)
+    project_total = project_stats.get("total", 0)
+    project_active = project_stats.get("active", 0)
 
     return render_template(
         "kadrix/hq.html",
@@ -142,13 +272,23 @@ def kadrix_hq():
         board=board_data.get("board"),
         total_tasks=total_tasks,
         active_tasks=active_tasks,
+        done_tasks=done_tasks,
+        active_tasks_pct=_pct(active_tasks, total_tasks),
+        done_tasks_pct=_pct(done_tasks, total_tasks),
         total_fixtures=total_fixtures,
         fixtures_ok=fixtures_ok,
+        fixtures_ok_pct=_pct(fixtures_ok, total_fixtures),
         fixtures_maintenance=fixture_stats.get("in_maintenance", 0),
+        fixtures_maintenance_pct=_pct(fixture_stats.get("in_maintenance", 0), total_fixtures),
         fixtures_damaged=fixture_stats.get("damaged", 0),
-        project_active=project_stats.get("active", 0),
-        project_total=project_stats.get("total", 0),
+        fixtures_damaged_pct=_pct(fixture_stats.get("damaged", 0), total_fixtures),
+        project_active=project_active,
+        project_total=project_total,
+        project_active_pct=_pct(project_active, project_total),
         overdue=overdue,
+        overdue_pct=_pct(len(overdue), total_tasks),
+        bri_model=os.getenv("OPENROUTER_MODEL", "anthropic/claude-3-haiku"),
+        ops=ops,
     )
 
 

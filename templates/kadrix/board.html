@@ -36,7 +36,7 @@
 {% block content %}
 <div class="page-header">
   <h1>{{ title }}</h1>
-  <p class="subtitle">Arrastra las tarjetas entre columnas para actualizar su estado.</p>
+  <p class="subtitle">Boards por proyecto: asigna responsables, usa tags en la descripcion y mueve tarjetas por estado.</p>
 </div>
 
 <div class="kanban">
@@ -65,7 +65,7 @@
     </div>
     {% endfor %}
 
-    <button class="kanban-add" onclick="openModal({{ col.id }})">+ Nueva Tarea</button>
+    <button class="kanban-add" onclick="openModal({{ col.id }})">+ Nueva Tarjeta</button>
   </div>
   {% endfor %}
 </div>
@@ -73,14 +73,14 @@
 <!-- Modal crear tarea -->
 <div class="modal-overlay" id="taskModal">
   <div class="modal">
-    <h3>➕ Nueva Tarea</h3>
+    <h3>➕ Nueva Tarjeta</h3>
     <form id="createTaskForm" method="post" action="{{ url_for('cadrex.create_task', board_id=board.id) }}">
       <input type="hidden" name="column_id" id="modalColumnId">
       <label for="taskTitle">Título</label>
       <input type="text" name="title" id="taskTitle" required>
 
       <label for="taskDesc">Descripción</label>
-      <textarea name="description" id="taskDesc"></textarea>
+      <textarea name="description" id="taskDesc" placeholder="Notas, tags libres y contexto. Ej: tag=qa tag=tarde fixture=FX-001"></textarea>
 
       <label for="taskAssigned">Asignado a</label>
       <select name="assigned_to" id="taskAssigned">
