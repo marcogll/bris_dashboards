@@ -41,8 +41,9 @@ INSTALLED_APPS = [
     'core',
     'employees',
     'holidays',
-    'requests',
+    'hr_requests',
     'absences',
+    'reports',
     'telegram_bot',
 ]
 

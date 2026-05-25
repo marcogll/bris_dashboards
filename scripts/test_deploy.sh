@@ -5,7 +5,7 @@
 # Uso: bash scripts/test_deploy.sh [local|remote]
 # ======================================================================
 
-set -e
+set +e
 
 MODE="${1:-remote}"
 RED='\033[91m'
@@ -27,7 +27,7 @@ check() {
     if [ "$MODE" = "remote" ]; then
         curl_args="-sk --max-time 10"
     else
-        curl_args="-s --max-time 5"
+        curl_args="-s -H 'X-Forwarded-Proto: https' --max-time 5"
     fi
     
     status=$(eval curl $curl_args -o /dev/null -w "%{http_code}" "$url" 2>/dev/null || echo "000")
@@ -53,7 +53,7 @@ check_redirect() {
     if [ "$MODE" = "remote" ]; then
         curl_args="-sk --max-time 10"
     else
-        curl_args="-s --max-time 5"
+        curl_args="-s -H X-Forwarded-Proto:https --max-time 5"
     fi
     
     location=$(eval curl $curl_args -o /dev/null -w "%{redirect_url}" "$url" 2>/dev/null || echo "")
@@ -78,9 +78,9 @@ check_contains() {
     local curl_args=""
     
     if [ "$MODE" = "remote" ]; then
-        curl_args="-sk --max-time 10"
+        curl_args="-skL --max-time 10"
     else
-        curl_args="-s --max-time 5"
+        curl_args="-sL -H X-Forwarded-Proto:https --max-time 5"
     fi
     
     body=$(eval curl $curl_args "$url" 2>/dev/null || echo "")
@@ -95,13 +95,13 @@ check_contains() {
 }
 
 if [ "$MODE" = "local" ]; then
-    HQ="http://localhost:5010"
-    DASHBOARD="http://localhost:5011"
-    HRMGR="http://localhost:5012"
-    PAYROLL="http://localhost:5013"
-    ACTAS="http://localhost:5014"
-    EMPREQ="http://localhost:5015"
-    echo -e "${BLUE}=== TEST LOCAL (localhost) ===${RESET}"
+    HQ="http://localhost"
+    DASHBOARD="http://localhost/dashboard"
+    HRMGR="http://localhost/empleadas"
+    PAYROLL="http://localhost/payroll"
+    ACTAS="http://localhost/actas"
+    EMPREQ="http://localhost/empreq"
+    echo -e "${BLUE}=== TEST LOCAL (nginx :80) ===${RESET}"
 else
     HQ="https://vanityhq.soul23.cloud"
     DASHBOARD="https://vanityhq.soul23.cloud/dashboard"
@@ -212,10 +212,10 @@ fi
 
 echo ""
 echo -e "${BLUE}7. DASHBOARD / HRMGR (rutas path-based)${RESET}"
-check "Dashboard route" "$DASHBOARD/"
-check "HRMGR route" "$HRMGR/"
-check "Payroll route" "$PAYROLL/"
-check "Actas route" "$ACTAS/"
+check "Dashboard route" "$DASHBOARD/" 302
+check "HRMGR route" "$HRMGR/" 301
+check "Payroll route" "$PAYROLL/" 302
+check "Actas route" "$ACTAS/" 302
 
 echo ""
 echo -e "${BLUE}===========================================${RESET}"

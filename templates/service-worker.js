@@ -2,7 +2,7 @@ const CACHE_NAME = 'vanity-pwa-cache-v1';
 const ASSETS_TO_CACHE = [
   './',
   '/static/css/dashboard.css',
-  '/static/logo_cadrex.png'
+  '/static/logo.svg'
 ];
 
 // Install Event

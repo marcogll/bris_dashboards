@@ -40,7 +40,7 @@ BASE_DIR = Path(__file__).resolve().parent
 DATA_FILE = Path(os.getenv("DATA_FILE", BASE_DIR / "data" / "stations.csv"))
 AVAILABLE_SECONDS = float(os.getenv("AVAILABLE_SECONDS", "39900"))
 TAKT_SECONDS = float(os.getenv("TAKT_SECONDS", "2216.666667"))
-APP_TITLE = os.getenv("APP_TITLE", "Cadrex — Cadrex")
+APP_TITLE = os.getenv("APP_TITLE", "Vanity — Dashboard")
 UPLOAD_SECRET = os.getenv("UPLOAD_SECRET", "")
 
 CURATED_DIR = BASE_DIR / "adriana_projects" / "data" / "curated"
@@ -406,8 +406,8 @@ def server_error(e):
 # ──────────────────────────────────────────────
 #  KPI Dashboard (master view)
 # ──────────────────────────────────────────────
-def _kpi_cadrex() -> dict:
-    """Collect Cadrex operational KPIs from MySQL with graceful fallback."""
+def _kpi_operations() -> dict:
+    """Collect operational KPIs from MySQL with graceful fallback."""
     kpis: dict[str, Any] = {
         "fixtures_total": 0,
         "fixtures_active": 0,
@@ -540,8 +540,8 @@ def dashboard() -> str:
             prod_pct = float(d.get("pct", 0) or 0)
             break
 
-    # Cadrex/MySQL KPIs
-    cadrex = _kpi_cadrex()
+    # Operations/MySQL KPIs
+    operations = _kpi_operations()
 
     # Kanban critical alerts
     kanban = read_kanban()
@@ -550,7 +550,7 @@ def dashboard() -> str:
 
     return render_template(
         "dashboard_master.html",
-        title="Cadrex — Dashboard Maestro",
+        title="Vanity — Dashboard Maestro",
         nav_active="dashboard",
         metrics=metrics,
         balanceo=balanceo,
@@ -563,7 +563,7 @@ def dashboard() -> str:
         nf_cuellos=len(nf_cuellos),
         sm_cuellos=len(sm_cuellos),
         prod_pct=prod_pct,
-        cadrex=cadrex,
+        operations=operations,
         kanban_crit=kanban_crit,
         kanban_warn=kanban_warn,
         available_seconds=AVAILABLE_SECONDS,

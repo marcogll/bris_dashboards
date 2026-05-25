@@ -55,6 +55,15 @@ app.config["VANITY_HQ_URL"] = os.getenv("VANITY_HQ_URL", "http://127.0.0.1:5050"
 app.session_interface = SupabaseSessionInterface()
 CORS(app)
 
+
+@app.template_filter("num")
+def format_number(value: float, decimals: int = 1) -> str:
+    try:
+        return f"{float(value):,.{decimals}f}"
+    except (TypeError, ValueError):
+        return str(value)
+
+
 SYSTEM_KEY = "vanity_dashboard"
 HQ_BASE_URL = os.getenv("VANITY_HQ_URL", "http://127.0.0.1:5050")
 HQ_PUBLIC_URL = os.getenv("VANITY_HQ_PUBLIC_URL", HQ_BASE_URL)
@@ -326,7 +335,7 @@ def auth_hq():
 @app.route("/")
 @login_required
 def index():
-    return render_template("index.html")
+    return render_template("dashboard.html")
 
 @app.route("/healthz")
 def healthz():

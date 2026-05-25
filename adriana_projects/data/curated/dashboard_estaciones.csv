@@ -1,8 +1,0 @@
-nf_estacion,nf_descripcion,nf_ct_seg,nf_pct_takt,nf_estado,sm_estacion,sm_descripcion,sm_ct_seg,sm_pct_takt,sm_estado
-Est 1,Fab. subensamble,2065,73.2%,✔ Holgura,Est 1,Cables (3 ops),86,3.9%,✔ Holgura
-Est 2,Fab. caja,1685,59.7%,✔ Holgura,Est 2,Tapa/Etiquetas,494,22.3%,✔ Holgura
-Est 3,Fab. tapa/cercha,2978,105.6%,✘ Cuello,Est 3,Base/Etiquetas,50,2.3%,✔ Holgura
-Est 4,Subensamble H,1188,42.1%,✔ Holgura,Est 4,Gaskets base,900,40.6%,✔ Holgura
-Est 5,H – tapa,769,27.3%,✔ Holgura,Est 5,Gaskets tapa,84,3.8%,✔ Holgura
-Est 6,Ensamble completo,4290,152.1%,✘ Cuello,Est 6,Ruteo+Final,2820,127.2%,✘ Cuello
-Est 7,Integración final,2068,73.3%,✔ Holgura,Est 7,Empaque,300,13.5%,✔ Holgura

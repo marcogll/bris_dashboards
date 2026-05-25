@@ -45,8 +45,8 @@
   </div>
   <div class="kpi">
     <div class="label">Presupuesto $15K</div>
-    <div class="value" style="color:var(--accent-orange)">{{ cadrex.budget.pct|num(1) }}%</div>
-    <div class="note">${{ cadrex.budget.spent|num(0) }} / ${{ cadrex.budget.total|num(0) }}</div>
+    <div class="value" style="color:var(--accent-orange)">--</div>
+    <div class="note">Sin datos</div>
   </div>
 </div>
 
@@ -204,18 +204,14 @@
     </div>
   </div>
   <div class="card">
-    <div class="card-head"><h3>Cadrex — Operaciones</h3></div>
+    <div class="card-head"><h3>Operaciones</h3></div>
     <div class="card-body">
       <div class="kpi-row" style="margin-bottom:16px; grid-template-columns: repeat(3, 1fr);">
-        <div class="mini-kpi"><div class="label">Fixtures OK</div><div class="value" style="color:var(--accent-green)">{{ cadrex.fixtures_active|num(0) }}</div></div>
-        <div class="mini-kpi"><div class="label">Proyectos activos</div><div class="value" style="color:var(--accent-blue)">{{ cadrex.projects_active|num(0) }}</div></div>
-        <div class="mini-kpi"><div class="label">Tareas activas</div><div class="value" style="color:var(--accent-purple)">{{ cadrex.tasks_total|num(0) }}</div></div>
+        <div class="mini-kpi"><div class="label">Fixtures OK</div><div class="value" style="color:var(--accent-green)">--</div></div>
+        <div class="mini-kpi"><div class="label">Proyectos activos</div><div class="value" style="color:var(--accent-blue)">--</div></div>
+        <div class="mini-kpi"><div class="label">Tareas activas</div><div class="value" style="color:var(--accent-purple)">--</div></div>
       </div>
-      {% if cadrex.activities_week %}
-      <div class="chart-container"><canvas id="chartActivities"></canvas></div>
-      {% else %}
-      <div style="text-align:center;color:var(--text-muted);padding:20px">Sin datos de actividades (DB no conectada)</div>
-      {% endif %}
+      <div style="text-align:center;color:var(--text-muted);padding:20px">Datos de operaciones disponibles próximamente</div>
     </div>
   </div>
 </div>
@@ -227,21 +223,10 @@
     <div class="card-body">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <span style="font-size:13px;color:var(--text-secondary)">Comprometido</span>
-        <span style="font-size:13px;font-weight:700">${{ cadrex.budget.spent|num(0) }} / ${{ cadrex.budget.total|num(0) }}</span>
+        <span style="font-size:13px;font-weight:700">-- / --</span>
       </div>
-      <div class="progress-bar" style="margin-bottom:16px"><div class="fill" style="width:{{ cadrex.budget.pct }}%"></div></div>
+      <div class="progress-bar" style="margin-bottom:16px"><div class="fill" style="width:0%"></div></div>
       <div class="chart-container"><canvas id="chartRoi"></canvas></div>
-      {% if cadrex.improvements %}
-      <div style="margin-top:14px">
-        <div class="label" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:8px">Top Mejoras</div>
-        {% for imp in cadrex.improvements %}
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border-light);font-size:12px">
-          <span>{{ imp.title }}</span>
-          <span style="font-weight:700;color:var(--accent-green)">${{ (imp.expected_savings_usd_annual or 0)|num(0) }}</span>
-        </div>
-        {% endfor %}
-      </div>
-      {% endif %}
     </div>
   </div>
   <div class="card">
@@ -459,39 +444,23 @@ new Chart(document.getElementById('chartPlan'), {
   options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: true } }, scales: { x: { stacked: true }, y: { stacked: true } } }
 });
 
-// 6. Actividades (doughnut)
-{% if cadrex.activities_week %}
-new Chart(document.getElementById('chartActivities'), {
-  type: 'doughnut',
-  data: {
-    labels: [{% for a in cadrex.activities_week %}'{{ a.activity_type }}'{% if not loop.last %},{% endif %}{% endfor %}],
-    datasets: [{
-      data: [{% for a in cadrex.activities_week %}{{ a.total_min }}{% if not loop.last %},{% endif %}{% endfor %}],
-      backgroundColor: [colors.orange, colors.blue, colors.green, colors.purple, colors.red, colors.teal],
-      borderWidth: 0,
-      hoverOffset: 8
-    }]
-  },
-  options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 11 } } } } }
-});
-{% endif %}
+// 6. Activities placeholder
+document.getElementById('chartActivities')?.parentElement && (document.getElementById('chartActivities').style.display = 'none');
 
-// 7. ROI (bar chart)
-{% if cadrex.improvements %}
+// 7. ROI (bar chart — placeholder)
 new Chart(document.getElementById('chartRoi'), {
   type: 'bar',
   data: {
-    labels: [{% for imp in cadrex.improvements %}'{{ imp.title[:12] }}...'{% if not loop.last %},{% endif %}{% endfor %}],
+    labels: ['Pendiente'],
     datasets: [{
       label: 'Ahorro Anual ($)',
-      data: [{% for imp in cadrex.improvements %}{{ imp.expected_savings_usd_annual or 0 }}{% if not loop.last %},{% endif %}{% endfor %}],
+      data: [0],
       backgroundColor: colors.green,
       borderRadius: 6,
     }]
   },
   options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
 });
-{% endif %}
 
 // 8. Kanban (gauge-like bar)
 new Chart(document.getElementById('chartKanban'), {

@@ -1,0 +1,11 @@
+[
+  {
+    "nombre": "Ejemplo Empleada",
+    "contacto": "ejemplo@vanity.com",
+    "telefono": "555-0100",
+    "rol": "estilista",
+    "alias": "EJE",
+    "rating": 5,
+    "permiso": "staff"
+  }
+]

@@ -1,6 +1,6 @@
 """
 BRIS Dashboard - Streamlit Edition
-Dashboard interactivo para KPIs de ensamble Cadrex.
+Dashboard interactivo para KPIs de ensamble Vanity.
 Correr localmente:  streamlit run streamlit_app.py
 """
 
@@ -14,7 +14,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 st.set_page_config(
-    page_title="BRIS Dashboard - Cadrex",
+    page_title="BRIS Dashboard - Vanity",
     page_icon="🏭",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -166,7 +166,7 @@ def compute_metrics(stations_df: pd.DataFrame):
 #  Sidebar
 # ──────────────────────────────────────────────
 st.sidebar.title("🏭 BRIS Dashboard")
-st.sidebar.caption("Cadrex — Ensamble de Racks")
+st.sidebar.caption("Vanity — Ensamble de Racks")
 page = st.sidebar.radio(
     "Navegacion",
     ["KPIs", "Produccion", "Plan de Accion", "Demanda", "Partes / BOM", "Kanban"],

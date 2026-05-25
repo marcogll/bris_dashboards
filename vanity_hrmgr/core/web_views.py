@@ -18,13 +18,13 @@ from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 
 from employees.models import User, Branch, Employee
-from requests.models import Request
-from requests.forms import RequestForm
+from hr_requests.models import Request
+from hr_requests.forms import RequestForm
 from absences.models import Absence, AbsenceAudit
 from absences.forms import AbsenceForm
 from holidays.models import Holiday
 from reports import generate_excel_report
-from security import rate_limit
+from core.security import rate_limit
 
 
 PAYROLL_BASE_URL = os.getenv("PAYROLL_BASE_URL", "http://127.0.0.1:5051")
@@ -52,7 +52,8 @@ def dashboard(request):
     branches_total = Branch.objects.filter(active=True).count()
     requests_total = Request.objects.count()
     absences_total = Absence.objects.count()
-    holidays_total = Holiday.objects.filter(active=True).count()
+    holidays_total = Holiday.objects.filter(activo=True).count()
+    pending_requests = Request.objects.filter(status='pendiente').count()
     context = {
         'employees_total': employees_total,
         'employees_baja': employees_baja,
@@ -60,6 +61,9 @@ def dashboard(request):
         'requests_total': requests_total,
         'absences_total': absences_total,
         'holidays_total': holidays_total,
+        'total_empleados': employees_total,
+        'total_sucursales': branches_total,
+        'solicitudes_pendientes': pending_requests,
     }
     return render(request, 'dashboard.html', context)
 

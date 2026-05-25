@@ -33,7 +33,7 @@ Para garantizar que el flujo de SSO sea totalmente transparente ("seamless") par
 Se ha implementado compatibilidad con PWA en los servicios **HR Manager (Django)** y **EmpReq (Flask)**:
 - **`manifest.json` y `service-worker.js` unificados**: Servidos a nivel raíz como templates dinámicos y responsivos, usando `start_url: "./"` para autoadaptarse tanto al dominio dedicado (`vanityerq.soul23.cloud`) como a la sub-ruta del HQ (`vanityhq.soul23.cloud/empleadas/`).
 - **Registro Automático**: El layout común `templates/base.html` detecta y registra el service worker automáticamente en el navegador del cliente.
-- **Estrategia de Caché**: El service worker implementa una estrategia de "Network First con fallback a Caché" para asegurar el funcionamiento sin conexión y una velocidad de carga neumórfica ágil para activos estáticos (`/static/css/dashboard.css` y `logo_cadrex.png`).
+- **Estrategia de Caché**: El service worker implementa una estrategia de "Network First con fallback a Caché" para asegurar el funcionamiento sin conexión y una velocidad de carga neumórfica ágil para activos estáticos (`/static/css/dashboard.css` y `logo.svg`).
 - **Despliegue Docker**: Todos los Dockerfiles copian recursivamente las carpetas compartidas `/templates` y `/static` al compilarse, garantizando la consistencia visual y de recursos en los contenedores aislados de VPS Coolify.
 
 ## Puertos y Rutas

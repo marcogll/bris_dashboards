@@ -13,6 +13,10 @@ COPY templates/ /app/templates/
 COPY static/ /app/static/
 COPY vanity_dashboard/ /app/
 
+RUN groupadd -r appuser && useradd -r -g appuser -d /app -s /sbin/nologin appuser
+RUN chown -R appuser:appuser /app
+USER appuser
+
 ENV PORT=5002
 EXPOSE 5002
 

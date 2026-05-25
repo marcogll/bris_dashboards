@@ -41,6 +41,7 @@ HQ_PUBLIC_URL = os.getenv("VANITY_HQ_PUBLIC_URL", HQ_BASE_URL)
 SYSTEM_KEY = "vanity_empreq"
 HQ_SECRET_KEY = os.getenv("VANITY_HQ_SECRET_KEY", "dev-secret-change-me")
 HQ_TOKEN_MAX_AGE = int(os.getenv("VANITY_HQ_TOKEN_MAX_AGE", "43200"))
+serializer = URLSafeTimedSerializer(HQ_SECRET_KEY, salt="vanity-hq-app-token")
 
 
 # --- App factory y hooks de request -----------------------------------------
@@ -104,7 +105,7 @@ def validate_hq_token(token):
 
 # --- Permisos y decoradores de autenticacion ----------------------------------
 def has_permission(module, action):
-    for permission in context.get("permissions", []):
+    for permission in g.hq_context.get("permissions", []):
         if permission.get("system") == SYSTEM_KEY and permission.get("module") == module and permission.get("action") == action:
             return True
     return False
@@ -135,10 +136,10 @@ def require_permission(module, action):
 
 # --- Auditoria: reenvia eventos al HQ Wrapper --------------------------------
 def audit_hq(action, target_type, target_id="", detail=""):
-    if not hq_token:
+    if not g.hq_token:
         return
     payload = json.dumps({
-        "token": hq_token,
+        "token": g.hq_token,
         "system": SYSTEM_KEY,
         "action": action,
         "target_type": target_type,

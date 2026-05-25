@@ -13,6 +13,11 @@ COPY templates/ /app/templates/
 COPY static/ /app/static/
 COPY vanity_empreq/ /app/
 
+RUN groupadd -r appuser && useradd -r -g appuser -d /app -s /sbin/nologin appuser
+RUN chown -R appuser:appuser /app
+RUN mkdir -p /app/instance && chown appuser:appuser /app/instance
+USER appuser
+
 ENV PORT=5053
 EXPOSE 5053
 

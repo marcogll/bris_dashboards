@@ -12,7 +12,6 @@ venv/
 .env.*
 !.env.example
 !.env.coolify.example
-!.env.coolify
 
 # OS
 .DS_Store

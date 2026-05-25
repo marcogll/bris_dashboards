@@ -467,7 +467,8 @@ def register_routes(app):
     @app.route("/login", methods=["GET", "POST"])
     def login():
         if request.method == "POST":
-            identity = request.form.get("identity", "").strip().lower()
+            identity = request.form.get("identity", "") or request.form.get("username", "")
+            identity = identity.strip().lower()
             password = request.form.get("password", "")
             remember = bool(request.form.get("remember"))
             user = g.db.execute(
@@ -484,7 +485,8 @@ def register_routes(app):
                 session["user_id"] = user["id"]
                 context = context_for_user(user)
                 sid = create_session(user["id"], "vanity_hq", context, str(user["id"]), max_age_seconds=TOKEN_MAX_AGE)
-                session["_session_id"] = sid
+                if sid:
+                    session["_session_id"] = sid
                 g.db.execute("UPDATE users SET last_login = ? WHERE id = ?", (datetime.utcnow().isoformat(), user["id"]))
                 g.db.commit()
                 return redirect(request.args.get("next") or url_for("hq"))

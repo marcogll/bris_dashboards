@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Empleados — Vanity HR{% endblock %}
+{% block page_title %}Catálogo de Empleados{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+  <div>
+    <h1 style="font-size: 20px; font-weight: 700;">Empleados Activos</h1>
+    <p style="color: var(--muted); font-size: 13px; margin-top: 4px;">Total: {{ employees|length }} empleados</p>
+  </div>
+  <a href="{% url 'empleados_crud' %}" class="btn" style="background: var(--accent); color: #fff; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px;">Gestionar</a>
+</div>
+
+<div class="card" style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto;">
+  <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+    <thead>
+      <tr style="border-bottom: 1px solid var(--border); text-align: left;">
+        <th style="padding: 10px 8px; color: var(--muted); font-weight: 600;"># Empleado</th>
+        <th style="padding: 10px 8px; color: var(--muted); font-weight: 600;">Nombre</th>
+        <th style="padding: 10px 8px; color: var(--muted); font-weight: 600;">Email</th>
+        <th style="padding: 10px 8px; color: var(--muted); font-weight: 600;">Sucursal</th>
+        <th style="padding: 10px 8px; color: var(--muted); font-weight: 600;">Fecha Ingreso</th>
+        <th style="padding: 10px 8px; color: var(--muted); font-weight: 600;">Antigüedad</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for employee in employees %}
+      <tr style="border-bottom: 1px solid var(--border2, #eee);">
+        <td style="padding: 10px 8px; font-weight: 600;">{{ employee.employee_number }}</td>
+        <td style="padding: 10px 8px;">{{ employee.user.get_full_name|default:employee.user.username }}</td>
+        <td style="padding: 10px 8px;">{{ employee.email|default:employee.user.email }}</td>
+        <td style="padding: 10px 8px;">{{ employee.branch.name|default:"—" }}</td>
+        <td style="padding: 10px 8px;">{{ employee.fecha_ingreso|date:"d/m/Y" }}</td>
+        <td style="padding: 10px 8px;">{{ employee.calcular_antiguedad }} años</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" style="padding: 24px; text-align: center; color: var(--muted);">No hay empleados activos registrados.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -222,7 +222,8 @@ def validate_hq_token(token):
 
 # --- Permisos y decoradores de autenticacion ------------------------------------
 def has_permission(module, action):
-    for permission in context.get("permissions", []):
+    ctx = g.get("hq_context") or {}
+    for permission in ctx.get("permissions", []):
         if permission.get("system") == SYSTEM_KEY and permission.get("module") == module and permission.get("action") == action:
             return True
     return False
@@ -371,11 +372,12 @@ def require_permission(module, action):
 
 # --- Auditoria: reenvia eventos al HQ Wrapper ---------------------------------
 def audit_hq(action, target_type, target_id="", detail=""):
-    if not hq_token:
+    token = session.get("hq_token", "")
+    if not token:
         return
     payload = json.dumps(
         {
-            "token": hq_token,
+            "token": token,
             "system": SYSTEM_KEY,
             "action": action,
             "target_type": target_type,

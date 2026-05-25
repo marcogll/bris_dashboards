@@ -8,7 +8,7 @@
   <!-- Progressive Web App -->
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#3b82f6">
-  <link rel="apple-touch-icon" href="/static/logo_cadrex.png">
+  <link rel="apple-touch-icon" href="/static/logo.svg">
   {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -17,7 +17,7 @@
   <aside class="sidebar">
     <div class="sidebar-logo">
       <div class="logo-icon">S</div>
-      <div class="logo-text">Cadrex</div>
+      <div class="logo-text">Vanity</div>
     </div>
 
     <nav class="sidebar-nav">
@@ -28,7 +28,7 @@
       <a class="nav-item {% if nav_active == 'produccion' %}active{% endif %}" href="{{ url_for('produccion') }}">
         <span class="nav-icon">▣</span> Produccion
       </a>
-      <a class="nav-item {% if nav_active == 'analytics' %}active{% endif %}" href="{{ url_for('cadrex.analytics') }}">
+      <a class="nav-item {% if nav_active == 'analytics' %}active{% endif %}" href="{{ url_for('analytics') }}">
         <span class="nav-icon">◈</span> Analytics
       </a>
       <a class="nav-item {% if nav_active == 'plan' %}active{% endif %}" href="{{ url_for('plan') }}">
@@ -54,7 +54,7 @@
         </div>
         <div class="user-info">
           <div class="name">Adriana Ramos</div>
-          <div class="role">Cadrex Ops</div>
+          <div class="role">Ops</div>
         </div>
       </div>
       <div class="sidebar-actions">
