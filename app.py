@@ -116,7 +116,9 @@ class User(UserMixin):
 
 def _load_users() -> dict:
     if USERS_FILE.exists():
-        return json.loads(USERS_FILE.read_text(encoding="utf-8"))
+        text = USERS_FILE.read_text(encoding="utf-8").strip()
+        if text:
+            return json.loads(text)
     return {}
 
 

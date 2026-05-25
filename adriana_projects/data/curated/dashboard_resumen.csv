@@ -1,5 +1,9 @@
 metrica,valor,meta,unidad
-OEE,78,85,%
-Disponibilidad,92,95,%
-Calidad,99.2,99.5,%
-Eficiencia,85,90,%
+OEE NF,68,85,%
+OEE SAN,72,85,%
+OEE KAN,74,85,%
+OEE AFL,71,85,%
+Takt NF,47.0,47.0,min/pza
+Takt SAN,36.9,36.9,min/pza
+Prod. Diaria NF,13,14,pzas
+Prod. Diaria SAN,8,18,pzas

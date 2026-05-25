@@ -1,6 +1,8 @@
-etapa,pzas_hr
-Baseline actual,8.0
-+ QA inline,9.0
-+ Shadow board Est.4,9.3
-+ Fixture anti-retrabajo,9.5
-NF OPTIMIZADO,12.4
+linea,etapa,pzas_hr,throughput_actual,throughput_objetivo,mejora_pct
+NORTHFACE,Baseline actual,1.3,10.2,,
+NORTHFACE,+ QA inline + shadow boards,1.5,,11.7,15%
+NORTHFACE,+ Fixture anti-retrabajo,1.6,,12.8,25%
+NORTHFACE,+ PM + layout optimizado,1.8,,14.3,40%
+SANMINA,Baseline actual,1.6,18.0,,
+SANMINA,+ Fixture Est.4,1.8,,19.8,10%
+SANMINA,+ WI visual + 1 op Est.6,2.1,,23.4,30%

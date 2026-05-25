@@ -1,8 +1,8 @@
 paso,tiempo_seg,acumulado_seg
-Cables,86,86
-Tapa,494,580
-Base,50,630
-Gaskets,900,1530
-Gskt Tapa,84,1614
-Ruteo,2820,4434
-Empaque,300,4734
+Cantado PN×PN,120,120
+Pre-Subensamble,600,720
+Subensamble Est1-3,1800,2520
+Ensamble Est4-5,2400,4920
+Est6 + Flex Op,300,5220
+First Article Inspection,300,5520
+Empaque / Shipping,400,5920

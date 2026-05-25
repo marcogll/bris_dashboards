@@ -1,6 +1,19 @@
-num,accion,linea,area,prioridad,inicio,fin,responsable,kpi,status
-1,Reducir tiempo de ruteo,NORTHFACE,Operaciones,ALTA,2026-05-01,2026-06-15,Adriana,CT -20%,pendiente
-2,Optimizar empaque,SANMINA,Operaciones,MEDIA,2026-05-10,2026-06-30,Equipo A,Throughput +15%,pendiente
-3,Implementar QA inline,NORTHFACE,Calidad,ALTA,2026-05-15,2026-07-01,Marco,Scrap -30%,pendiente
-4,Capacitar operadores,NORTHFACE,RRHH,BAJA,2026-04-01,2026-04-30,RRHH,Productividad +10%,completado
-5,Fixture anti-retrabajo,NORTHFACE,Ingenieria,ALTA,2026-06-01,2026-07-15,Ingenieria,Retrabajo -50%,pendiente
+num,accion,linea,area,status,prioridad,responsable,inicio,fin,kpi
+1,Fixture para gaskets base (Est.4),SANMINA,Ing.,pendiente,ALTA,Ing. Procesos,24/05/2026,14/06/2026,CT Est4: -650s
+2,WI visual — ruteo de cables Est.6,SANMINA,IE/QA,pendiente,ALTA,IE + QA,24/05/2026,07/06/2026,FPY Est6
+3,Operador adicional Est.6 Sanmina,SANMINA,Prod.,pendiente,ALTA,Supervisor,31/05/2026,07/06/2026,CT: 2820→940
+4,Shadow boards Est.4 NorthFace,NORTHFACE,5S,pendiente,ALTA,Supervisor,24/05/2026,14/06/2026,Caminatas -416s
+5,QA dedicado — línea NorthFace,NORTHFACE,Calidad,pendiente,ALTA,Ger. Calidad,24/05/2026,31/05/2026,Espera QA -633s
+6,PM preventivo remachadoras (sem.),NORTHFACE,Mant.,pendiente,ALTA,Mant.,31/05/2026,07/06/2026,Avería -1906s
+7,Fixture anti-retrabajo remaches,NORTHFACE,Ing.,pendiente,MEDIA,Ing. Procesos,07/06/2026,05/07/2026,Retrabajo -293s
+8,Kanban Bin1/Bin2 todas las líneas,TODAS,Material,pendiente,MEDIA,Materialista,31/05/2026,21/06/2026,WIP / FIFO
+9,Etiquetas visuales por color — bins,TODAS,5S,pendiente,MEDIA,5S coord.,31/05/2026,14/06/2026,Control visual
+10,QC inline por estación,TODAS,Calidad,pendiente,MEDIA,QA + IE,14/06/2026,19/07/2026,FPY: →≥95%
+11,Layout optimizado + supermercado,TODAS,IE,pendiente,MEDIA,IE,07/06/2026,05/07/2026,Caminatas -30%
+12,Dashboard digital KPIs en tiempo real,TODAS,IT/IE,pendiente,MEDIA,IT + IE,21/06/2026,02/08/2026,"OEE, FPY, Scrap"
+13,Instrucciones de trabajo por estación,TODAS,IE,pendiente,BAJA,IE,14/06/2026,19/07/2026,Variación oper.
+14,Área roja scrap + QR + trazabilidad,TODAS,Calidad,pendiente,BAJA,QA,07/06/2026,28/06/2026,Scrap <2%
+15,5S completas + auditoría mensual,TODAS,5S,pendiente,BAJA,5S coord.,21/06/2026,16/08/2026,OEE
+16,Lift assist / conveyor gabinetes,NORTHFACE,Ergonomía,pendiente,BAJA,Ing. Ind.,05/07/2026,13/09/2026,Seguridad
+17,Fixture alineación PCA Est.7,NORTHFACE,Ing.,pendiente,BAJA,Ing. Proc.,21/06/2026,02/08/2026,FPY Est7
+18,Torque audit — todas las estaciones,TODAS,Calidad,pendiente,BAJA,QA + IE,07/06/2026,21/06/2026,Scrap tornillos

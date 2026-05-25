@@ -1,4 +1,3 @@
-part_number,programa,dic,ene,feb,mar,abr,may,total,pico
-4RU-12RT-001,AFL Ascend,90,100,120,110,130,140,600,140
-4RU-12RT-002,AFL Ascend,45,50,60,55,65,70,300,70
-4RU-08RT-001,AFL Base,70,80,90,85,95,100,450,100
+sku,part_number,programa,dic,ene,feb,mar,abr,may,total,pico
+AFL-001,ASY-05601-06,AFL Base,120,130,110,125,115,140,740,140
+AFL-002,ASY-05664-06,AFL Ascend,80,90,85,95,100,110,560,110

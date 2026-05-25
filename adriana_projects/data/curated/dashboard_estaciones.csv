@@ -1,8 +1,15 @@
 estacion,linea,ct_actual,ct_objetivo,estado
-Est 1 Cables,NORTHFACE,86,80,ok
-Est 2 Tapa,NORTHFACE,494,400,warning
-Est 3 Base,NORTHFACE,50,45,ok
-Est 4 Gaskets,NORTHFACE,900,800,warning
-Est 5 Gskt Tapa,NORTHFACE,84,80,ok
-Est 6 Ruteo,NORTHFACE,2820,2000,critical
-Est 7 Empaque,NORTHFACE,300,250,ok
+Est 1 Fab Sub,NORTHFACE,2065,2065.0,ok
+Est 2 Fab Caja,NORTHFACE,1685,1685.0,ok
+Est 3 Fab Tapa,NORTHFACE,2978,2821.0,critical
+Est 4 Sub H,NORTHFACE,2047,1821.0,ok
+Est 5 Sub H Tapa,NORTHFACE,876,876.0,ok
+Est 6 Ensamble,NORTHFACE,4923,2821.0,critical
+Est 7 Integración,NORTHFACE,2595,1821.0,warning
+Est 1 Cables,SANMINA,29.0,29.0,ok
+Est 2 Tapa,SANMINA,494.0,494.0,ok
+Est 3 Base,SANMINA,50.0,50.0,ok
+Est 4 Gaskets,SANMINA,300.0,300.0,ok
+Est 5 Gskt Tapa,SANMINA,84.0,84.0,ok
+Est 6 Ruteo,SANMINA,1410.0,1410.0,ok
+Est 7 Empaque,SANMINA,150.0,150.0,ok
