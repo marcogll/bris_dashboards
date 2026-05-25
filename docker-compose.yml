@@ -1,7 +1,6 @@
 services:
   mysql:
     image: mysql:8.4
-    container_name: cadrex-mysql
     volumes:
       - mysql_data:/var/lib/mysql
       - ./adriana_projects/mysql/init:/docker-entrypoint-initdb.d:ro
@@ -11,8 +10,6 @@ services:
       MYSQL_USER: ${MYSQL_USER:-bris_user}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-CadrexDB_2026!}
     restart: unless-stopped
-    networks:
-      - cadrex-network
     healthcheck:
       test: ["CMD-SHELL", "mysql -u root -p$$MYSQL_ROOT_PASSWORD -e 'SELECT 1'"]
       interval: 10s
@@ -24,16 +21,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: cadrex-dashboard
     ports:
       - "5016:8743"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.cadrex.rule=Host(`cadrex.soul23.cloud`) || PathPrefix(`/cadrex`)"
-      - "traefik.http.routers.cadrex.entrypoints=https"
-      - "traefik.http.routers.cadrex.tls=true"
-      - "traefik.http.routers.cadrex.tls.certresolver=letsencrypt"
-      - "traefik.http.services.cadrex.loadbalancer.server.port=8743"
     volumes:
       - cadrex_data:/app/instance
       - ./data:/app/data
@@ -61,17 +50,11 @@ services:
     depends_on:
       - mysql
     restart: unless-stopped
-    networks:
-      - cadrex-network
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8743/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
-
-networks:
-  cadrex-network:
-    driver: bridge
 
 volumes:
   mysql_data:
