@@ -1,4 +1,6 @@
-item,ubicacion,days_left,status
-Resina epoxica,Almacen A,2,critical
-Tornillos M4,Almacen B,5,warning
-Cables USB,Almacen A,10,ok
+part_number,days_left,owner,source_file
+RES-001,2,Almacen A,ERP
+TOR-M4-025,5,Almacen B,WIP
+CAB-USB-12,10,Almacen A,ERP
+PCB-PCA-44,3,Almacen C,PO
+REM-SK41H,1,Almacen B,Critico

@@ -1,3 +1,6 @@
-categoria,pct,notas
-Productivo,2.5,Scrap operativo
-No productivo,1.2,Material danado
+categoria,tiempo_seg,pct
+Trabajo productivo,2068,46.1
+Verificaciones / CTQ,1037,23.1
+Esperas (QA / material),599,13.3
+Retrabajo remaches,399,8.9
+Caminatas innecesarias,382,8.6

@@ -1,4 +1,6 @@
-num,titulo,linea,status,prioridad,responsable
-1,Reducir tiempo de ruteo,NORTHFACE,pendiente,ALTA,Adriana
-2,Optimizar empaque,SANMINA,pendiente,MEDIA,Equipo A
-3,Capacitar operadores,NORTHFACE,completado,BAJA,RRHH
+num,accion,linea,area,prioridad,inicio,fin,responsable,kpi,status
+1,Reducir tiempo de ruteo,NORTHFACE,Operaciones,ALTA,2026-05-01,2026-06-15,Adriana,CT -20%,pendiente
+2,Optimizar empaque,SANMINA,Operaciones,MEDIA,2026-05-10,2026-06-30,Equipo A,Throughput +15%,pendiente
+3,Implementar QA inline,NORTHFACE,Calidad,ALTA,2026-05-15,2026-07-01,Marco,Scrap -30%,pendiente
+4,Capacitar operadores,NORTHFACE,RRHH,BAJA,2026-04-01,2026-04-30,RRHH,Productividad +10%,completado
+5,Fixture anti-retrabajo,NORTHFACE,Ingenieria,ALTA,2026-06-01,2026-07-15,Ingenieria,Retrabajo -50%,pendiente

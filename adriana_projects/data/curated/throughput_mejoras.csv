@@ -1,3 +1,6 @@
-linea,throughput_actual,throughput_objetivo,mejora_pct
-NORTHFACE,120,150,25
-SANMINA,80,100,25
+etapa,pzas_hr
+Baseline actual,8.0
++ QA inline,9.0
++ Shadow board Est.4,9.3
++ Fixture anti-retrabajo,9.5
+NF OPTIMIZADO,12.4

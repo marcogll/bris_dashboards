@@ -1,3 +1,4 @@
-sku,ene,feb,mar,abr,may,jun,jul,ago,sep,oct,nov,dic,total
-SKU001,100,120,110,130,140,150,160,170,180,190,200,210,1660
-SKU002,50,60,55,65,70,75,80,85,90,95,100,105,830
+part_number,programa,ene,feb,mar,abr,may,total,pico
+4RU-12RT-001,AFL Ascend,100,120,110,130,140,600,140
+4RU-12RT-002,AFL Ascend,50,60,55,65,70,300,70
+4RU-08RT-001,AFL Base,80,90,85,95,100,450,100
