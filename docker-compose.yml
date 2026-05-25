@@ -1,4 +1,25 @@
 services:
+  mysql:
+    image: mysql:8.4
+    container_name: cadrex-mysql
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./adriana_projects/mysql/init:/docker-entrypoint-initdb.d:ro
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-CadrexRoot2026!}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-bris_adriana}
+      MYSQL_USER: ${MYSQL_USER:-bris_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-CadrexDB_2026!}
+    restart: unless-stopped
+    networks:
+      - cadrex-network
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u $$MYSQL_USER -p$$MYSQL_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
   cadrex:
     build:
       context: .
@@ -20,10 +41,10 @@ services:
       - PORT=8743
       - FLASK_ENV=production
       - SECRET_KEY=${SECRET_KEY:?required}
-      - MYSQL_HOST=${MYSQL_HOST:-mysql}
-      - MYSQL_PORT=${MYSQL_PORT:-3306}
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
       - MYSQL_USER=${MYSQL_USER:-bris_user}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD:?required}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-CadrexDB_2026!}
       - MYSQL_DATABASE=${MYSQL_DATABASE:-bris_adriana}
       - UPLOAD_SECRET=${UPLOAD_SECRET:-}
       - APP_TITLE=${APP_TITLE:-Cadrex | Adriana Ramos}
@@ -37,6 +58,9 @@ services:
       - TELEGRAM_WEBHOOK_URL=${TELEGRAM_WEBHOOK_URL:-}
       - FIZZY_API_KEY=${FIZZY_API_KEY:-}
       - FIZZY_BASE_URL=${FIZZY_BASE_URL:-https://fizzy-br.soul23.cloud}
+    depends_on:
+      mysql:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - cadrex-network
@@ -51,4 +75,5 @@ networks:
     driver: bridge
 
 volumes:
+  mysql_data:
   cadrex_data:
