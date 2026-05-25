@@ -75,4 +75,4 @@ supabase/.branches/
 node_modules/
 
 # Session files
-session-*.md
+session-*.mdclaude/
