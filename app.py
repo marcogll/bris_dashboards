@@ -645,7 +645,7 @@ def _kpi_cadrex() -> dict:
 
 @app.route("/")
 def dashboard() -> str:
-    return redirect(url_for("kadrix.kadrix_hq"))
+    return redirect(url_for("cadrex.kadrix_hq"))
 
 
 @app.route("/data.csv")
