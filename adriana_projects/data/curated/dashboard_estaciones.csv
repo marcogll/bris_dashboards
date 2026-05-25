@@ -1,0 +1,8 @@
+estacion,linea,ct_actual,ct_objetivo,estado
+Est 1 Cables,NORTHFACE,86,80,ok
+Est 2 Tapa,NORTHFACE,494,400,warning
+Est 3 Base,NORTHFACE,50,45,ok
+Est 4 Gaskets,NORTHFACE,900,800,warning
+Est 5 Gskt Tapa,NORTHFACE,84,80,ok
+Est 6 Ruteo,NORTHFACE,2820,2000,critical
+Est 7 Empaque,NORTHFACE,300,250,ok

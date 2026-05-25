@@ -1,0 +1,4 @@
+item,ubicacion,days_left,status
+Resina epoxica,Almacen A,2,critical
+Tornillos M4,Almacen B,5,warning
+Cables USB,Almacen A,10,ok
