@@ -14,11 +14,11 @@ services:
     networks:
       - cadrex-network
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u $$MYSQL_USER -p$$MYSQL_PASSWORD"]
+      test: ["CMD-SHELL", "mysql -u root -p$$MYSQL_ROOT_PASSWORD -e 'SELECT 1'"]
       interval: 10s
       timeout: 5s
-      retries: 5
-      start_period: 30s
+      retries: 10
+      start_period: 60s
 
   cadrex:
     build:
@@ -59,8 +59,7 @@ services:
       - FIZZY_API_KEY=${FIZZY_API_KEY:-}
       - FIZZY_BASE_URL=${FIZZY_BASE_URL:-https://fizzy-br.soul23.cloud}
     depends_on:
-      mysql:
-        condition: service_healthy
+      - mysql
     restart: unless-stopped
     networks:
       - cadrex-network
