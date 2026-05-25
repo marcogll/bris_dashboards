@@ -986,7 +986,10 @@ def manifest() -> Response:
 
 @app.route("/favicon.ico")
 def favicon():
-    return send_file(BASE_DIR / "static" / "logo_cadrex.png", mimetype="image/png")
+    logo = BASE_DIR / "static" / "logo.svg"
+    if logo.exists():
+        return send_file(logo, mimetype="image/svg+xml")
+    return "", 204
 
 
 @app.route("/service-worker.js")
