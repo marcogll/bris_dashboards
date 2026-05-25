@@ -5,6 +5,13 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5016:8743"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cadrex.rule=Host(`abr.soul23.cloud`)"
+      - "traefik.http.routers.cadrex.entrypoints=https"
+      - "traefik.http.routers.cadrex.tls=true"
+      - "traefik.http.routers.cadrex.tls.certresolver=letsencrypt"
+      - "traefik.http.services.cadrex.loadbalancer.server.port=8743"
     volumes:
       - cadrex_data:/app/instance
       - ./data:/app/data
