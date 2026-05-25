@@ -13,6 +13,7 @@
 </head>
 <body>
 <div class="layout">
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
   <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-logo">
@@ -68,6 +69,7 @@
   <div class="main">
     <!-- Header -->
     <header class="header">
+      <button class="menu-toggle" id="menuToggle" aria-label="Menu">☰</button>
       <h1 class="header-title">{% block page_title %}Dashboard{% endblock %}</h1>
 
       <div class="header-search">
@@ -99,9 +101,51 @@
 </div>
 {% block extra_js %}{% endblock %}
 <script>
+  // Mobile sidebar toggle
+  (function() {
+    const toggle = document.getElementById('menuToggle');
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const navLinks = document.querySelectorAll('.sidebar-nav .nav-item');
+
+    function openMenu() {
+      sidebar.classList.add('open');
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeMenu() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (sidebar.classList.contains('open')) closeMenu();
+        else openMenu();
+      });
+    }
+
+    if (overlay) {
+      overlay.addEventListener('click', closeMenu);
+    }
+
+    // Close menu when clicking a nav link (mobile)
+    navLinks.forEach(function(link) {
+      link.addEventListener('click', function() {
+        if (window.innerWidth <= 1024) closeMenu();
+      });
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeMenu();
+    });
+  })();
+
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      // Registrar el service worker
       navigator.serviceWorker.register('/service-worker.js')
         .then(reg => console.log('Service Worker registrado con éxito:', reg.scope))
         .catch(err => console.error('Error al registrar Service Worker:', err));
