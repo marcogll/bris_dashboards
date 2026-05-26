@@ -1081,8 +1081,8 @@ def api_notifications() -> Response:
 
 @app.route("/manifest.json")
 def manifest() -> Response:
-    start_url = os.getenv("PWA_START_URL", url_for("dashboard"))
-    scope = os.getenv("PWA_SCOPE", start_url)
+    start_url = os.getenv("PWA_START_URL") or url_for("dashboard")
+    scope = os.getenv("PWA_SCOPE") or start_url
     icon_url = url_for("static", filename="cadrex_pwa_icon.jpg")
     return jsonify(
         {

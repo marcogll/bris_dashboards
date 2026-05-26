@@ -19,8 +19,8 @@ services:
       - AVAILABLE_SECONDS=${AVAILABLE_SECONDS:-39900}
       - TAKT_SECONDS=${TAKT_SECONDS:-2216.666667}
       - DATA_FILE=${DATA_FILE:-/app/data/stations.csv}
-      - PWA_START_URL=${PWA_START_URL:-/}
-      - PWA_SCOPE=${PWA_SCOPE:-/}
+      - PWA_START_URL=${PWA_START_URL:-}
+      - PWA_SCOPE=${PWA_SCOPE:-}
       - SERVICE_FQDN_DASHBOARD
       - SERVICE_URL_DASHBOARD
     expose:
