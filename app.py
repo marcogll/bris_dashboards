@@ -1081,8 +1081,16 @@ def api_notifications() -> Response:
 
 @app.route("/manifest.json")
 def manifest() -> Response:
-    start_url = os.getenv("PWA_START_URL") or url_for("dashboard")
-    scope = os.getenv("PWA_SCOPE") or start_url
+    inferred_start_url = url_for("dashboard")
+    configured_start_url = os.getenv("PWA_START_URL")
+    if configured_start_url == "/" and inferred_start_url != "/":
+        configured_start_url = ""
+    start_url = configured_start_url or inferred_start_url
+
+    configured_scope = os.getenv("PWA_SCOPE")
+    if configured_scope == "/" and start_url != "/":
+        configured_scope = ""
+    scope = configured_scope or start_url
     icon_url = url_for("static", filename="cadrex_pwa_icon.jpg")
     return jsonify(
         {
