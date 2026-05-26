@@ -166,9 +166,17 @@ body {
   touch-action: manipulation;
 }
 
-/* Hide scrollbars for native app feel */
-::-webkit-scrollbar { display: none; }
-html { scrollbar-width: none; }
+/* Keep scroll visible on desktop; hidden scrollbars made long dashboards feel stuck. */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background-color: var(--text-muted); }
+html { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
 
 /* Allow selection in inputs and readable areas */
 input, textarea, [contenteditable] {
@@ -319,7 +327,24 @@ input, textarea, [contenteditable] {
 .sidebar-actions .icon-btn:hover { background: rgba(205,214,244,0.12); color: #cdd6f4; }
 
 /* ── Main area ──────────────────────────────────────────── */
-.main { flex: 1; margin-left: var(--sidebar-width); display: flex; flex-direction: column; }
+.main {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+@media (min-width: 901px) {
+  html, body, .layout, .main { height: 100%; }
+  body { overflow: hidden; }
+  .main { height: 100vh; overflow: hidden; }
+  .content {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
 
 /* ── Header ─────────────────────────────────────────────── */
 .header {

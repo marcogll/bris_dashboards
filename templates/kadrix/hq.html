@@ -1,24 +1,24 @@
 {% extends "base.html" %}
 
 {% block title %}{{ title }}{% endblock %}
-{% block page_title %}{{ title }}{% endblock %}
+{% block page_title %}Cadrex HQ{% endblock %}
 
 {% block extra_css %}
 <style>
-  .hq-shell { display: grid; gap: 22px; }
+  .hq-shell { display: grid; gap: 18px; }
   .hq-hero {
     display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(320px, .8fr);
-    gap: 18px;
+    grid-template-columns: minmax(0, 1.25fr) minmax(300px, .75fr);
+    gap: 14px;
     align-items: stretch;
-    margin-bottom: 6px;
+    margin-bottom: 2px;
   }
   .hq-panel {
     background: var(--surface);
     border: 1px solid var(--border-light);
     border-radius: 14px;
     box-shadow: var(--shadow-soft);
-    padding: 22px;
+    padding: 18px;
   }
   .hq-panel.primary {
     background:
@@ -37,28 +37,53 @@
     letter-spacing: .08em;
     margin-bottom: 10px;
   }
+  .hq-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .hq-heading-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: var(--text);
+    color: var(--surface);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    box-shadow: var(--shadow-soft);
+  }
   .hq-title {
-    margin: 0 0 8px;
+    margin: 0;
     color: var(--text);
-    font-size: 28px;
-    line-height: 1.08;
+    font-size: 22px;
+    line-height: 1.12;
     font-weight: 850;
     letter-spacing: 0;
+  }
+  .hq-title span {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 750;
+    margin-top: 3px;
   }
   .hq-subtitle {
     max-width: 720px;
     margin: 0;
     color: var(--text-secondary);
-    font-size: 13px;
-    line-height: 1.55;
+    font-size: 12.5px;
+    line-height: 1.5;
   }
-  .hq-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  .hq-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
   .hq-action {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    min-height: 38px;
-    padding: 9px 12px;
+    min-height: 36px;
+    padding: 8px 11px;
     border-radius: 10px;
     border: 1px solid var(--border);
     color: var(--text);
@@ -74,7 +99,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 10px 0;
+    padding: 9px 0;
     border-bottom: 1px solid var(--border-light);
   }
   .hq-status-row:last-child { border-bottom: 0; }
@@ -163,7 +188,9 @@
   }
   @media(max-width: 560px) {
     .hq-panel { padding: 16px; border-radius: 12px; }
-    .hq-title { font-size: 21px; }
+    .hq-heading { align-items: flex-start; }
+    .hq-heading-icon { width: 38px; height: 38px; }
+    .hq-title { font-size: 19px; }
     .hq-metrics { grid-template-columns: 1fr; gap: 8px; }
     .hq-metric { padding: 13px; }
     .hq-metric .value { font-size: 23px; }
@@ -176,8 +203,11 @@
 <section class="hq-hero">
   <div class="hq-panel primary">
     <div class="hq-kicker"><span class="material-symbols-outlined" style="font-size:16px">hub</span> Cadrex HQ</div>
-    <h1 class="hq-title">Centro operativo de datos, proyectos y Bri</h1>
-    <p class="hq-subtitle">Vista de mando para conectar capacidad, takt, cuellos de botella, fixtures, boards de proyecto y preguntas a Bri sin depender de una sola fuente de datos.</p>
+    <div class="hq-heading">
+      <div class="hq-heading-icon"><span class="material-symbols-outlined" style="font-size:24px">dashboard_customize</span></div>
+      <h1 class="hq-title">Cadrex — Centro de Control <span>Datos, proyectos, Fizzy y Bri conectados</span></h1>
+    </div>
+    <p class="hq-subtitle">Vista de mando para conectar capacidad, takt, cuellos, fixtures, boards de proyecto y preguntas a Bri sin depender de una sola fuente de datos.</p>
     <div class="hq-actions">
       <a class="hq-action primary" href="{{ url_for('dashboard') }}"><span class="material-symbols-outlined" style="font-size:18px">monitoring</span> Dashboard actual</a>
       <a class="hq-action" href="{% if board %}{{ url_for('cadrex.kadrix_board', board_id=board.id) }}{% else %}{{ url_for('cadrex.kadrix_hq') }}{% endif %}"><span class="material-symbols-outlined" style="font-size:18px">view_kanban</span> Board de proyecto</a>

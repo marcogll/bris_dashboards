@@ -53,6 +53,42 @@ def _ensure_default_board():
     return bid
 
 
+def _ensure_fizzy_user(username: str = "fizzy") -> int:
+    rows = query("SELECT id FROM kadrix_users WHERE username = %s LIMIT 1", (username,))
+    if rows:
+        return rows[0]["id"]
+    uid = execute(
+        """
+        INSERT INTO kadrix_users (username, name, email, role, password_hash)
+        VALUES (%s, %s, %s, %s, %s)
+        """,
+        (username, "Fizzy Agent", "fizzy@cadrex.local", "manager", "cli-managed"),
+    )
+    return uid or 1
+
+
+def _log_activity(
+    activity_type: str,
+    description: str,
+    *,
+    task_id: int | None = None,
+    fixture_id: int | None = None,
+    duration_minutes: int | None = None,
+    username: str = "fizzy",
+) -> None:
+    if not description:
+        return
+    user_id = _ensure_fizzy_user(username)
+    execute(
+        """
+        INSERT INTO kadrix_activities
+        (user_id, activity_type, description, related_fixture_id, related_task_id, duration_minutes)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """,
+        (user_id, activity_type, description, fixture_id, task_id, duration_minutes),
+    )
+
+
 def _board_data(board_id: int) -> dict:
     board = query("SELECT * FROM kadrix_boards WHERE id = %s", (board_id,))
     if not board:
@@ -329,8 +365,9 @@ def create_task(board_id: int):
         (board_id, column_id, title, description, assigned_to, priority, due_date, created_by)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """,
-        (board_id, column_id, title, description, assigned_to, priority, due_date, None),
+        (board_id, column_id, title, description, assigned_to, priority, due_date, _ensure_fizzy_user()),
     )
+    _log_activity("task_created", f"Fizzy creo task: {title}", task_id=tid or None)
     return jsonify({"ok": True, "task_id": tid})
 
 
@@ -339,10 +376,15 @@ def move_task(task_id: int):
     column_id = request.json.get("column_id", type=int) if request.is_json else None
     if not column_id:
         return jsonify({"ok": False, "error": "column_id required"}), 400
+    task_rows = query("SELECT title FROM kadrix_tasks WHERE id = %s", (task_id,))
+    column_rows = query("SELECT name FROM kadrix_columns WHERE id = %s", (column_id,))
     execute(
         "UPDATE kadrix_tasks SET column_id = %s WHERE id = %s",
         (column_id, task_id),
     )
+    task_title = task_rows[0]["title"] if task_rows else f"Task #{task_id}"
+    column_name = column_rows[0]["name"] if column_rows else f"Columna #{column_id}"
+    _log_activity("task_moved", f"Fizzy movio {task_title} a {column_name}", task_id=task_id)
     return jsonify({"ok": True, "task_id": task_id, "column_id": column_id})
 
 
@@ -470,6 +512,7 @@ def create_project():
         """,
         (name, description, objective, budget, start_date, end_date, roi),
     )
+    _log_activity("project_created", f"Fizzy creo proyecto: {name}")
     return jsonify({"ok": True, "project_id": pid})
 
 
@@ -518,15 +561,9 @@ def create_activity():
     atype = request.form.get("activity_type", "other")
     description = request.form.get("description", "").strip()
     fixture_id = request.form.get("fixture_id", type=int) or None
+    task_id = request.form.get("task_id", type=int) or None
     duration = request.form.get("duration_minutes", type=int) or None
     if not description:
         return jsonify({"ok": False, "error": "Description required"}), 400
-    execute(
-        """
-        INSERT INTO kadrix_activities
-        (user_id, activity_type, description, related_fixture_id, duration_minutes)
-        VALUES (%s, %s, %s, %s, %s)
-        """,
-        (1, atype, description, fixture_id, duration),
-    )
+    _log_activity(atype, description, task_id=task_id, fixture_id=fixture_id, duration_minutes=duration)
     return jsonify({"ok": True})
