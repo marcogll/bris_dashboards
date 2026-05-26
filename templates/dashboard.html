@@ -20,7 +20,7 @@
     </div>
     <div class="kpi">
       <div class="label">Gap vs meta</div>
-      <div class="value" style="color:{{ '#ef4444' if metrics.gap_units > 0 else '#22c55e' }}">{{ metrics.gap_units|num(1) }}<span style="font-size:15px;font-weight:500;color:var(--text-muted)"> pzs</span></div>
+      <div class="value" style="color:{{ 'var(--accent-red)' if metrics.gap_units > 0 else 'var(--accent-green)' }}">{{ metrics.gap_units|num(1) }}<span style="font-size:15px;font-weight:500;color:var(--text-muted)"> pzs</span></div>
       <div class="note">
         <span class="trend {{ 'down' if metrics.gap_units > 0 else 'up' }}">{{ 'Faltante' if metrics.gap_units > 0 else 'Dentro de meta' }}</span>
       </div>
@@ -81,7 +81,7 @@
           <div class="bar-track">
             <div class="bar-fill {{ 'crit' if s.status == 'critical' else ('warn' if s.status == 'warning' else 'ok') }}" style="width:{{ s.bar_width }}%">{{ s.raw.capacity_per_hour|num(1) }} pzs/h</div>
           </div>
-          <div class="bar-val" style="color:{{ '#ef4444' if s.takt_gap > 0 else '#22c55e' }}">{{ '+' if s.takt_gap > 0 }}{{ s.takt_gap|num(0) }}s</div>
+          <div class="bar-val" style="color:{{ 'var(--accent-red)' if s.takt_gap > 0 else 'var(--accent-green)' }}">{{ '+' if s.takt_gap > 0 }}{{ s.takt_gap|num(0) }}s</div>
         </div>
         {% endfor %}
       </div>

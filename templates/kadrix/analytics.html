@@ -5,25 +5,25 @@
 {% block extra_css %}
 <style>
 .roi-card {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  color: #fff; border-radius: var(--radius-lg); padding: 24px;
+  background: var(--ctp-crust);
+  color: var(--ctp-text); border-radius: var(--radius-lg); padding: 24px;
   box-shadow: var(--shadow-medium);
 }
-.roi-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; margin-bottom: 8px; }
+.roi-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ctp-subtext0); margin-bottom: 8px; }
 .roi-card .value { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; }
-.roi-card .sub { font-size: 13px; color: #cbd5e1; margin-top: 6px; }
-.roi-green .value { color: #4ade80; }
-.roi-amber .value { color: #fbbf24; }
-.roi-blue .value { color: #60a5fa; }
-.roi-red .value { color: #f87171; }
+.roi-card .sub { font-size: 13px; color: var(--ctp-subtext1); margin-top: 6px; }
+.roi-green .value { color: var(--ctp-green); }
+.roi-amber .value { color: var(--ctp-yellow); }
+.roi-blue .value { color: var(--ctp-blue); }
+.roi-red .value { color: var(--ctp-red); }
 .ct-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
 .ct-label { width: 140px; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
 .ct-track { flex: 1; height: 24px; background: var(--bg); border-radius: var(--radius-sm); overflow: hidden; position: relative; box-shadow: var(--shadow-inset); }
 .ct-fill { height: 100%; border-radius: var(--radius-sm); display: flex; align-items: center; padding-left: 8px; font-size: 10px; font-weight: 700; color: #fff; }
-.ct-fill.crit { background: linear-gradient(90deg, #ef4444, #f59e0b); }
-.ct-fill.warn { background: linear-gradient(90deg, #f59e0b, #f59e0b); }
+.ct-fill.crit { background: linear-gradient(90deg, var(--accent-red), var(--ctp-yellow)); }
+.ct-fill.warn { background: linear-gradient(90deg, var(--ctp-yellow), var(--ctp-yellow)); }
 .ct-fill.ok { background: var(--gradient-green); }
-.ct-takt { position: absolute; top: 0; bottom: 0; width: 3px; background: #6366f1; z-index: 2; border-radius: 3px; }
+.ct-takt { position: absolute; top: 0; bottom: 0; width: 3px; background: var(--ctp-lavender); z-index: 2; border-radius: 3px; }
 .ct-val { width: 70px; font-size: 12px; font-weight: 700; text-align: right; }
 </style>
 {% endblock %}
@@ -95,7 +95,7 @@
       </div>
       <div class="kpi">
         <div class="label">Gap vs takt</div>
-        <div class="value" style="color:{{ '#ef4444' if ls.summary.gap_sec > 0 else '#22c55e' }}">{{ ls.summary.gap_sec|num(0) }}s</div>
+        <div class="value" style="color:{{ 'var(--accent-red)' if ls.summary.gap_sec > 0 else 'var(--accent-green)' }}">{{ ls.summary.gap_sec|num(0) }}s</div>
       </div>
       <div class="kpi">
         <div class="label">Cuello de botella</div>
@@ -123,7 +123,7 @@
         <div class="ct-takt" style="left:{{ (ls.line.takt_seconds / max_ct * 100)|round }}%"></div>
         <div class="ct-fill {{ 'crit' if b.station_name == ls.summary.bottleneck_station else ('warn' if over_takt else 'ok') }}" style="width:{{ pct }}%">{{ b.value|int }}s</div>
       </div>
-      <div class="ct-val" style="color:{{ '#ef4444' if over_takt else '#22c55e' }}">{{ '+' if over_takt }}{{ (b.value - ls.line.takt_seconds)|int }}s</div>
+      <div class="ct-val" style="color:{{ 'var(--accent-red)' if over_takt else 'var(--accent-green)' }}">{{ '+' if over_takt }}{{ (b.value - ls.line.takt_seconds)|int }}s</div>
     </div>
     {% endfor %}
   </div>
@@ -151,7 +151,7 @@
             <td>{{ imp.category }}</td>
             <td class="num">${{ total_cost|num(0) }}</td>
             <td class="num" style="color:var(--accent-green);font-weight:700">${{ (imp.expected_savings_usd_annual or 0)|num(0) }}</td>
-            <td class="num" style="color:{{ '#22c55e' if roi > 200 else ('#f59e0b' if roi > 100 else '#ef4444') }};font-weight:700">{{ roi|num(0) }}%</td>
+            <td class="num" style="color:{{ 'var(--accent-green)' if roi > 200 else ('var(--ctp-yellow)' if roi > 100 else 'var(--accent-red)') }};font-weight:700">{{ roi|num(0) }}%</td>
             <td class="num">{{ (imp.expected_time_saved_sec or 0)|int }}s</td>
             <td><span class="badge {{ 'badge-ok' if imp.status == 'implemented' else ('badge-warn' if imp.status == 'in_progress' else 'badge-pendiente') }}">{{ imp.status }}</span></td>
           </tr>

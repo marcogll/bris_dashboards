@@ -72,7 +72,7 @@
   </div>
   <div class="kpi">
     <div class="label">Gap vs meta</div>
-    <div class="value" style="color:{{ '#ef4444' if metrics.gap_units > 0 else '#22c55e' }}">{{ metrics.gap_units|num(1) }}<span style="font-size:14px;font-weight:500;color:var(--text-muted)"> pzs</span></div>
+    <div class="value" style="color:{{ 'var(--accent-red)' if metrics.gap_units > 0 else 'var(--accent-green)' }}">{{ metrics.gap_units|num(1) }}<span style="font-size:14px;font-weight:500;color:var(--text-muted)"> pzs</span></div>
     <div class="note">Meta: {{ metrics.target_units|num(1) }} pzs/turno</div>
   </div>
   <div class="kpi">
@@ -173,7 +173,7 @@
                 <td>{{ e.nf_descripcion }}</td>
                 <td class="num">{{ e.nf_ct_seg }}</td>
                 <td class="num">{{ e.nf_pct_takt }}</td>
-                <td><span class="status-dot" style="background:{{ '#22c55e' if e.nf_estado and 'Holgura' in e.nf_estado else '#ef4444' }}"></span>{{ e.nf_estado or '' }}</td>
+                <td><span class="status-dot" style="background:{{ 'var(--accent-green)' if e.nf_estado and 'Holgura' in e.nf_estado else 'var(--accent-red)' }}"></span>{{ e.nf_estado or '' }}</td>
               </tr>
               {% endfor %}
             </tbody>
@@ -192,7 +192,7 @@
                 <td>{{ e.sm_descripcion }}</td>
                 <td class="num">{{ e.sm_ct_seg }}</td>
                 <td class="num">{{ e.sm_pct_takt }}</td>
-                <td><span class="status-dot" style="background:{{ '#22c55e' if e.sm_estado and 'Holgura' in e.sm_estado else '#ef4444' }}"></span>{{ e.sm_estado or '' }}</td>
+                <td><span class="status-dot" style="background:{{ 'var(--accent-green)' if e.sm_estado and 'Holgura' in e.sm_estado else 'var(--accent-red)' }}"></span>{{ e.sm_estado or '' }}</td>
               </tr>
               {% endfor %}
             </tbody>
@@ -420,7 +420,7 @@
         <div class="bar-track">
           <div class="bar-fill {{ 'crit' if s.status == 'critical' else ('warn' if s.status == 'warning' else 'ok') }}" style="width:{{ s.bar_width }}%">{{ s.raw.capacity_per_hour|num(1) }} pzs/h</div>
         </div>
-        <div class="bar-val" style="color:{{ '#ef4444' if s.takt_gap > 0 else '#22c55e' }}">{{ '+' if s.takt_gap > 0 }}{{ s.takt_gap|num(0) }}s</div>
+        <div class="bar-val" style="color:{{ 'var(--accent-red)' if s.takt_gap > 0 else 'var(--accent-green)' }}">{{ '+' if s.takt_gap > 0 }}{{ s.takt_gap|num(0) }}s</div>
       </div>
       {% endfor %}
     </div>

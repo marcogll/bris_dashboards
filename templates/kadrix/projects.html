@@ -24,7 +24,7 @@
 </div>
 
 {% if not projects %}
-<div style="padding: 24px; text-align: center; color: #64748b;">
+<div style="padding: 24px; text-align: center; color: var(--text-muted);">
   No hay proyectos registrados.
 </div>
 {% else %}
@@ -36,7 +36,7 @@
     <div class="project-head">
       <h3>{{ p.name }}</h3>
       {% if p.status == 'active' %}
-      <span class="badge" style="background:#dbeafe;color:var(--accent-blue)">Activo</span>
+      <span class="badge" style="background:var(--badge-info-bg);color:var(--accent-blue)">Activo</span>
       {% elif p.status == 'completed' %}
       <span class="badge badge-ok">Completado</span>
       {% elif p.status == 'on_hold' %}
@@ -54,11 +54,11 @@
     </div>
     <div class="progress-track">
       <div class="progress-fill" style="width:{{ p.progress or 0 }}%;background:
-        {% if p.status == 'active' %}#2563eb
-        {% elif p.status == 'completed' %}#16a34a
-        {% elif p.status == 'on_hold' %}#d97706
-        {% elif p.status == 'cancelled' %}#dc2626
-        {% else %}#64748b
+        {% if p.status == 'active' %}var(--accent-blue)
+        {% elif p.status == 'completed' %}var(--accent-green)
+        {% elif p.status == 'on_hold' %}var(--accent-yellow)
+        {% elif p.status == 'cancelled' %}var(--accent-red)
+        {% else %}var(--text-muted)
         {% endif %};"></div>
     </div>
     <div class="progress-label">
@@ -94,7 +94,7 @@
             <td>{{ (p.description or '')[:50] }}{% if p.description and p.description|length > 50 %}…{% endif %}</td>
             <td>
               {% if p.status == 'active' %}
-              <span class="badge" style="background:#dbeafe;color:var(--accent-blue)">Activo</span>
+              <span class="badge" style="background:var(--badge-info-bg);color:var(--accent-blue)">Activo</span>
               {% elif p.status == 'completed' %}
               <span class="badge badge-ok">Completado</span>
               {% elif p.status == 'on_hold' %}
