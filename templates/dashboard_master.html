@@ -43,6 +43,14 @@
 {% endblock %}
 
 {% block content %}
+{% set total_estaciones = metrics.stations|length %}
+{% set total_cuellos = nf_cuellos + sm_cuellos %}
+{% set gap_pct = ((metrics.gap_units / metrics.target_units) * 100) if metrics.target_units else 0 %}
+{% set cuello_pct = ((total_cuellos / total_estaciones) * 100) if total_estaciones else 0 %}
+{% set demanda_pico_pct = ((demanda_pico / demanda_total) * 100) if demanda_total else 0 %}
+{% set plan_done_pct = ((plan_summary.completado / plan_summary.total) * 100) if plan_summary.total else 0 %}
+{% set fixture_total = cadrex.fixtures_active + cadrex.fixtures_maintenance %}
+{% set fixture_maint_pct = ((cadrex.fixtures_maintenance / fixture_total) * 100) if fixture_total else 0 %}
 
 <!-- ===== FILTRADO POR GRUPO / LÍNEA ===== -->
 <div class="filters" style="margin-bottom:24px;">
@@ -53,7 +61,7 @@
     <button onclick="setGroup('sanmina', this)" class="{{ 'active' if grupo_activo == 'sanmina' else '' }}">SANMINA</button>
   </div>
   <span style="margin-left:auto;font-size:12px;color:var(--text-muted);font-weight:500">
-    {{ metrics.stations|length }} estaciones · takt {{ takt_seconds|num(0) }}s
+    {{ total_estaciones }} estaciones · takt {{ takt_seconds|num(0) }}s
   </span>
 </div>
 
@@ -66,24 +74,56 @@
 </div>
 <div class="kpi-row" style="margin-bottom:24px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">
   <div class="kpi hero">
+    <div class="kpi-meta">
+      <span class="kpi-tag production">Producción</span>
+      <span class="trend {{ 'up' if metrics.takt_utilization >= 100 else 'down' }}">{{ metrics.takt_utilization|num(1) }}% takt</span>
+    </div>
     <div class="label">Capacidad actual</div>
     <div class="value">{{ metrics.actual_units|num(1) }}<span style="font-size:14px;font-weight:500;opacity:.8"> pzs</span></div>
     <div class="note">{{ metrics.takt_utilization|num(1) }}% del objetivo takt</div>
+    <div class="kpi-detail">
+      <span class="kpi-index">Meta {{ metrics.target_units|num(1) }} pzs</span>
+      <span class="kpi-index">Turno</span>
+    </div>
   </div>
   <div class="kpi">
+    <div class="kpi-meta">
+      <span class="kpi-tag risk">Riesgo</span>
+      <span class="trend {{ 'down' if metrics.gap_units > 0 else 'up' }}">{{ gap_pct|num(1) }}% gap</span>
+    </div>
     <div class="label">Gap vs meta</div>
     <div class="value" style="color:{{ 'var(--accent-red)' if metrics.gap_units > 0 else 'var(--accent-green)' }}">{{ metrics.gap_units|num(1) }}<span style="font-size:14px;font-weight:500;color:var(--text-muted)"> pzs</span></div>
     <div class="note">Meta: {{ metrics.target_units|num(1) }} pzs/turno</div>
+    <div class="kpi-detail">
+      <span class="kpi-index">{{ 'Desmejora' if metrics.gap_units > 0 else 'En meta' }}</span>
+      <span class="kpi-index">Capacidad</span>
+    </div>
   </div>
   <div class="kpi">
+    <div class="kpi-meta">
+      <span class="kpi-tag balance">Balanceo</span>
+      <span class="trend {{ 'down' if total_cuellos > 0 else 'up' }}">{{ cuello_pct|num(1) }}% cuello</span>
+    </div>
     <div class="label">Estaciones / Cuellos</div>
-    <div class="value" style="color:var(--accent-blue)"><span id="val-estaciones">{{ metrics.stations|length }}</span><span style="font-size:14px;font-weight:500;color:var(--text-muted)"> / </span><span id="val-cuellos">{{ (nf_cuellos + sm_cuellos)|num(0) }}</span></div>
+    <div class="value" style="color:var(--accent-blue)"><span id="val-estaciones">{{ total_estaciones }}</span><span style="font-size:14px;font-weight:500;color:var(--text-muted)"> / </span><span id="val-cuellos">{{ total_cuellos|num(0) }}</span></div>
     <div class="note">NF: <span id="val-nf-cuellos">{{ nf_cuellos|num(0) }}</span> · SM: <span id="val-sm-cuellos">{{ sm_cuellos|num(0) }}</span></div>
+    <div class="kpi-detail">
+      <span class="kpi-index">Northface</span>
+      <span class="kpi-index">Sanmina</span>
+    </div>
   </div>
   <div class="kpi">
+    <div class="kpi-meta">
+      <span class="kpi-tag production">VA/NVA</span>
+      <span class="trend {{ 'up' if prod_pct >= 60 else 'warn' if prod_pct >= 45 else 'down' }}">{{ prod_pct|num(1) }}% VA</span>
+    </div>
     <div class="label">Trabajo productivo</div>
     <div class="value" style="color:var(--accent-green)">{{ prod_pct|num(1) }}%</div>
     <div class="note">de tiempo total estación</div>
+    <div class="kpi-detail">
+      <span class="kpi-index">Eficiencia</span>
+      <span class="kpi-index">Proceso</span>
+    </div>
   </div>
 </div>
 
@@ -94,19 +134,43 @@
 </div>
 <div class="kpi-row" style="margin-bottom:24px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">
   <div class="kpi">
+    <div class="kpi-meta">
+      <span class="kpi-tag material">Demanda</span>
+      <span class="trend neutral">Pico {{ demanda_pico_pct|num(1) }}%</span>
+    </div>
     <div class="label">Demanda total AFL</div>
     <div class="value" style="color:var(--accent-purple)">{{ demanda_total|num(0) }}<span style="font-size:14px;font-weight:500;color:var(--text-muted)"> u</span></div>
     <div class="note">Pico May-25: {{ demanda_pico|num(0) }} u</div>
+    <div class="kpi-detail">
+      <span class="kpi-index">AFL</span>
+      <span class="kpi-index">Plan mensual</span>
+    </div>
   </div>
   <div class="kpi">
+    <div class="kpi-meta">
+      <span class="kpi-tag material">Material</span>
+      <span class="trend {{ 'down' if kanban_crit > 0 else 'up' }}">{{ (kanban_crit + kanban_warn)|num(0) }} alertas</span>
+    </div>
     <div class="label">Alertas Kanban críticas</div>
     <div class="value" style="color:{% if kanban_crit > 0 %}var(--accent-red){% else %}var(--accent-green){% endif %}">{{ kanban_crit|num(0) }}</div>
     <div class="note">{{ kanban_warn|num(0) }} advertencia{{ 's' if kanban_warn != 1 }}</div>
+    <div class="kpi-detail">
+      <span class="kpi-index">≤3 días</span>
+      <span class="kpi-index">Abasto</span>
+    </div>
   </div>
   <div class="kpi">
+    <div class="kpi-meta">
+      <span class="kpi-tag risk">Herramental</span>
+      <span class="trend {{ 'down' if herramientas_criticas|length > 0 else 'up' }}">{{ herramientas_criticas|length|num(0) }} crítico</span>
+    </div>
     <div class="label">Herramental crítico</div>
     <div class="value" style="color:{% if herramientas_criticas|length > 0 %}var(--accent-orange){% else %}var(--accent-green){% endif %}">{{ herramientas_criticas|length|num(0) }}</div>
     <div class="note">requieren atención</div>
+    <div class="kpi-detail">
+      <span class="kpi-index">Fixtures</span>
+      <span class="kpi-index">Mantenimiento</span>
+    </div>
   </div>
 </div>
 
@@ -117,24 +181,56 @@
 </div>
 <div class="kpi-row" style="margin-bottom:28px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">
   <div class="kpi">
+    <div class="kpi-meta">
+      <span class="kpi-tag finance">Finanzas</span>
+      <span class="trend {{ 'warn' if cadrex.budget.pct > 0 else 'neutral' }}">{{ cadrex.budget.pct|num(1) }}% usado</span>
+    </div>
     <div class="label">Presupuesto $15K</div>
     <div class="value" style="color:var(--accent-orange)">{{ cadrex.budget.pct|num(1) }}%</div>
     <div class="note">${{ cadrex.budget.spent|num(0) }} / ${{ cadrex.budget.total|num(0) }}</div>
+    <div class="kpi-detail">
+      <span class="kpi-index">CAPEX</span>
+      <span class="kpi-index">ROI</span>
+    </div>
   </div>
   <div class="kpi">
+    <div class="kpi-meta">
+      <span class="kpi-tag plan">Plan</span>
+      <span class="trend {{ 'up' if plan_done_pct >= 80 else 'down' if plan_summary.alta > 0 else 'neutral' }}">{{ plan_done_pct|num(1) }}% done</span>
+    </div>
     <div class="label">Acciones plan ALTA</div>
     <div class="value" style="color:var(--accent-red)">{{ plan_summary.alta|num(0) }}</div>
     <div class="note">{{ plan_summary.total|num(0) }} total · {{ plan_summary.completado|num(0) }} completadas</div>
+    <div class="kpi-detail">
+      <span class="kpi-index">Prioridad alta</span>
+      <span class="kpi-index">Ejecución</span>
+    </div>
   </div>
   <div class="kpi">
+    <div class="kpi-meta">
+      <span class="kpi-tag fizzy">Fizzy</span>
+      <span class="trend {{ 'down' if cadrex.fixtures_maintenance > 0 else 'up' }}">{{ fixture_maint_pct|num(1) }}% mant.</span>
+    </div>
     <div class="label">Fixtures activos</div>
     <div class="value" style="color:var(--accent-green)">{{ cadrex.fixtures_active|num(0) }}</div>
     <div class="note">{{ cadrex.fixtures_maintenance|num(0) }} en mantenimiento</div>
+    <div class="kpi-detail">
+      <span class="kpi-index">Activos</span>
+      <span class="kpi-index">Tooling</span>
+    </div>
   </div>
   <div class="kpi">
+    <div class="kpi-meta">
+      <span class="kpi-tag fizzy">Cadrex</span>
+      <span class="trend {{ 'down' if cadrex.tasks_overdue > 0 else 'up' }}">{{ cadrex.tasks_overdue|num(0) }} vencidas</span>
+    </div>
     <div class="label">Proyectos / Tareas</div>
     <div class="value" style="color:var(--accent-blue)">{{ cadrex.projects_active|num(0) }}<span style="font-size:14px;font-weight:500;color:var(--text-muted)"> / </span>{{ cadrex.tasks_total|num(0) }}</div>
     <div class="note">{{ cadrex.tasks_overdue|num(0) }} tarea{{ 's' if cadrex.tasks_overdue != 1 }} vencida{{ 's' if cadrex.tasks_overdue != 1 }}</div>
+    <div class="kpi-detail">
+      <span class="kpi-index">Actividades</span>
+      <span class="kpi-index">Seguimiento</span>
+    </div>
   </div>
 </div>
 
@@ -292,18 +388,66 @@
     </div>
   </div>
   <div class="card">
-    <div class="card-head"><h3>Cadrex — Operaciones</h3></div>
+    <div class="card-head">
+      <h3>Planner Fizzy — Cadrex</h3>
+      <a href="{{ url_for('cadrex.kadrix_hq') }}" style="font-size:12px;color:var(--accent-blue);text-decoration:none;font-weight:700">Abrir HQ →</a>
+    </div>
     <div class="card-body">
-      <div class="kpi-row" style="margin-bottom:16px; grid-template-columns: repeat(3, 1fr);">
-        <div class="mini-kpi"><div class="label">Fixtures OK</div><div class="value" style="color:var(--accent-green)">{{ cadrex.fixtures_active|num(0) }}</div></div>
-        <div class="mini-kpi"><div class="label">Proyectos activos</div><div class="value" style="color:var(--accent-blue)">{{ cadrex.projects_active|num(0) }}</div></div>
-        <div class="mini-kpi"><div class="label">Tareas activas</div><div class="value" style="color:var(--accent-purple)">{{ cadrex.tasks_total|num(0) }}</div></div>
+      <div class="planner-panel">
+        <div class="planner-stats">
+          <div class="planner-stat">
+            <div class="label">Tareas abiertas</div>
+            <div class="value" style="color:var(--accent-purple)">{{ cadrex.tasks_total|num(0) }}</div>
+          </div>
+          <div class="planner-stat">
+            <div class="label">Vencidas</div>
+            <div class="value" style="color:{{ 'var(--accent-red)' if cadrex.tasks_overdue > 0 else 'var(--accent-green)' }}">{{ cadrex.tasks_overdue|num(0) }}</div>
+          </div>
+          <div class="planner-stat">
+            <div class="label">Actividades 7d</div>
+            <div class="value" style="color:var(--accent-teal)">{{ cadrex.activities_week|length|num(0) }}</div>
+          </div>
+        </div>
+
+        {% if cadrex.tasks_by_status %}
+        <div class="kpi-detail" style="margin-top:0;padding-top:0">
+          {% for st in cadrex.tasks_by_status %}
+          <span class="kpi-index">{{ st.status }} {{ st.n|num(0) }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if cadrex.planner_tasks %}
+        <div class="planner-list">
+          {% for task in cadrex.planner_tasks %}
+          <div class="planner-task">
+            <div>
+              <div class="planner-task-title">#{{ task.id }} · {{ task.title }}</div>
+              <div class="planner-task-meta">
+                <span>{{ task.status }}</span>
+                <span>{{ task.assignee }}</span>
+                <span>{{ task.due_date or 'Sin fecha' }}</span>
+              </div>
+            </div>
+            <span class="planner-priority {{ task.priority or 'medium' }}">{{ task.priority or 'medium' }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align:center;color:var(--text-muted);padding:18px;border-radius:var(--radius-md);background:var(--bg-secondary);border:1px solid var(--border-light)">
+          Sin tasks del planner. Usa <code>fizzy task-create</code> o Cadrex HQ para crear la primera.
+        </div>
+        {% endif %}
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <a class="btn btn-secondary" href="{{ url_for('cadrex.kadrix_activity') }}"><span class="material-symbols-outlined" style="font-size:16px">edit_note</span> Actividad</a>
+          <a class="btn btn-secondary" href="{{ url_for('cadrex.kadrix_hq') }}"><span class="material-symbols-outlined" style="font-size:16px">view_kanban</span> Board</a>
+        </div>
+
+        {% if cadrex.activities_week %}
+        <div class="chart-container" style="height:210px"><canvas id="chartActivities"></canvas></div>
+        {% endif %}
       </div>
-      {% if cadrex.activities_week %}
-      <div class="chart-container"><canvas id="chartActivities"></canvas></div>
-      {% else %}
-      <div style="text-align:center;color:var(--text-muted);padding:20px">Sin datos de actividades (DB no conectada)</div>
-      {% endif %}
     </div>
   </div>
 </div>

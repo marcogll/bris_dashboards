@@ -600,6 +600,8 @@ def _kpi_cadrex() -> dict:
         "projects_active": 0,
         "tasks_total": 0,
         "tasks_overdue": 0,
+        "tasks_by_status": [],
+        "planner_tasks": [],
         "activities_week": [],
         "budget": {"total": 15000, "spent": 0.0, "remaining": 15000.0, "pct": 0.0},
         "improvements": [],
@@ -640,6 +642,23 @@ def _kpi_cadrex() -> dict:
         )
         if rows:
             kpis["tasks_overdue"] = rows[0].get("n", 0) or 0
+
+        kpis["tasks_by_status"] = db_query(
+            "SELECT c.name AS status, COUNT(*) as n "
+            "FROM kadrix_tasks t JOIN kadrix_columns c ON t.column_id = c.id "
+            "GROUP BY c.id, c.name, c.position ORDER BY c.position"
+        )
+
+        kpis["planner_tasks"] = db_query(
+            "SELECT t.id, t.title, t.priority, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date, "
+            "c.name AS status, COALESCE(u.name, u.username, 'Sin asignar') AS assignee "
+            "FROM kadrix_tasks t "
+            "JOIN kadrix_columns c ON t.column_id = c.id "
+            "LEFT JOIN kadrix_users u ON t.assigned_to = u.id "
+            "WHERE c.name != 'Done' "
+            "ORDER BY FIELD(t.priority, 'critical', 'high', 'medium', 'low'), "
+            "t.due_date IS NULL, t.due_date ASC, t.updated_at DESC LIMIT 5"
+        )
 
         # Activities last 7 days
         kpis["activities_week"] = db_query(
