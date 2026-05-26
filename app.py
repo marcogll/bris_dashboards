@@ -3,6 +3,8 @@ import json
 import logging
 import os
 import shutil
+import time
+import uuid
 from datetime import datetime, timezone
 from dataclasses import dataclass
 from pathlib import Path
@@ -17,6 +19,7 @@ from flask import (
     Flask,
     Response,
     flash,
+    g,
     jsonify,
     redirect,
     render_template,
@@ -35,11 +38,24 @@ from kadrix.db import query as db_query
 # ──────────────────────────────────────────────
 #  Logging
 # ──────────────────────────────────────────────
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+REQUEST_LOG_LEVEL = os.getenv("REQUEST_LOG_LEVEL", "INFO").upper()
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    level=getattr(logging, LOG_LEVEL, logging.INFO),
+    format="%(asctime)s [%(levelname)s] %(name)s request_id=%(request_id)s %(message)s",
 )
 logger = logging.getLogger("bris_dashboard")
+
+
+class RequestIdFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        if not hasattr(record, "request_id"):
+            record.request_id = "-"
+        return True
+
+
+for _handler in logging.getLogger().handlers:
+    _handler.addFilter(RequestIdFilter())
 
 # ──────────────────────────────────────────────
 #  Config
@@ -129,8 +145,30 @@ app.config["PERMANENT_SESSION_LIFETIME"] = 60 * 60 * 8  # 8 hours
 app.register_blueprint(kadrix_bp)
 
 # ──────────────────────────────────────────────
-#  Security headers
+#  Request logging and security headers
 # ──────────────────────────────────────────────
+def _client_ip() -> str:
+    forwarded_for = request.headers.get("X-Forwarded-For", "")
+    if forwarded_for:
+        return forwarded_for.split(",")[0].strip()
+    return request.remote_addr or "-"
+
+
+def _request_log_level(status_code: int) -> int:
+    if status_code >= 500:
+        return logging.ERROR
+    if status_code >= 400:
+        return logging.WARNING
+    return getattr(logging, REQUEST_LOG_LEVEL, logging.INFO)
+
+
+@app.before_request
+def start_request_log() -> None:
+    request_id = request.headers.get("X-Request-ID") or request.headers.get("X-Correlation-ID")
+    g.request_id = (request_id or uuid.uuid4().hex[:12]).strip()
+    g.request_started_at = time.perf_counter()
+
+
 @app.after_request
 def add_security_headers(response: Response) -> Response:
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
@@ -146,6 +184,26 @@ def add_security_headers(response: Response) -> Response:
         "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
         "connect-src 'self' https://cdn.jsdelivr.net;"
     )
+    response.headers["X-Request-ID"] = getattr(g, "request_id", "-")
+
+    elapsed_ms = (time.perf_counter() - getattr(g, "request_started_at", time.perf_counter())) * 1000
+    if request.endpoint not in {"healthz", "health", "static"}:
+        logger.log(
+            _request_log_level(response.status_code),
+            (
+                "request method=%s path=%s status=%s duration_ms=%.1f ip=%s "
+                "endpoint=%s user=%s ua=%s"
+            ),
+            request.method,
+            request.full_path.rstrip("?"),
+            response.status_code,
+            elapsed_ms,
+            _client_ip(),
+            request.endpoint or "-",
+            session.get("user", "anon"),
+            (request.user_agent.string or "-")[:120],
+            extra={"request_id": getattr(g, "request_id", "-")},
+        )
     return response
 
 
@@ -505,14 +563,26 @@ def format_pct(value: float) -> str:
 # ──────────────────────────────────────────────
 @app.errorhandler(404)
 def not_found(e):
+    logger.info(
+        "not_found path=%s method=%s ip=%s",
+        request.full_path.rstrip("?"),
+        request.method,
+        _client_ip(),
+        extra={"request_id": getattr(g, "request_id", "-")},
+    )
     return render_template("errors/404.html", title=APP_TITLE), 404
 
 
 @app.errorhandler(500)
 def server_error(e):
-    import traceback
-    tb = traceback.format_exc()
-    logger.exception("Error 500: %s", tb)
+    logger.exception(
+        "server_error path=%s method=%s endpoint=%s ip=%s",
+        request.full_path.rstrip("?"),
+        request.method,
+        request.endpoint or "-",
+        _client_ip(),
+        extra={"request_id": getattr(g, "request_id", "-")},
+    )
     return render_template("errors/500.html", title=APP_TITLE), 500
 
 
