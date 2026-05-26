@@ -1091,7 +1091,53 @@ def favicon():
 
 @app.route("/service-worker.js")
 def service_worker():
-    return send_file(BASE_DIR / "templates" / "service-worker.js", mimetype="application/javascript")
+    cache_name = "vanity-pwa-cache-v3-cadrex-prefix"
+    js = f"""
+const CACHE_NAME = {json.dumps(cache_name)};
+const ASSETS_TO_CACHE = [
+  {json.dumps(url_for('dashboard'))},
+  {json.dumps(url_for('static', filename='css/dashboard.css'))},
+  {json.dumps(url_for('static', filename='logo_cadrex.png'))}
+];
+
+self.addEventListener('install', event => {{
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => Promise.allSettled(ASSETS_TO_CACHE.map(url => cache.add(url).catch(() => null))))
+      .then(() => self.skipWaiting())
+  );
+}});
+
+self.addEventListener('activate', event => {{
+  event.waitUntil(
+    caches.keys().then(cacheNames => Promise.all(
+      cacheNames.map(cache => cache !== CACHE_NAME ? caches.delete(cache) : null)
+    ))
+  );
+  return self.clients.claim();
+}});
+
+self.addEventListener('fetch', event => {{
+  if (event.request.method !== 'GET') return;
+  if (!event.request.url.startsWith(self.location.origin)) return;
+  event.respondWith(
+    fetch(event.request)
+      .then(response => {{
+        if (response && response.status === 200 && response.type === 'basic') {{
+          const resClone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, resClone));
+        }}
+        return response;
+      }})
+      .catch(() => caches.match(event.request).then(cachedResponse => cachedResponse || new Response('Offline and resource not cached.', {{
+        status: 503,
+        statusText: 'Service Unavailable',
+        headers: new Headers({{ 'Content-Type': 'text/plain' }})
+      }})))
+  );
+}});
+"""
+    return Response(js, mimetype="application/javascript")
 
 
 # ──────────────────────────────────────────────
