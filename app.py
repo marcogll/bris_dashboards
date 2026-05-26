@@ -1081,12 +1081,47 @@ def api_notifications() -> Response:
 
 @app.route("/manifest.json")
 def manifest() -> Response:
-    return send_file(BASE_DIR / "static" / "manifest.json", mimetype="application/json")
+    start_url = os.getenv("PWA_START_URL", url_for("dashboard"))
+    scope = os.getenv("PWA_SCOPE", start_url)
+    icon_url = url_for("static", filename="cadrex_pwa_icon.jpg")
+    return jsonify(
+        {
+            "name": "Cadrex Dashboard",
+            "short_name": "Cadrex",
+            "description": "Cadrex Production Dashboard",
+            "start_url": start_url,
+            "scope": scope,
+            "display": "standalone",
+            "background_color": "#eff1f5",
+            "theme_color": "#1e66f5",
+            "orientation": "portrait-primary",
+            "icons": [
+                {
+                    "src": icon_url,
+                    "sizes": "626x626",
+                    "type": "image/jpeg",
+                    "purpose": "any maskable",
+                },
+                {
+                    "src": icon_url,
+                    "sizes": "512x512",
+                    "type": "image/jpeg",
+                    "purpose": "any maskable",
+                },
+                {
+                    "src": icon_url,
+                    "sizes": "192x192",
+                    "type": "image/jpeg",
+                    "purpose": "any maskable",
+                },
+            ],
+        }
+    )
 
 
 @app.route("/favicon.ico")
 def favicon():
-    return send_file(BASE_DIR / "static" / "logo_cadrex.png", mimetype="image/png")
+    return send_file(BASE_DIR / "static" / "cadrex_pwa_icon.jpg", mimetype="image/jpeg")
 
 
 @app.route("/service-worker.js")
@@ -1097,7 +1132,7 @@ const CACHE_NAME = {json.dumps(cache_name)};
 const ASSETS_TO_CACHE = [
   {json.dumps(url_for('dashboard'))},
   {json.dumps(url_for('static', filename='css/dashboard.css'))},
-  {json.dumps(url_for('static', filename='logo_cadrex.png'))}
+  {json.dumps(url_for('static', filename='cadrex_pwa_icon.jpg'))}
 ];
 
 self.addEventListener('install', event => {{
